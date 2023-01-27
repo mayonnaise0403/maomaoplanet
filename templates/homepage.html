@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/sign-in/">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+  <link rel="stylesheet" href="style/homepage.css">
+  <title>毛毛星球</title>
+</head>
+
+<body>
+  <div class="container" id="login-container">
+    <p class="login-title">會員登入</p>
+    <div class="form-floating">
+      <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com">
+      <label for="floatingInput">Email address</label>
+    </div>
+    <div class="form-floating">
+      <input type="password" class="form-control" id="floatingPassword" placeholder="Password">
+      <label for="floatingPassword">Password</label>
+    </div>
+    <p class="login-btn">登入</p>
+    <p class="signup-btn">註冊帳號</p>
+  </div>
+
+
+  <div class="container" id="signup-container">
+    <p class="login-title">會員註冊</p>
+    <div class="form-floating">
+      <input type="email" class="form-control" id="signupName" placeholder="name@example.com">
+      <label for="floatingInput">nickname</label>
+      <p class="signup-error-msg" id="signup-name-error-msg"></p>
+    </div>
+    <div class="form-floating">
+      <input type="email" class="form-control" id="signupEmail" placeholder="name@example.com">
+      <label for="floatingInput">Email address</label>
+      <p class="signup-error-msg" id="signup-email-error-msg"></p>
+    </div>
+    <div class="form-floating">
+      <input type="password" class="form-control" id="signupPassword" placeholder="Password">
+      <label for="floatingPassword">Password</label>
+    </div>
+    <div class="form-floating">
+      <input type="password" class="form-control" id="confirm-password" placeholder="Password">
+      <label for="floatingPassword">Confirm password</label>
+      <p class="signup-error-msg" id="signup-password-error-msg"></p>
+    </div>
+    <p class="login-btn" id="signup-btn">註冊</p>
+    <p class="had-account-btn">已有帳號了嗎? 點擊登入</p>
+  </div>
+
+
+  <div class="container" id="email-verification-container">
+    <p class="login-title">Email驗證</p>
+
+    <div class="form-floating">
+      <p class="user-email"></p>
+      <input type="email" class="form-control" id="code-input" placeholder="name@example.com">
+      <label for="floatingInput">請輸入驗證碼</label>
+      <p class="verification-error-msg"></p>
+    </div>
+    <p class="login-btn" id="email-verification-btn">輸入</p>
+  </div>
+</body>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+  integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"
+  integrity="sha384-mQ93GR66B00ZXjt0YO5KlohRA5SY2XofN4zfuZxLkoj1gXtW8ANNCe9d5Y3eG5eD" crossorigin="anonymous"></script>
+<script type="text/javascript" src="scripts/homepage.js"></script>
+
+
+</html>

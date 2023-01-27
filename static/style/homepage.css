@@ -1,0 +1,105 @@
+* {
+    padding: 0px;
+    margin: 0px;
+}
+
+body {
+    background-color: rgb(147, 197, 253);
+    font-family: Lato,
+        'Noto Sans TC',
+        'PingFang TC',
+        'Helvetica Neue',
+        'SF Pro TC',
+        Helvetica,
+        arial,
+        'Microsoft JhengHei',
+        'Microsoft YaHei',
+        sans-serif;
+}
+
+.container {
+    width: 500px;
+    background-color: white;
+    margin: auto;
+    margin-top: 100px;
+    border-radius: 15px;
+}
+
+#signup-container {
+    width: 500px;
+    background-color: white;
+    margin: auto;
+    margin-top: 100px;
+    border-radius: 15px;
+}
+
+.login-title {
+
+    text-align: center;
+    font-size: 40px;
+    padding-top: 20px;
+}
+
+.login-btn {
+    text-align: center;
+    background-color: rgb(83, 163, 255);
+    width: 100px;
+    margin: auto;
+    padding: 10px;
+    margin-top: 30px;
+    border-radius: 20px;
+    color: white;
+    font-weight: bolder;
+    cursor: pointer;
+}
+
+.login-btn:hover {
+    transform: scale(1.1);
+}
+
+.form-floating {
+    width: 400px;
+    margin: auto;
+    margin-bottom: 20px;
+}
+
+.signup-btn {
+    text-align: center;
+    margin-top: 10px;
+    cursor: pointer;
+    font-weight: bolder;
+    padding-bottom: 10px;
+
+}
+
+.signup-btn:hover {
+    color: rgb(83, 163, 255);
+    transform: scale(1.1);
+}
+
+#signup-container {
+    display: none;
+}
+
+.had-account-btn {
+    text-align: center;
+    margin-top: 10px;
+    cursor: pointer;
+    font-weight: bolder;
+    padding-bottom: 10px;
+
+}
+
+.had-account-btn:hover {
+    color: rgb(83, 163, 255);
+    transform: scale(1.1);
+}
+
+.signup-error-msg {
+    color: red;
+    font-weight: bolder;
+}
+
+#email-verification-container {
+    display: none;
+}

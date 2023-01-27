@@ -1,0 +1,39 @@
+@keyframes slideInFromTop {
+    from {
+        transform: translate(-50%, -900%);
+    }
+
+    to {
+        transform: translate(-50%, -50%);
+    }
+}
+
+.add-friend-status-popup {
+    position: absolute;
+    height: 100px;
+    top: 60px;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0 auto;
+    background-color: white;
+    border-radius: 10px;
+    width: 30%;
+    border: 2px solid black;
+    display: none;
+    /* animation: slideInFromTop 0.5s ease-in-out; */
+
+}
+
+.add-friend-status {
+    color: rgb(0, 173, 0);
+    font-weight: bolder;
+    font-size: 35px;
+    text-align: center;
+    top: 50%;
+    left: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+}

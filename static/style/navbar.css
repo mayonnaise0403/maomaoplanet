@@ -1,0 +1,28 @@
+.navbar {
+    display: flex;
+    background-color: rgb(83, 163, 255);
+}
+
+.left-navbar {
+    width: 50%;
+}
+
+.left-navbar p {
+    color: white;
+    font-size: 30px;
+    font-weight: bolder;
+    padding: 5px;
+}
+
+.right-navbar {
+    width: 50%;
+
+}
+
+.right-navbar p {
+    color: white;
+    font-size: 30px;
+    font-weight: bolder;
+    padding: 5px;
+    text-align: right;
+}

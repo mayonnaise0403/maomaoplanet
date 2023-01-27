@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style/navbar.css">
+    <link rel="stylesheet" href="style/member.css">
+    <link rel="stylesheet" href="style/profile_page.css">
+    <link rel="stylesheet" href="style/friendpage_popup.css">
+    <title>Document</title>
+</head>
+
+<body>
+    <div class="navbar">
+        <div class="left-navbar">
+            <p>毛毛星球</p>
+        </div>
+        <div class="right-navbar">
+            <p class="self-id"></p>
+            <p>登陸狀態</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="left-content">
+            <img class="profile-btn" src="./images/headshot.png" />
+            <img class="pc-icon" id="friend-icon" src="./images/friends.png" />
+            <img class="pc-icon" id="chat-icon" src="./images/chat.png" />
+        </div>
+
+        <div class="right-content" id="profile-page">
+            <div class="profile-page-left-content">
+            </div>
+
+            <div class="profile-page-left-content">
+            </div>
+        </div>
+
+
+        <div class="right-content" id="friend-page">
+            <div class="search-bar">
+                <input class="search-friend" id="search-friend" type="text" placeholder="輸入好友名稱或Email來搜尋好友" />
+                <img class="search-friend-btn" src="./images/search.png" />
+                <img class="add-friend-btn" src="./images/add-friend.png">
+            </div>
+            <div class="friend-list">
+            </div>
+
+        </div>
+
+        <div class="right-content" id="chat-page">
+            <p>this is chat page</p>
+        </div>
+    </div>
+
+
+    <div class="friend-popup">
+        <img class="friend-popup-close" src="./images/close.png" />
+        <img class="friend-popup-headshot" src="./images/user.png" />
+        <p class="friend-nickname"></p>
+        <p class="friend-user_id"></p>
+        <img class="friend-popup-chatbox" src="./images/chat-box.png" />
+    </div>
+
+    <div class="search-friend-popup">
+        <div class="search-friend-popup-content">
+            <img class="popup-close-btn" src="./images/close.png" />
+            <div class="search-bar">
+                <input class="search-friend" id="add-friend-popup-input" type="text" placeholder="輸入用戶的姓名或Email來加好友" />
+                <img class="search-friend-btn" id="add-friend-popup-btn" src="./images/search.png" />
+            </div>
+            <img class="search-friend-popup-image" src="./images/search-image.png">
+            <img class="search-empty-image" src="./images/search-empty.png" />
+            <div class="search-friend-popup-result">
+            </div>
+        </div>
+
+    </div>
+
+    <div class="chat-container">
+        <img class="chat-container-close-btn" src="./images/close.png" />
+        <p class="chat-friend-name"></p>
+        <p class="chat-friend-user_id"></p>
+        <div class="chat-message">
+        </div>
+        <div class="input-container">
+            <input class="message-input" type="text" />
+            <p class="send-message">送出</p>
+        </div>
+
+    </div>
+
+    <div class="add-friend-status-popup">
+        <p class="add-friend-status"></p>
+    </div>
+
+    <script src="socket.io/socket.io.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/socket.io-client@2/dist/socket.io.js"></script> -->
+    <script type="text/javascript" src="scripts/left_content.js"></script>
+    <script type="text/javascript" src="scripts/profile_page.js"></script>
+    <script type="text/javascript" src="scripts/member_page.js"></script>
+</body>
+
+</html>

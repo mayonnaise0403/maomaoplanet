@@ -1,0 +1,386 @@
+* {
+    padding: 0px;
+    margin: 0px;
+}
+
+body {
+    position: relative;
+}
+
+
+.container {
+    display: flex;
+}
+
+.left-content {
+    width: 90px;
+}
+
+.pc-icon {
+    width: 70px;
+    margin: 10px;
+    cursor: pointer;
+}
+
+.pc-icon:hover {
+    transform: scale(1.1);
+}
+
+.right-content {
+    width: 100%;
+    background-color: rgb(119, 181, 252);
+    height: 100vh;
+}
+
+.search-bar {
+    margin-top: 10px;
+    margin-left: 10px;
+    display: flex;
+    justify-content: center;
+}
+
+.search-friend {
+    outline: none;
+    width: 400px;
+    height: 40px;
+    font-size: 20px;
+    padding-left: 5px;
+    border-radius: 10px;
+}
+
+
+.search-friend-btn {
+    width: 50px;
+    height: 45px;
+    align-items: center;
+    cursor: pointer;
+    margin-left: 3px;
+}
+
+.search-friend-btn:hover {
+    transform: scale(1.1);
+}
+
+.add-friend-btn {
+    width: 50px;
+    cursor: pointer;
+}
+
+.add-friend-btn:hover {
+    transform: scale(1.1);
+}
+
+.search-friend-popup {
+    display: none;
+    width: 100%;
+    height: 300px;
+    position: fixed;
+    top: 100px;
+    left: auto;
+}
+
+.popup-close-btn {
+    display: flex;
+    width: 40px;
+    margin-left: auto;
+    padding-top: 10px;
+    padding-right: 10px;
+    cursor: pointer;
+}
+
+.popup-close-btn:hover {
+    transform: scale(1.1);
+}
+
+.search-title {
+    font-size: 30px;
+    font-weight: bolder;
+    text-align: center;
+}
+
+.search-friend-popup-content {
+    width: 600px;
+    background-color: white;
+    height: 500px;
+    margin: auto;
+    border-radius: 10px;
+    border: 2px solid black;
+
+}
+
+
+.search-friend-popup-result {
+    height: 380px;
+    overflow: scroll;
+    overflow-x: hidden;
+}
+
+
+
+.search-friend-popup-result::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+    background-color: #eaeaea00;
+    border-radius: 10px;
+}
+
+.search-friend-popup-result::-webkit-scrollbar-thumb {
+    background-color: rgb(194, 194, 194);
+    border-radius: 10px;
+}
+
+
+.search-friend-popup-result::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(156, 156, 156);
+}
+
+.search-friend-popup-content p {
+    text-align: center;
+}
+
+#add-friend-btn {
+    width: 40px;
+    display: block;
+    margin: auto;
+    cursor: pointer;
+}
+
+#add-friend-btn:hover {
+    transform: scale(1.1);
+}
+
+#chat-page {
+    display: none;
+}
+
+.friend {
+    display: flex;
+    border: 1px black solid;
+    cursor: pointer;
+    border-radius: 10px;
+    background-color: white;
+}
+
+.friend p {
+    display: flex;
+    /* 啟用 flexbox */
+    align-items: center;
+    /* 垂直置中 */
+    justify-content: center;
+    /* 水平置中 */
+}
+
+#friend-headshot {
+    width: 50px;
+}
+
+.friend-list {
+    width: 40%;
+    margin: auto;
+    margin-top: 15px;
+}
+
+
+body::-webkit-scrollbar {
+    width: 12px;
+}
+
+body::-webkit-scrollbar-thumb {
+    background-color: rgb(194, 194, 194);
+    ;
+    border-radius: 15px;
+}
+
+body::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(156, 156, 156);
+}
+
+
+.friend-popup {
+    display: none;
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0 auto;
+    background-color: white;
+    border-radius: 10px;
+    width: 30%;
+    border: 2px solid black;
+}
+
+.friend-popup-headshot {
+    width: 100px;
+    display: block;
+    margin: auto;
+    margin-top: 100px;
+}
+
+.friend-popup-chatbox {
+    width: 50px;
+    display: block;
+    margin: auto;
+    margin-top: 100px;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+
+.friend-popup-chatbox:hover {
+    transform: scale(1.1);
+}
+
+.friend-nickname {
+    text-align: center;
+    font-weight: bolder;
+    font-size: 40px;
+}
+
+.friend-popup-close {
+    display: block;
+    width: 50px;
+    float: right;
+    margin-top: 10px;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+.friend-popup-close:hover {
+    transform: scale(1.1);
+}
+
+.chat-container {
+    width: 600px;
+    height: 700px;
+    background-color: white;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0 auto;
+    border-radius: 10px;
+    border: solid 3px black;
+    display: none;
+
+}
+
+.chat-container-close-btn {
+    display: block;
+    width: 50px;
+    float: right;
+    margin-top: 10px;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+.chat-container-close-btn:hover {
+    transform: scale(1.1);
+}
+
+.input-container {
+    display: flex;
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.message-input {
+    width: 400px;
+    outline: none;
+    border: 2px solid black;
+    border-radius: 10px;
+    font-size: 20px;
+    padding: 5px;
+}
+
+.send-message {
+    width: 50px;
+    cursor: pointer;
+    background-color: rgb(119, 181, 252);
+    color: white;
+    font-weight: bolder;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 10px;
+}
+
+.send-message:hover {
+    transform: scale(1.1);
+}
+
+.chat-friend-name {
+    margin-top: 50px;
+    font-size: 30px;
+    font-weight: bolder;
+    margin-left: 10px;
+}
+
+.friend-user_id {
+    color: white;
+}
+
+.chat-friend-user_id {
+    color: white;
+}
+
+.self-id {
+    display: none;
+}
+
+.chat-message {
+    width: 80%;
+    margin: auto;
+    padding-top: 20px;
+    height: 70%;
+    overflow: scroll;
+    overflow-x: hidden;
+}
+
+.chat-message::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+    background-color: #eaeaea00;
+    border-radius: 10px;
+}
+
+.chat-message::-webkit-scrollbar-thumb {
+    background-color: rgb(156, 156, 156);
+    border-radius: 10px;
+}
+
+.chat-message-font {
+    color: black;
+    font-weight: bolder;
+    font-size: 25px;
+    padding: 10px;
+    display: block;
+    /* min-width: fit-content; */
+    background-color: rgb(119, 181, 252);
+    width: fit-content;
+    border-radius: 20px;
+    margin-bottom: 10px;
+    max-width: 200px;
+    word-wrap: break-word;
+
+
+    /* 靠右 */
+    /* margin-right:0px;
+    margin-left:auto; */
+}
+
+.search-empty-image {
+    width: 200px;
+    text-align: center;
+    margin: auto;
+    display: none;
+}
+
+.search-friend-popup-image {
+    width: 340px;
+    text-align: center;
+    margin: auto;
+    margin-top: 20px;
+}
