@@ -1,0 +1,79 @@
+body {
+    font-family: "Noto Sans TC",
+        "微軟正黑體",
+        sans-serif;
+    ;
+}
+
+#chat-page {
+    display: none;
+    background-color: rgb(119, 181, 252);
+    margin-top: 0px;
+    margin-left: 0px;
+    min-height: 100vh;
+
+
+}
+
+.chat-list-container {
+    margin-left: 100px;
+    margin-top: 50px;
+}
+
+.chat-list {
+    display: flex;
+    background-color: white;
+    width: 500px;
+    padding: 5px;
+    border: 1px solid black;
+    margin: auto;
+    cursor: pointer;
+    position: relative;
+}
+
+.chat-list:hover {
+    transform: scale(1.03);
+}
+
+.is-add-friend-to-stranger {
+    position: fixed;
+    width: 300px;
+    height: 90px;
+    background-color: white;
+    top: 70px;
+    left: 50%;
+    transform: translate(-50%, 0);
+    border-radius: 10px;
+    border: 2px solid black;
+    z-index: 2000;
+}
+
+.is-add-friend-title {
+    text-align: center;
+    font-weight: bolder;
+    margin-top: 5px;
+    font-size: 20px;
+}
+
+.is-add-friend-to-stranger {
+    display: none;
+}
+
+.is-add-friend-container {
+    display: flex;
+    margin-top: 20px;
+    justify-content: space-around;
+}
+
+.is-add-friend-container p {
+    font-weight: bolder;
+    background-color: rgb(119, 181, 252);
+    padding: 5px;
+    color: white;
+    border-radius: 10px;
+}
+
+.is-add-friend-container p:hover {
+    cursor: pointer;
+    transform: scale(1.1);
+}

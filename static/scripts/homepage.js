@@ -16,6 +16,10 @@ const emailVerification = document.querySelector("#email-verification-container"
 const emailCodeInput = document.querySelector("#code-input");
 const verificationEmailErrorMsg = document.querySelector(".verification-error-msg");
 const emailRule = /^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z]+$/;
+const signupPopupMsg = document.querySelector(".signup-popup-error-msg");
+const signupPopup = document.querySelector(".sign-successful-popup");
+const signupPopupBtn = document.querySelector(".signup-popup-btn");
+const loginErrorMsg = document.querySelector(".login-error-msg");
 
 
 let signupName = document.querySelector("#signupName");
@@ -46,8 +50,11 @@ loginBtn.addEventListener("click", () => {
             return response.json();
         })
         .then((data) => {
+            console.log(data)
             if (data.status === "success") {
                 window.location.href = "/member";
+            } else {
+                loginErrorMsg.style.display = "block";
             }
         })
 
@@ -113,7 +120,31 @@ async function uploadDatabase() {
                 let code = data.code;
                 emailVerificationBtn.addEventListener("click", () => {
                     if (emailCodeInput.value === code) {
-                        window.location = "/member"
+                        fetch("/confirm_signup", {
+                            method: "POST",
+                            body: JSON.stringify({
+                                'nickname': signupName,
+                                "email": signupEmail,
+                                "password": signupPassword
+                            })
+                            , headers: {
+                                'Content-type': 'application/json; charset=UTF-8',
+                            }
+                        })
+                            .then((response) => {
+                                return response.json();
+                            })
+                            .then((data) => {
+                                if (data.status === "success") {
+                                    signupPopup.style.display = "block";
+                                    signupPopupMsg.innerHTML = "✅註冊成功";
+                                    signupPopupMsg.style.color = "rgb(12, 194, 12)";
+                                } else {
+
+                                    //////////////////////////////////////////
+                                }
+                            })
+
                     }
                     else {
                         verificationEmailErrorMsg.innerHTML = "驗證碼輸入錯誤";
@@ -125,6 +156,10 @@ async function uploadDatabase() {
         return false;
     }
 }
+
+signupPopupBtn.addEventListener("click", () => {
+    window.location.href = "/";
+})
 
 function checkSignupData() {
     signupName = document.querySelector("#signupName").value;

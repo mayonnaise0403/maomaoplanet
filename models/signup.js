@@ -1,18 +1,19 @@
 const pool = require("../database_connect").pool;
+const dotenv = require("dotenv");
+dotenv.config();
 let mysqlQuery, values, result;
 
 class Signup {
 
-    addSignupData(nickname, email, password) {
-        mysqlQuery = 'INSERT INTO member(nickname,email,password) VALUES(?,?,?);';
-        values = [nickname, email, password];
-        pool.query(mysqlQuery, values, (error, results) => {
-            if (error) {
-                console.log("error");
-                console.log(error.message);
-            }
+    async addSignupData(nickname, email, password) {
+        try {
+            const mysqlQuery = 'INSERT INTO member(nickname,email,password,headshot) VALUES(?,?,?,?);';
+            const values = [nickname, email, password, `${process.env.S3_Url}default_headshot.png`];
+            const results = await pool.query(mysqlQuery, values);
             console.log(results);
-        })
+        } catch (error) {
+            console.error("error:", error.message);
+        }
     }
 
     async checkEmail(email) {

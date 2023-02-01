@@ -6,18 +6,23 @@ Search = new Search();
 const secretKey = process.env.Jwt_Secrect_Key;
 
 
-router.post("/add_friend", (req, res) => {
+router.post("/add_friend", async (req, res) => {
     const token = req.cookies.access_token;
     const decoded = jwt.decode(token, secretKey);
     const email = req.body.email;
+    const friend_id = req.body.friend_id;
     try {
-        findfriendId(email)
-            .then(async (result) => {
-                await Search.addFriend(decoded.userId, result);
-                res.status(200).send({ status: "success", message: "加好友成功" });
+        if (email) {
+            findfriendId(email)
+                .then(async (result) => {
+                    await Search.addFriend(decoded.userId, result);
+                    res.status(200).send({ status: "success", message: "加好友成功" });
 
-            })
-
+                })
+        } else {
+            await Search.addFriend(decoded.userId, friend_id);
+            res.status(200).send({ status: "success", message: "加好友成功" });
+        }
     } catch (err) {
         res.status(500).send({ status: "error", message: "內部伺服器出現錯誤" })
     }

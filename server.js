@@ -5,6 +5,7 @@ const db = require("./database_connect");
 const signupRouter = require('./api/signup_login_api');
 const searchRouter = require("./api/search_api");
 const messageRouter = require("./api/message_api");
+const memberRouter = require("./api/member_api");
 const app = express();
 const http = require('http').Server(app);
 
@@ -14,6 +15,8 @@ const io = require("socket.io")(http);
 let Message = require("./models/message").Message;
 Message = new Message();
 
+
+app.use("/", memberRouter);
 app.use('/', signupRouter);
 app.use('/', searchRouter);
 app.use("/", messageRouter);
@@ -24,12 +27,19 @@ app.use(express.static(path.join(__dirname, 'static')));
 
 io.on('connection', (socket) => {
 
-    socket.on('send-message', (msg, room) => {
+
+
+    socket.on('send-message', async (msg, room) => {
+        await Message.storeMessage(msg.user_id, msg.friend_id, msg.message);
         socket.to(room).emit("receive-message", msg);
-        Message.storeMessage(msg.user_id, msg.friend_id, msg.message);
     });
 
-    socket.on("join-self-room", (room) => {
+    socket.on('read-message', async (room) => {
+        socket.to(room).emit("receive-read-message")
+    })
+
+
+    socket.on("join-self-room", async (room) => {
         socket.join(`user${room}`);
     });
 
@@ -37,21 +47,15 @@ io.on('connection', (socket) => {
 
 
 app.get("/", (req, res) => {
-    console.log("123")
     res.render('homepage.html');
 })
-
-
-
 
 
 app.get("/*", (req, res) => {
 
 })
 
-// server.listen(4040, () => {
-//     "success"
-// })
+
 
 http.listen(port, (err) => {
     if (err) {

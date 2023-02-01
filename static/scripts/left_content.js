@@ -5,6 +5,12 @@ const friendIcon = document.querySelector("#friend-icon");
 const chatIcon = document.querySelector("#chat-icon");
 const profileIcon = document.querySelector(".profile-btn");
 
+
+// 初始畫面
+profilePage.style.display = "block";
+friendPage.style.display = "none";
+chatPage.style.display = "none";
+
 profileIcon.addEventListener("click", () => {
     profilePage.style.display = "block";
     friendPage.style.display = "none";

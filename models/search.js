@@ -8,7 +8,8 @@ class Search {
         mysqlQuery = 'SELECT \
                     member.nickname,\
                     member.user_id,\
-                    member.email\
+                    member.email,\
+                    member.headshot\
                 FROM member\
                 WHERE member.user_id NOT IN(\
                 SELECT user_friend_id\
@@ -22,7 +23,6 @@ class Search {
         } catch (error) {
             console.log(error.message);
         }
-        console.log(result)
         return result;
 
     }
@@ -75,7 +75,7 @@ class Search {
     }
 
     async getFriendList(userId) {
-        mysqlQuery = 'select member.nickname, member.user_id from member inner join friend_list on friend_list.user_id = ? AND user_friend_id = member.user_id;';
+        mysqlQuery = 'select member.nickname, member.user_id,member.headshot from member inner join friend_list on friend_list.user_id = ? AND user_friend_id = member.user_id;';
         values = [userId];
         try {
             const queryResults = await pool.query(mysqlQuery, values);

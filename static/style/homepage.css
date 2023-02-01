@@ -103,3 +103,56 @@ body {
 #email-verification-container {
     display: none;
 }
+
+.sign-successful-popup {
+    position: fixed;
+    width: 500px;
+    height: 200px;
+    z-index: 2000;
+    background-color: white;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 10px;
+    border: 3px solid black;
+    text-align: center;
+    display: none;
+}
+
+.signup-popup-error-msg {
+    font-size: 30px;
+    font-weight: bolder;
+    margin-top: 30px;
+}
+
+.signup-popup-btn {
+    padding: 5px;
+    font-size: 25px;
+    color: white;
+    font-weight: bolder;
+    background-color: rgb(83, 163, 255);
+    width: 60px;
+    margin: auto;
+    border-radius: 10px;
+    margin-top: 50px;
+    cursor: pointer;
+
+}
+
+.signup-popup-btn:hover {
+    transform: scale(1.1);
+}
+
+.login-error-msg {
+    text-align: center;
+    font-size: 20px;
+    color: red;
+    font-weight: bolder;
+    display: none;
+}
+
+.verification-error-msg {
+    color: red;
+    font-size: 20px;
+    font-weight: bolder;
+}

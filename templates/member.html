@@ -8,7 +8,8 @@
     <link rel="stylesheet" href="style/navbar.css">
     <link rel="stylesheet" href="style/member.css">
     <link rel="stylesheet" href="style/profile_page.css">
-    <link rel="stylesheet" href="style/friendpage_popup.css">
+    <link rel="stylesheet" href="style/friendpage.css">
+    <link rel="stylesheet" href="style/chat_page.css">
     <title>Document</title>
 </head>
 
@@ -23,20 +24,106 @@
         </div>
     </div>
 
+    <div class="darker">
+    </div>
+    <div class="loadingio-spinner-bean-eater-mflx48p4y5f" id="loader">
+        <div class="ldio-lsaa2rq7ukb">
+            <div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+            <div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="loader-darker">
+    </div>
+
+    <div class="loader-container">
+        <div class="loadingio-spinner-wedges-geuddg8cb6h">
+            <div class="ldio-2wshb02l3sa">
+                <div>
+                    <div>
+                        <div></div>
+                    </div>
+                    <div>
+                        <div></div>
+                    </div>
+                    <div>
+                        <div></div>
+                    </div>
+                    <div>
+                        <div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+    <div class="profile-page-confirm-email-popup">
+        <img class="profile-page-confirm-email-close" src="./images/close.png" />
+        <p class="profile-page-confirm-email-title">信箱驗證</p>
+        <input class="profile-page-confirm-email-input" type="text" />
+        <p class="profile-page-confirm-email-btn">送出</p>
+    </div>
+
+    <div class="profile-page-confirm-email-success-popup">
+        <img class="profile-page-confirm-email-success-close" src="./images/close.png" />
+        <p class="profile-page-confirm-email-success-font"></p>
+    </div>
+
     <div class="container">
         <div class="left-content">
-            <img class="profile-btn" src="./images/headshot.png" />
+            <img class="profile-btn" src="./images/profile.png" />
             <img class="pc-icon" id="friend-icon" src="./images/friends.png" />
             <img class="pc-icon" id="chat-icon" src="./images/chat.png" />
         </div>
 
         <div class="right-content" id="profile-page">
-            <div class="profile-page-left-content">
-            </div>
+            <div class="profile-page">
+                <div class="profile-title">個人檔案</div>
+                <div class="profile-page-left-content">
+                    <img class="headshot" />
+                    <input type="file" class="img-file" accept="image/*">
+                    <p class="upload-image-btn">選擇檔案</p>
+                    <p class="upload-btn">確定上傳</p>
+                    <img class="upload-image-close" src="./images/delete.png" />
+                    <img class="headshot-edit" src="./images/camera.png" />
+                </div>
+                <div class="profile-page-right-content">
+                    <div class="profile-data">
+                        <p>姓名&nbsp;&nbsp;:&nbsp;&nbsp;</p>
+                        <p class="profile-name-content"></p>
+                        <input class="name-input" type="text" />
+                        <img class="name-edit" src="./images/pencil.png" />
+                        <img class="name-ok" src="./images/check.png" />
+                        <img class="name-close" src="./images/delete.png" />
+                    </div>
+                    <div class="profile-data">
+                        <p>信箱&nbsp;&nbsp;:&nbsp;&nbsp;</p>
+                        <p class="profile-email-content"></p>
+                        <input class="email-input" type="text" />
+                        <img class="email-edit" src="./images/pencil.png" />
+                        <img class="email-ok" src="./images/check.png" />
+                        <img class="email-close" src="./images/delete.png" />
+                        <p class="profile-email-content-error-msg">信箱已被使用過</p>
+                    </div>
 
-            <div class="profile-page-left-content">
+
+                </div>
             </div>
         </div>
+
 
 
         <div class="right-content" id="friend-page">
@@ -51,8 +138,21 @@
         </div>
 
         <div class="right-content" id="chat-page">
-            <p>this is chat page</p>
+            <div class="chat-list-container">
+            </div>
+
         </div>
+
+        <div class="is-add-friend-to-stranger">
+            <p class="is-add-friend-title">要加對方為好友嗎?</p>
+            <div class="is-add-friend-container">
+                <p class="is-add-friend-ok-btn">好的</p>
+                <p class="is-add-friend-no-btn">取消</p>
+            </div>
+        </div>
+
+
+
     </div>
 
 
@@ -70,6 +170,7 @@
             <div class="search-bar">
                 <input class="search-friend" id="add-friend-popup-input" type="text" placeholder="輸入用戶的姓名或Email來加好友" />
                 <img class="search-friend-btn" id="add-friend-popup-btn" src="./images/search.png" />
+
             </div>
             <img class="search-friend-popup-image" src="./images/search-image.png">
             <img class="search-empty-image" src="./images/search-empty.png" />
@@ -96,11 +197,13 @@
         <p class="add-friend-status"></p>
     </div>
 
+
     <script src="socket.io/socket.io.js"></script>
     <!-- <script src="https://cdn.jsdelivr.net/npm/socket.io-client@2/dist/socket.io.js"></script> -->
     <script type="text/javascript" src="scripts/left_content.js"></script>
     <script type="text/javascript" src="scripts/profile_page.js"></script>
     <script type="text/javascript" src="scripts/member_page.js"></script>
+    <script type="text/javascript" src="scripts/chat_page.js"></script>
 </body>
 
 </html>
