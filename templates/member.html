@@ -128,19 +128,65 @@
 
         <div class="right-content" id="friend-page">
             <div class="search-bar">
-                <input class="search-friend" id="search-friend" type="text" placeholder="輸入好友名稱或Email來搜尋好友" />
-                <img class="search-friend-btn" src="./images/search.png" />
+                <input class="search-friend" id="search-friend" type="text" placeholder="輸入好友名稱來搜尋好友" />
+                <img class="search-friend-btn" id="search-friend-btn" src="./images/search.png" />
                 <img class="add-friend-btn" src="./images/add-friend.png">
             </div>
+            <div class="search-result-list-close-container">
+                <img class="search-result-list-close" src="./images/delete.png">
+            </div>
+            <div class="search-result-list">
+
+            </div>
+
             <div class="friend-list">
+            </div>
+
+            <div class="group-list">
             </div>
 
         </div>
 
         <div class="right-content" id="chat-page">
+            <div class="add-group-chat-container">
+                <div class="add-group-btn">
+                    <img class="add-group-chat-icon" src="./images/add.png">
+                    <p>建立群祖</p>
+                </div>
+            </div>
             <div class="chat-list-container">
             </div>
 
+            <div class="group-chat-list-container">
+            </div>
+
+        </div>
+
+        <div class="add-group-popup">
+            <img class="close-add-group-popup" src="./images/close.png">
+            <div class="group-name">
+                <p>群組名稱</p>
+                <input class="group-name-input" type="text" value="群組" />
+            </div>
+
+            <div class="group-member-container">
+                <div class="search-list-container">
+                    <p style="text-align:center;font-weight:bolder;margin-top:10px;">好友列表</p>
+
+                    <div class="search-list">
+
+                    </div>
+                </div>
+
+                <div class="had-add-member-container">
+                    <p class="had-add-member-list-title">已加入的成員</p>
+                    <div class="had-add-member-list">
+
+                    </div>
+                </div>
+            </div>
+
+            <p class="create-group-btn">建立群組</p>
         </div>
 
         <div class="is-add-friend-to-stranger">
@@ -186,6 +232,7 @@
         <p class="chat-friend-user_id"></p>
         <div class="chat-message">
         </div>
+        <div class="group-read-status"></div>
         <div class="input-container">
             <input class="message-input" type="text" />
             <p class="send-message">送出</p>

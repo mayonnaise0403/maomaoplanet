@@ -1,7 +1,7 @@
 const pool = require("../database_connect").pool;
 const dotenv = require("dotenv");
 dotenv.config();
-let mysqlQuery, values, isSuccess;
+let mysqlQuery, values, isSuccess, results;
 
 
 class Update {
@@ -44,6 +44,27 @@ class Update {
             console.log(results);
         })
     }
+
+    async createGroup(groupId, groupName, groupMemberIdArr) {
+        try {
+            mysqlQuery = 'INSERT INTO group_members(group_name, group_id, member_id,group_members.headshot) VALUES (?, ?, ?,?);';
+            for (const memberId of groupMemberIdArr) {
+                values = [groupName, groupId, memberId, `${process.env.S3_Url}default_headshot.png`];
+                await pool.query(mysqlQuery, values, (error, results) => {
+                    if (error) {
+                        console.log("error");
+                        console.log(error.message);
+                    }
+                    console.log(results);
+                })
+            }
+        } catch (error) {
+            console.error("error:", error.message);
+        }
+    }
+
+
+
 }
 
 

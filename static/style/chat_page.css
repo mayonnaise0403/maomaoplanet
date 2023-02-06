@@ -17,7 +17,12 @@ body {
 
 .chat-list-container {
     margin-left: 100px;
-    margin-top: 50px;
+    margin-top: 0px;
+}
+
+.group-chat-list-container {
+    margin-left: 100px;
+    margin-top: 20px;
 }
 
 .chat-list {
@@ -34,6 +39,22 @@ body {
 .chat-list:hover {
     transform: scale(1.03);
 }
+
+.chat-group-list {
+    display: flex;
+    background-color: white;
+    width: 500px;
+    padding: 5px;
+    border: 1px solid black;
+    margin: auto;
+    cursor: pointer;
+    position: relative;
+}
+
+.chat-group-list:hover {
+    transform: scale(1.03);
+}
+
 
 .is-add-friend-to-stranger {
     position: fixed;
@@ -76,4 +97,252 @@ body {
 .is-add-friend-container p:hover {
     cursor: pointer;
     transform: scale(1.1);
+}
+
+.add-group-chat-container {
+    margin-top: 50px;
+    justify-content: center;
+    text-align: center;
+    margin-left: 100px;
+}
+
+.add-group-chat-container p {
+    line-height: 40px;
+    height: 40px;
+    text-align: center;
+    font-size: 30px;
+    font-weight: bolder;
+    color: black;
+
+}
+
+.add-group-chat-icon {
+    width: 40px;
+}
+
+.add-group-btn {
+    display: flex;
+    background-color: white;
+    width: 500px;
+    padding: 5px;
+    border: 1px solid black;
+    margin: auto;
+    cursor: pointer;
+    position: relative;
+    justify-content: center;
+}
+
+.add-group-btn:hover {
+    transform: scale(1.03);
+}
+
+.add-group-popup {
+    position: fixed;
+    width: 500px;
+    height: 550px;
+    background-color: white;
+    border: 2px solid black;
+    border-radius: 10px;
+    top: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: none;
+}
+
+.close-add-group-popup {
+    display: flex;
+    width: 40px;
+    margin-left: auto;
+    padding-top: 10px;
+    padding-right: 10px;
+    cursor: pointer;
+}
+
+.close-add-group-popup:hover {
+    transform: scale(1.1);
+}
+
+.group-name {
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    margin-left: 10px;
+}
+
+.group-name p {
+    font-size: 20px;
+    font-weight: bolder;
+    margin-right: 10px;
+}
+
+.group-name-input {
+    outline: none;
+    border: 2px solid black;
+    border-radius: 10px;
+    font-size: 20px;
+    padding: 5px;
+
+}
+
+.group-member {
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+
+.group-member p {
+    font-size: 20px;
+    font-weight: bolder;
+    margin-right: 10px;
+}
+
+.group-member-input {
+    outline: none;
+    border: 2px solid black;
+    border-radius: 10px;
+    font-size: 20px;
+    padding: 5px;
+}
+
+.group-member-btn {
+    width: 40px;
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+.group-member-btn:hover {
+    transform: scale(1.1);
+}
+
+.group-member-container {
+    display: flex;
+}
+
+.search-list {
+    overflow: scroll;
+    overflow-x: hidden;
+    height: 350px;
+    width: 250px;
+    margin-top: 10px;
+}
+
+.search-list::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+    background-color: #eaeaea00;
+    border-radius: 10px;
+}
+
+.search-list::-webkit-scrollbar-thumb {
+    background-color: rgb(194, 194, 194);
+    border-radius: 10px;
+}
+
+
+.search-list::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(156, 156, 156);
+}
+
+.search-user {
+    display: flex;
+    justify-content: left;
+    margin-left: 10px;
+    align-items: center;
+    width: 200px;
+    border: 1px solid black;
+    padding: 2px;
+    border-radius: 5px;
+    margin-bottom: 2px;
+}
+
+.search-user-name {
+    margin-left: 10px;
+    font-weight: bolder;
+
+}
+
+.had-add-member-list {
+    margin-top: 10px;
+    overflow: scroll;
+    overflow-x: hidden;
+    height: 350px;
+    width: 250px;
+}
+
+.had-add-member-list::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+    background-color: #eaeaea00;
+    border-radius: 10px;
+}
+
+.had-add-member-list::-webkit-scrollbar-thumb {
+    background-color: rgb(194, 194, 194);
+    border-radius: 10px;
+}
+
+
+.had-add-member-list::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(156, 156, 156);
+}
+
+.had-add-member-list-title {
+    text-align: center;
+    font-weight: bolder;
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+
+.add-member-btn {
+    width: 35px;
+    margin-left: auto;
+    cursor: pointer;
+}
+
+.add-member-btn:hover {
+    transform: scale(1.1);
+}
+
+.remove-member-btn {
+    width: 35px;
+    margin-left: auto;
+    cursor: pointer;
+}
+
+.remove-member-btn:hover {
+    transform: scale(1.1);
+}
+
+.had-add-user {
+    display: flex;
+    justify-content: left;
+    margin-left: 10px;
+    align-items: center;
+    width: 200px;
+    border: 1px solid black;
+    padding: 2px;
+    border-radius: 5px;
+    margin-bottom: 2px;
+}
+
+.create-group-btn {
+    text-align: center;
+    padding: 5px;
+    color: white;
+    font-size: 30px;
+    border-radius: 10px;
+    cursor: pointer;
+    width: 200px;
+    margin: auto;
+    background-color: rgb(56, 149, 255);
+}
+
+.create-group-btn:hover {
+    transform: scale(1.05);
+}
+
+.group-read-status {
+    margin-left: 20px;
 }

@@ -1,10 +1,13 @@
+
+
 const closePopup = document.querySelector(".popup-close-btn");
 const searchFriendPopup = document.querySelector(".search-friend-popup");
 const addFriendBtn = document.querySelector(".add-friend-btn");
 const popupAddFriendBtn = document.querySelector("#add-friend-popup-btn");
 const addFriendInput = document.querySelector("#add-friend-popup-input");
 const popupAddFriendResult = document.querySelector(".search-friend-popup-result");
-
+const searchFriendBton = document.querySelector("#search-friend-btn");
+const searchFriendInput = document.querySelector(".search-friend");
 const friendList = document.querySelector(".friend-list");
 const friendPopup = document.querySelector(".friend-popup");
 const friendName = document.querySelector(".friend-nickname");
@@ -23,9 +26,186 @@ const addFriendStatus = document.querySelector(".add-friend-status");
 const addFriendStatusPopup = document.querySelector(".add-friend-status-popup");
 const searchEmptyImage = document.querySelector(".search-empty-image");
 const searchFriendPopImage = document.querySelector(".search-friend-popup-image");
+const searchFriendResultList = document.querySelector(".search-result-list");
+const searchFriendResultClose = document.querySelector(".search-result-list-close");
+const groupList = document.querySelector(".group-list");
+const chatListContainer = document.querySelector(".chat-list-container");
 const emailRule = /^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z]+$/;
 
 let newP, newHr, newDiv, newImg;
+
+
+fetch("/api/get_friendlist")
+    .then((response) => {
+        return response.json();
+    })
+    .then((data) => {
+        createFriendList(data, friendList);
+        selfId.innerHTML = data.self_id;
+        socket.emit("join-self-room", data.self_id);
+    })
+    .then(() => {
+        fetch("/api/get_latest_message")
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+                createChatList(data, chatListContainer);
+            })
+
+    })
+
+
+fetch("/api/get_grouplist")
+    .then((response) => {
+        return response.json();
+    })
+    .then((data) => {
+        createGroupList(data, groupList);
+    })
+    .then(() => {
+        fetch("/api/get_latest_group_message")
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+                createGroupChatList(data.data);
+            })
+    })
+
+
+
+socket.on("receive-group-message", (package) => {
+    displayMessage(package.message, false);
+
+    //立即更新對方聊天列
+    if (hadGroupHistoryMsg) {
+        let historyMsg = document.querySelector(`[data-attribute-name='${package.group_id}']`);
+        const firstChildren = groupChatListContainer.children[0];
+        let historyMsgFather = historyMsg.parentNode.parentNode;
+
+        if (chatContainer.style.display === "block") {
+            fetch("/update_group_message_status", {
+                method: "POST",
+                body: JSON.stringify({
+                    groupId: friendChatId.innerHTML,
+                    isReadMemberId: parseInt(selfId.innerHTML)
+                })
+                , headers: {
+                    'Content-type': 'application/json; charset=UTF-8',
+                }
+            })
+                .then((response) => {
+                    return response.json();
+                })
+                .then((data) => {
+                    socket.emit('group-read-message', package);
+                })
+        }
+        if (!historyMsgFather.querySelector(".new-message-icon")) {
+            //顯示未讀通知
+            newImg = document.createElement("img");
+            newImg.src = "./images/new-message.png";
+            newImg.className = "new-message-icon";
+            newImg.style.width = "50px";
+            newImg.style.position = "absolute";
+            newImg.style.right = "10px";
+            newImg.style.top = "10px";
+            historyMsgFather.appendChild(newImg);
+        }
+
+
+        if (firstChildren !== historyMsgFather) {
+            groupChatListContainer.insertBefore(historyMsgFather, groupChatListContainer.firstChild);
+        }
+        historyMsg.innerHTML = package.message;
+
+        // const package = {
+        //     group_id: friendChatId.innerHTML,
+        //     self_id: parseInt(selfId.innerHTML)
+        // }
+        // socket.emit('group-read-message', package);
+
+
+
+    } else {
+        setTimeout(() => {
+            fetch("/api/get_latest_group_message")
+                .then((response) => {
+                    return response.json();
+                })
+                .then((data) => {
+                    createGroupChatList(data.data);
+                })
+        }, 2000);
+
+    }
+
+})
+
+socket.on("receive-message", (msg) => {
+    displayMessage(msg.message, false);
+    if (chatContainer.style.display === "block" && parseInt(msg.user_id) === parseInt(friendChatId.innerHTML)) {
+        let room = `user${friendChatId.innerHTML}`;
+        socket.emit('read-message', room);
+    }
+    //立即更新對方聊天列
+    if (hadHistoryMsg) {
+        let historyMsg = document.querySelector(`.user${msg.user_id}-message`);
+        const firstChildren = chatListContainer.children[0];
+        let historyMsgFather = historyMsg.parentNode.parentNode;
+
+        //顯示未讀通知
+        newImg = document.createElement("img");
+        newImg.src = "./images/new-message.png";
+        newImg.className = "new-message-icon";
+        newImg.style.width = "50px";
+        newImg.style.position = "absolute";
+        newImg.style.right = "10px";
+        newImg.style.top = "10px";
+        historyMsgFather.appendChild(newImg);
+
+        if (firstChildren !== historyMsgFather) {
+            chatListContainer.insertBefore(historyMsgFather, chatListContainer.firstChild);
+        }
+        historyMsg.innerHTML = msg.message;
+    } else {
+        setTimeout(() => {
+            fetch("/api/get_latest_message")
+                .then((response) => {
+                    return response.json();
+                })
+                .then((data) => {
+                    createChatList(data, chatListContainer);
+                })
+        }, 2000);
+
+    }
+
+});
+
+socket.on("receive-read-message", () => {
+    let readMsgStatus = document.querySelectorAll(".read-message-status");
+    readMsgStatus.forEach(element => {
+        element.innerHTML = "已讀";
+    })
+
+})
+
+socket.on("self-receive-group-read-message", (hadReadCount) => {
+    console.log(hadReadCount)
+    let groupIsReadStatus = document.querySelector(".group-read-status");
+    groupIsReadStatus.innerHTML = `${hadReadCount}人已讀`;
+})
+
+socket.on("receive-group-read-message", (hadReadCount) => {
+    console.log(hadReadCount)
+
+    let groupIsReadStatus = document.querySelector(".group-read-status");
+    groupIsReadStatus.innerHTML = `${hadReadCount}人已讀`;
+})
+
+
 
 closePopup.addEventListener("click", () => {
     searchFriendPopup.style.display = "none";
@@ -39,10 +219,12 @@ addFriendBtn.addEventListener("click", () => {
     searchFriendPopup.style.display = "block";
 })
 
+//點擊搜尋使用者
 popupAddFriendBtn.addEventListener("click", () => {
+    removeSearchList();
     const searchContent = addFriendInput.value;
     if (searchContent.search(emailRule) !== -1 && searchContent != null) {
-        fetch(`/api_search_user?email=${searchContent}`)
+        fetch(`/api/search_user?email=${searchContent}`)
             .then((response) => {
                 return response.json();
             })
@@ -80,8 +262,26 @@ popupAddFriendBtn.addEventListener("click", () => {
 
 })
 
+//點擊搜尋好友按鈕
+searchFriendBton.addEventListener("click", () => {
+    if (searchFriendInput.value) {
+        fetch(`/api/search_friend?nickname=${searchFriendInput.value}`)
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+                searchFriendResultClose.style.display = "block";
+                searchFriendResultList.style.display = "block";
+                createFriendList(data, searchFriendResultList);
+            })
+    }
+})
 
-
+//點擊關閉搜尋好友按鈕
+searchFriendResultClose.addEventListener("click", () => {
+    searchFriendResultList.style.display = "none";
+    searchFriendResultClose.style.display = "none";
+})
 
 
 friendPopupClose.addEventListener("click", () => {
@@ -95,104 +295,141 @@ chatCloseBtn.addEventListener("click", () => {
     for (let i = 0; i < pElements.length; i++) {
         parentDiv.removeChild(pElements[i]);
     }
+    let groupIsReadStatus = document.querySelector(".group-read-status");
+    groupIsReadStatus.innerHTML = "";
     isAddFriendPopup.style.display = "none";
-
-
-
 })
 
 popupChatBtn.addEventListener("click", () => {
-    chatContainer.style.display = "block";
-    chatBoxFriendName.innerHTML = friendName.innerHTML;
-    friendChatId.innerHTML = friendId.innerHTML;
-    friendPopup.style.display = "none";
-
-    fetch("/api/get_message", {
-        method: "POST",
-        body: JSON.stringify({
-            "myId": selfId.innerHTML,
-            "friendId": friendChatId.innerHTML
-        })
-        , headers: {
-            'Content-type': 'application/json; charset=UTF-8',
-        }
-    })
-        .then((response) => {
-            return response.json();
-        })
-        .then((data) => {
-            data.message.forEach(element => {
-                if (element.sender_id === parseInt(selfId.innerHTML)) {
-                    displayMessage(element.message, true, element.is_read);
-                } else {
-                    displayMessage(element.message, false, element.is_read);
-                }
-
-            })
-        })
-
+    chatPopup();
 })
 
 
 
 snedMessage.addEventListener("click", async (e) => {
-    console.log("click");
-    const package = {
-        "user_id": parseInt(selfId.innerHTML),
-        "friend_id": parseInt(friendChatId.innerHTML),
-        "message": messageInput.value
-    }
-    e.preventDefault();
+    const isGroup = isNaN(friendChatId.innerHTML);
+    if (!isGroup) {
+        const package = {
+            "user_id": parseInt(selfId.innerHTML),
+            "friend_id": parseInt(friendChatId.innerHTML), //放陣列
+            "message": messageInput.value
+        }
+        e.preventDefault();
+        if (messageInput.value) {//分群組和單人 
+            let room = `user${package.friend_id}`;
+            await socket.emit('send-message', package, room);
+            if (hadHistoryMsg) {
+                let historyMsg = document.querySelector(`.user${package.friend_id}-message`);
+                const firstChildren = chatListContainer.children[0];
+                if (clickedDiv) {
+                    if (firstChildren !== clickedDiv) {
+                        chatListContainer.insertBefore(clickedDiv, chatListContainer.firstChild);
+                    }
+                    historyMsg.innerHTML = package.message;
+                } else {
+                    while (chatListContainer.firstChild) {
+                        chatListContainer.removeChild(chatListContainer.firstChild);
+                    }
+                    setTimeout(() => {
+                        fetch("/api/get_latest_message")
+                            .then((response) => {
+                                return response.json();
+                            })
+                            .then((data) => {
+                                createChatList(data, chatListContainer);
+                            })
+                    }, 1000);
 
-    if (messageInput.value) {
-        let room = `user${package.friend_id}`;
-        await socket.emit('send-message', package, room);
-        if (hadHistoryMsg) {
-            let historyMsg = document.querySelector(`.user${package.friend_id}-message`);
-            const firstChildren = chatListContainer.children[0];
-            if (clickedDiv) {
-                console.log(1)
-                if (firstChildren !== clickedDiv) {
-                    chatListContainer.insertBefore(clickedDiv, chatListContainer.firstChild);
                 }
-                historyMsg.innerHTML = package.message;
+
             } else {
-
-                while (chatListContainer.firstChild) {
-                    chatListContainer.removeChild(chatListContainer.firstChild);
-                }
                 setTimeout(() => {
                     fetch("/api/get_latest_message")
                         .then((response) => {
                             return response.json();
                         })
                         .then((data) => {
-                            createChatList(data);
+                            createChatList(data, chatListContainer);
                         })
-                }, 1000);
+                }, 2000);
 
             }
 
-        } else {
-            setTimeout(() => {
-                fetch("/api/get_latest_message")
-                    .then((response) => {
-                        return response.json();
-                    })
-                    .then((data) => {
-                        createChatList(data);
-                    })
-            }, 2000);
+            displayMessage(package.message, true);
+            messageInput.value = '';
 
         }
 
-        displayMessage(package.message, true);
-        messageInput.value = '';
+    } else {
+        let groupIsReadStatus = document.querySelector(".group-read-status");
+        groupIsReadStatus.innerHTML = `0人已讀`;
+        let package = {
+            group_id: friendChatId.innerHTML,
+            sender_id: parseInt(selfId.innerHTML),
+            message: messageInput.value
+        }
+        e.preventDefault();
+        if (messageInput.value) {
+            await socket.emit("send-message-to-group", package);
+            let groupMessage = document.querySelector(`[data-attribute-name='${package.group_id}']`);
+            if (hadGroupHistoryMsg && groupMessage) {
+
+
+                // let attrValue = groupMessage.getAttribute(friendChatId.innerHTML);
+                // console.log("groupmsg", groupMessage)
+                // console.log(attrValue);
+                const firstChildren = groupChatListContainer.children[0];
+                let historyMsg = document.querySelector(`.user${package.friend_id}-message`);
+                if (clickedDiv) {
+                    if (firstChildren !== clickedDiv) {
+                        groupChatListContainer.insertBefore(clickedDiv, groupChatListContainer.firstChild);
+                    }
+                    groupMessage.innerHTML = package.message;
+                } else {
+                    while (groupChatListContainer.firstChild) {
+                        groupChatListContainer.removeChild(groupChatListContainer.firstChild);
+                    }
+                    setTimeout(() => {
+                        fetch("/api/get_latest_message")
+                            .then((response) => {
+                                return response.json();
+                            })
+                            .then((data) => {
+                                createGroupChatList(data);
+                            })
+                    }, 1000);
+
+                }
+
+            } else {
+                setTimeout(() => {
+                    fetch("/api/get_latest_group_message")
+                        .then((response) => {
+                            return response.json();
+                        })
+                        .then((data) => {
+                            createGroupChatList(data.data);
+                        })
+                }, 2000);
+
+            }
+
+            displayMessage(package.message, true);
+            messageInput.value = '';
+            // package = {
+            //     group_id: friendChatId.innerHTML,
+            //     self_id: parseInt(selfId.innerHTML)
+            // }
+            // socket.emit('group-read-message', package);
+        }
+
+
     }
 
-});
+})
 
 messageInput.addEventListener("keyup", (e) => {
+
     if (e.keyCode === 13) {
         let englishWord = messageInput.value.match(/[A-Za-z]/g);
         let symbolRegex = messageInput.value.match(/[^\u4e00-\u9fa5\w]/g);
@@ -226,7 +463,7 @@ messageInput.addEventListener("keyup", (e) => {
                                         return response.json();
                                     })
                                     .then((data) => {
-                                        createChatList(data);
+                                        createChatList(data, chatListContainer);
                                     })
                             }, 2000);
 
@@ -239,7 +476,7 @@ messageInput.addEventListener("keyup", (e) => {
                                     return response.json();
                                 })
                                 .then((data) => {
-                                    createChatList(data);
+                                    createChatList(data, chatListContainer);
                                 })
                         }, 2000);
 
@@ -282,7 +519,7 @@ messageInput.addEventListener("keyup", (e) => {
                                         return response.json();
                                     })
                                     .then((data) => {
-                                        createChatList(data);
+                                        createChatList(data, chatListContainer);
                                     })
                             }, 2000);
 
@@ -295,7 +532,7 @@ messageInput.addEventListener("keyup", (e) => {
                                     return response.json();
                                 })
                                 .then((data) => {
-                                    createChatList(data);
+                                    createChatList(data, chatListContainer);
                                 })
                         }, 2000);
 
@@ -341,7 +578,7 @@ messageInput.addEventListener("compositionend", (e) => {
                                     return response.json();
                                 })
                                 .then((data) => {
-                                    createChatList(data);
+                                    createChatList(data, chatListContainer);
                                 })
                         }, 2000);
 
@@ -354,7 +591,7 @@ messageInput.addEventListener("compositionend", (e) => {
                                 return response.json();
                             })
                             .then((data) => {
-                                createChatList(data);
+                                createChatList(data, chatListContainer);
                             })
                     }, 2000);
 
@@ -365,7 +602,6 @@ messageInput.addEventListener("compositionend", (e) => {
         }
     })
     snedMessage.addEventListener("click", async (e) => {
-        console.log("click");
         const package = {
             "user_id": parseInt(selfId.innerHTML),
             "friend_id": parseInt(friendChatId.innerHTML),
@@ -394,7 +630,7 @@ messageInput.addEventListener("compositionend", (e) => {
                                 return response.json();
                             })
                             .then((data) => {
-                                createChatList(data);
+                                createChatList(data, chatListContainer);
                             })
                     }, 2000);
 
@@ -407,7 +643,7 @@ messageInput.addEventListener("compositionend", (e) => {
                             return response.json();
                         })
                         .then((data) => {
-                            createChatList(data);
+                            createChatList(data, chatListContainer);
                         })
                 }, 2000);
 
@@ -421,89 +657,18 @@ messageInput.addEventListener("compositionend", (e) => {
 })
 
 
-socket.on("receive-message", (msg) => {
-    displayMessage(msg.message, false);
-    if (chatContainer.style.display === "block" && parseInt(msg.user_id) === parseInt(friendChatId.innerHTML)) {
-        let room = `user${friendChatId.innerHTML}`;
-        socket.emit('read-message', room);
-    }
-    //立即更新對方聊天列
-    if (hadHistoryMsg) {
-        let historyMsg = document.querySelector(`.user${msg.user_id}-message`);
-        const firstChildren = chatListContainer.children[0];
-        let historyMsgFather = historyMsg.parentNode.parentNode;
-
-        //顯示有幾封未讀通知
-        newImg = document.createElement("img");
-        newImg.src = "./images/new-message.png";
-        newImg.className = "new-message-icon";
-        newImg.style.width = "50px";
-        newImg.style.position = "absolute";
-        newImg.style.right = "10px";
-        newImg.style.top = "10px";
-        historyMsgFather.appendChild(newImg);
-
-        if (firstChildren !== historyMsgFather) {
-            chatListContainer.insertBefore(historyMsgFather, chatListContainer.firstChild);
-        }
-        historyMsg.innerHTML = msg.message;
-    } else {
-        setTimeout(() => {
-            fetch("/api/get_latest_message")
-                .then((response) => {
-                    return response.json();
-                })
-                .then((data) => {
-                    createChatList(data);
-                })
-        }, 2000);
-
-    }
 
 
 
 
 
-});
-
-socket.on("receive-read-message", () => {
-    let readMsgStatus = document.querySelectorAll(".read-message-status");
-    readMsgStatus.forEach(element => {
-        element.innerHTML = "已讀";
-    })
-
-})
-
-
-
-fetch("/api/get_friendlist")
-    .then((response) => {
-        return response.json();
-    })
-    .then((data) => {
-        createFreindList(data.friend_list, data.self_id);
-        selfId.innerHTML = data.self_id;
-        socket.emit("join-self-room", data.self_id);
-    })
-    .then(() => {
-        fetch("/api/get_latest_message")
-            .then((response) => {
-                return response.json();
-            })
-            .then((data) => {
-                createChatList(data);
-            })
-
-    })
-
-function createFreindList(friendData, self_id) {
+function createFriendList(friendData, list) {
     let count = 0;
-    friendList.innerHTML = "";
-    selfId.innerHTML = self_id;
-    friendData.forEach(element => {
+    list.innerHTML = "";
+    friendData.friend_list.forEach(element => {
         newDiv = document.createElement("div");
         newDiv.className = "friend";
-        friendList.appendChild(newDiv);
+        list.appendChild(newDiv);
         friend = document.querySelectorAll(".friend");
 
         newImg = document.createElement("img");
@@ -523,11 +688,36 @@ function createFreindList(friendData, self_id) {
             friendId.innerHTML = element.user_id;
         })
         count++;
-
-
     })
+}
 
+function createGroupList(groupData, list) {
+    let count = 0;
+    list.innerHTML = "";
+    groupData.group_list.forEach(element => {
+        newDiv = document.createElement("div");
+        newDiv.className = "group";
+        list.appendChild(newDiv);
+        let group = document.querySelectorAll(".group");
 
+        newImg = document.createElement("img");
+        newImg.src = element.headshot;
+        newImg.id = "group-headshot";
+        group[count].appendChild(newImg);
+
+        newP = document.createElement("p");
+        newP.innerHTML = element.group_name;
+        group[count].appendChild(newP);
+
+        group[count].addEventListener("click", () => {
+            let friendPopupHeadshot = document.querySelector(".friend-popup-headshot");
+            friendPopupHeadshot.src = element.headshot;
+            friendPopup.style.display = "block";
+            friendName.innerHTML = element.group_name;
+            friendId.innerHTML = element.group_id;
+        })
+        count++;
+    })
 }
 
 function createUserHtml(resultArr) {
@@ -601,8 +791,7 @@ function createUserHtml(resultArr) {
                             return response.json();
                         })
                         .then((data) => {
-                            console.log(data);
-                            createFreindList(data.friend_list, data.self_id);
+                            createFriendList(data, friendList);
                             console.log(data.friend_list);
                         })
                 })
@@ -622,7 +811,7 @@ function createUserHtml(resultArr) {
 }
 
 
-function displayMessage(msg, isSelf, is_read = 0) {
+function displayMessage(msg, isSelf, is_read = 0, is_group = false) {
     let message = document.querySelector(".chat-message");
 
     newP = document.createElement("p");
@@ -631,21 +820,35 @@ function displayMessage(msg, isSelf, is_read = 0) {
         newP.style.marginRight = "5px";
         newP.style.marginLeft = "auto";
         newP.className = "chat-message-font";
+
         message.appendChild(newP);
-        newP = document.createElement("p");
-        newP.className = "read-message-status";
-        if (is_read === 1) {
-            newP.innerHTML = "已讀";
+
+        if (!is_group) {
+            newP = document.createElement("p");
+            newP.className = "read-message-status";
+            if (is_read === 1) {
+                newP.innerHTML = "已讀";
+            } else {
+                newP.innerHTML = "";
+            }
+            newP.style.fontSize = "10px";
+            newP.style.textAlign = "right";
+            newP.style.paddingLeft = "5px";
+            newP.style.marginBottom = "10px";
+            newP.style.marginRight = "10px";
+            message.appendChild(newP);
         } else {
+            newP = document.createElement("p");
+            newP.className = "read-message-status";
             newP.innerHTML = "";
+            newP.style.fontSize = "10px";
+            newP.style.textAlign = "right";
+            newP.style.paddingLeft = "5px";
+            newP.style.marginBottom = "10px";
+            newP.style.marginRight = "10px";
+            message.appendChild(newP);
         }
 
-        newP.style.fontSize = "10px";
-        newP.style.textAlign = "right";
-        newP.style.paddingLeft = "5px";
-        newP.style.marginBottom = "10px";
-        newP.style.marginRight = "10px";
-        message.appendChild(newP);
     }
     else {
         newP.style.marginBottom = "10px";
@@ -653,6 +856,42 @@ function displayMessage(msg, isSelf, is_read = 0) {
         message.appendChild(newP);
     }
 
+
+}
+
+
+
+function chatPopup() {
+    chatContainer.style.display = "block";
+    chatBoxFriendName.innerHTML = friendName.innerHTML;
+    friendChatId.innerHTML = friendId.innerHTML;
+    friendPopup.style.display = "none";
+    const isGroup = isNaN(friendChatId.innerHTML);
+    fetch("/api/get_message", {
+        method: "POST",
+        body: JSON.stringify({
+            myId: selfId.innerHTML,
+            friendId: friendChatId.innerHTML,
+            isGroup: isGroup
+        })
+        , headers: {
+            'Content-type': 'application/json; charset=UTF-8',
+        }
+    })
+        .then((response) => {
+            return response.json();
+        })
+        .then((data) => {
+            console.log(data)
+            data.message.forEach(element => {
+                if (element.sender_id === parseInt(selfId.innerHTML)) {
+                    displayMessage(element.message, true, element.is_read);
+                } else {
+                    displayMessage(element.message, false, element.is_read);
+                }
+
+            })
+        })
 
 }
 

@@ -1,0 +1,32 @@
+const router = require('express').Router();
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
+const uuid = require('uuid');
+let Update = require("../models/update_data").Update;
+let Search = require("../models/search").Search;
+
+const secretKey = process.env.Jwt_Secrect_Key;
+Update = new Update();
+Search = new Search();
+router.use(cookieParser());
+
+router.post("/create_group", async (req, res) => {
+    try {
+        const groupName = req.body.groupName;
+        const groupMemberIdArr = req.body.groupMemberIdArr;
+        const groupId = uuid.v4();
+        await Update.createGroup(groupId, groupName, groupMemberIdArr);
+        const groupData = await Search.getGroupMemberData(groupId);
+        res.status(200).send({ status: "success", groupId: groupId, groupName: groupName, group_data: groupData });
+    } catch (err) {
+        res.status(500).send({ status: "success", message: "伺服器內部發生錯誤" });
+    }
+
+});
+
+router.post("/get_group_member_data", (req, res) => {
+
+})
+
+
+module.exports = router;

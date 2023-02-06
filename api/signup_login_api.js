@@ -27,7 +27,7 @@ router.get("/member", (req, res) => {
 
 router.post("/login", async (req, res) => {
     try {
-        const isLogin = await isLoginSuccess(req.body.email, req.body.password);
+        const isLogin = await Login.checkLogin(req.body.email, req.body.password);
         if (isLogin) {
             const data = await getData(req.body.email, req.body.password);
             const payload = {
@@ -115,10 +115,6 @@ async function getData(email, password) {
 
 }
 
-async function isLoginSuccess(email, password) {
-    const isLogin = await Login.checkLogin(email, password);
-    return isLogin;
-}
 
 async function checkEmailAvailability(email) {
     const isAvailable = await Signup.checkEmail(email);

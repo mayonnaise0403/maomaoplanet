@@ -1,3 +1,11 @@
+body {
+    font-family: "Noto Sans TC",
+        "微軟正黑體",
+        sans-serif;
+    ;
+}
+
+
 #friend-page {
     min-height: 100vh;
 }
@@ -42,4 +50,33 @@
     left: 50%;
     transform: translate(-50%, -50%);
     white-space: nowrap;
+}
+
+.search-result-list {
+    width: 500px;
+    margin: auto;
+    margin-top: 15px;
+    margin-bottom: 50px;
+    display: none;
+}
+
+.search-result-list-close-container {
+    width: 500px;
+    margin: auto;
+    margin-top: 15px;
+}
+
+.search-result-list-close {
+    display: none;
+    width: 30px;
+    float: right;
+    margin-top: 10px px;
+    margin-right: 10px;
+    cursor: pointer;
+    margin-bottom: 10px;
+
+}
+
+.search-result-list-close:hover {
+    transform: scale(1.1);
 }
