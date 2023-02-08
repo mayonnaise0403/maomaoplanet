@@ -64,8 +64,9 @@ class Search {
     }
 
     async addFriend(userId, friendId) {
-        mysqlQuery = 'INSERT INTO friend_list(user_id, user_friend_id) VALUES(?, ?);';
-        values = [userId, friendId];
+        mysqlQuery = 'INSERT INTO friend_list(user_id, user_friend_id) VALUES(?, ?)\
+                    ON DUPLICATE KEY UPDATE user_id = ?, user_friend_id = ?;';
+        values = [userId, friendId, userId, friendId];
         await pool.query(mysqlQuery, values, (error, results) => {
             if (error) {
                 console.log("error");
@@ -145,6 +146,29 @@ class Search {
     async getGroupMemberId(groupId) {
         mysqlQuery = 'select group_members.member_id from group_members where group_id = ?;'
         values = [groupId];
+        try {
+            const queryResults = await pool.query(mysqlQuery, values);
+            result = queryResults[0];
+
+        } catch (error) {
+            console.log(error.message);
+        }
+        return result;
+    }
+
+    async getGroupMember(selfId, groupId) {
+        mysqlQuery = 'select \
+                member.nickname,\
+                member.headshot,\
+                group_members.member_id,\
+                (CASE WHEN EXISTS(SELECT * FROM  friend_list WHERE \
+                 user_id = ? and user_friend_id = group_members.member_id\
+                ) THEN 1 else 0 END)AS is_friend\
+                from group_members\
+                inner join member on\
+                group_members.member_id = member.user_id\
+                where group_members.group_id = ?;'
+        values = [selfId, groupId];
         try {
             const queryResults = await pool.query(mysqlQuery, values);
             result = queryResults[0];

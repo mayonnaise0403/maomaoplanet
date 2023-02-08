@@ -12,6 +12,11 @@ const searchGroupMemberInput = document.querySelector(".group-member-input");
 const createGroupBtn = document.querySelector(".create-group-btn");
 const groupNameInput = document.querySelector(".group-name-input");
 const groupChatListContainer = document.querySelector(".group-chat-list-container");
+const groupMemberIcon = document.querySelector(".group-member-icon");
+const groupMemberPopup = document.querySelector(".group-member-popup");
+const grouopMemberPopupCloseBtn = document.querySelector(".group-member-popup-close");
+const groupMemberList = document.querySelector(".group-member-list");
+const groupMemberPopupAddFriend = document.querySelector(".friend-popup-add-friend");
 
 let clickedDiv, messageData;
 let hadHistoryMsg = false;
@@ -43,6 +48,7 @@ closeGroupPopup.addEventListener("click", () => {
     addGroupPopup.style.display = "none";
 })
 
+//建立群組按鈕
 createGroupBtn.addEventListener("click", () => {
     const hadAddUser = document.querySelectorAll(".had-add-user");
     let groupMemberIdArr = [];
@@ -90,8 +96,116 @@ createGroupBtn.addEventListener("click", () => {
 
 })
 
+grouopMemberPopupCloseBtn.addEventListener("click", () => {
+    groupMemberPopup.style.display = "none";
+    const groupMember = document.querySelectorAll(".group-member");
+    groupMember.forEach(element => {
+        element.remove();
+    })
+})
 
+//查看群組成員
+groupMemberIcon.addEventListener("click", () => {
+    groupMemberPopup.style.display = "block";
+    fetch("/api/get_group_member", {
+        method: "POST",
+        body: JSON.stringify({
+            groupId: friendChatId.innerHTML
+        })
+        , headers: {
+            'Content-type': 'application/json; charset=UTF-8',
+        }
+    })
+        .then((response) => {
+            return response.json();
+        })
+        .then((data) => {
+            data.data.forEach(element => {
+                newDiv = document.createElement("div");
+                newDiv.className = "group-member";
+                groupMemberList.appendChild(newDiv);
+                const groupMember = document.querySelectorAll(".group-member");
 
+                newImg = document.createElement("img");
+                newImg.src = element.headshot;
+                newImg.style.width = "40px";
+                newImg.style.height = "40px";
+                newImg.style.borderRadius = "50px";
+                newImg.style.objectFit = "cover";
+                groupMember[groupMember.length - 1].appendChild(newImg);
+
+                newP = document.createElement("p");
+                newP.innerHTML = element.nickname;
+                newP.style.marginLeft = "10px";
+                groupMember[groupMember.length - 1].appendChild(newP);
+
+                newDiv.addEventListener("click", () => {
+                    if (element.member_id !== parseInt(selfId.innerHTML)) {
+                        let friendPopupHeadshot = document.querySelector(".friend-popup-headshot");
+                        friendPopupHeadshot.src = element.headshot;
+                        friendPopup.style.display = "block";
+                        friendName.innerHTML = element.nickname;
+                        friendId.innerHTML = element.member_id;
+                        if (element.is_friend === 0) {
+                            groupMemberPopupAddFriend.style.display = "block";
+                            popupChatBtn.style.display = "none";
+                        } else {
+                            groupMemberPopupAddFriend.style.display = "none";
+                            popupChatBtn.style.display = "block";
+                        }
+                    }
+                })
+
+            })
+
+        })
+})
+
+//點擊查看群組成員裡:加群組成員好友
+groupMemberPopupAddFriend.addEventListener("click", () => {
+    fetch("/add_friend", {
+        method: "POST",
+        body: JSON.stringify({
+            friend_id: parseInt(friendId.innerHTML)
+        })
+        , headers: {
+            'Content-type': 'application/json; charset=UTF-8',
+        }
+    })
+        .then((response) => {
+            return response.json();
+        })
+        .then((data) => {
+            if (data.status === "success") {
+                groupMemberPopupAddFriend.style.display = "none";
+                popupChatBtn.style.display = "block";
+
+                addFriendStatusPopup.style.display = "block";
+                addFriendStatus.innerHTML = `✅${data.message}`;
+                addFriendStatusPopup.style.animation = "slideInFromTop 0.5s ease-in-out";
+                addFriendStatusPopup.addEventListener("animationend", () => {
+                    setTimeout(() => {
+                        addFriendStatusPopup.style.removeProperty("animation");
+                        addFriendStatusPopup.style.display = "none";
+                    }, 2000)
+
+                });
+            } else if (data.status === "error") {
+
+            }
+        })
+        .then(() => {
+            fetch("/api/get_friendlist")
+                .then((response) => {
+                    return response.json();
+                })
+                .then((data) => {
+                    createFriendList(data, friendList);
+                })
+        })
+})
+
+//陌生訊息裡面:是否要加好友按鈕
 isAddFriendOkBtn.addEventListener("click", () => {
     let friend_id = document.querySelector(".chat-friend-user_id").innerHTML;
 
@@ -135,7 +249,7 @@ isAddFriendOkBtn.addEventListener("click", () => {
                     return response.json();
                 })
                 .then((data) => {
-                    createFreindList(data.friend_list, data.self_id);
+                    createFriendList(data, friendList);
                 })
         })
 })
@@ -189,7 +303,7 @@ function createGroupChatList(data) {
         rightGroupChatList[count].appendChild(newP);
 
 
-        if (element.is_read === 0) {
+        if (element.is_read === 0 && element.sender_id !== parseInt(selfId.innerHTML)) {
             newImg = document.createElement("img");
             newImg.src = "./images/new-message.png";
             newImg.className = "new-message-icon";
@@ -236,9 +350,9 @@ function createGroupChatList(data) {
 
                         data.message.forEach(element => {
                             if (parseInt(selfId.innerHTML) === element.sender_id) {
-                                displayMessage(element.message, true, element.read_count, true);
+                                displayMessage(element, true, element.read_count, true);
                             } else {
-                                displayMessage(element.message, false, element.read_count, true);
+                                displayMessage(element, false, element.read_count, true);
                             }
                         })
 
@@ -291,9 +405,9 @@ function createGroupChatList(data) {
                     .then((data) => {
                         data.message.forEach(element => {
                             if (parseInt(selfId.innerHTML) === element.sender_id) {
-                                displayMessage(element.message, true, element.is_read, true);
+                                displayMessage(element, true, element.is_read, true);
                             } else {
-                                displayMessage(element.message, false, element.is_read, true);
+                                displayMessage(element, false, element.is_read, true);
                             }
 
                         })
@@ -306,8 +420,6 @@ function createGroupChatList(data) {
 
                         let groupIsReadStatus = document.querySelector(".group-read-status");
                         groupIsReadStatus.innerHTML = `${data.message[0].read_count}人已讀`;
-                        console.log(data.message[0].read_count)
-
                         if (!(data.message[data.message.length - 1].sender_id === parseInt(selfId.innerHTML))) {
                             fetch("/update_group_message_status", {
                                 method: "POST",
@@ -440,6 +552,7 @@ function createChatList(data, container) {
 
             //跳出是否要加陌生人好友
             if (parseInt(element.non_friend_id) === parseInt(selfId.innerHTML)) {
+                console.log("here?")
                 isAddFriendPopup.style.display = "block";
             }
 
@@ -471,9 +584,9 @@ function createChatList(data, container) {
                     .then((data) => {
                         data.message.forEach(element => {
                             if (parseInt(selfId.innerHTML) === element.sender_id) {
-                                displayMessage(element.message, true, element.is_read);
+                                displayMessage(element, true, element.is_read);
                             } else {
-                                displayMessage(element.message, false, element.is_read);
+                                displayMessage(element, false, element.is_read);
                             }
                         })
                         let room = `user${friendChatId.innerHTML}`;
@@ -514,9 +627,9 @@ function createChatList(data, container) {
                     .then((data) => {
                         data.message.forEach(element => {
                             if (parseInt(selfId.innerHTML) === element.sender_id) {
-                                displayMessage(element.message, true, element.is_read);
+                                displayMessage(element, true, element.is_read);
                             } else {
-                                displayMessage(element.message, false, element.is_read);
+                                displayMessage(element, false, element.is_read);
                             }
 
                         })

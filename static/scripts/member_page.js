@@ -1,5 +1,3 @@
-
-
 const closePopup = document.querySelector(".popup-close-btn");
 const searchFriendPopup = document.querySelector(".search-friend-popup");
 const addFriendBtn = document.querySelector(".add-friend-btn");
@@ -76,7 +74,7 @@ fetch("/api/get_grouplist")
 
 
 socket.on("receive-group-message", (package) => {
-    displayMessage(package.message, false);
+    displayMessage(package, false);
 
     //立即更新對方聊天列
     if (hadGroupHistoryMsg) {
@@ -144,7 +142,7 @@ socket.on("receive-group-message", (package) => {
 })
 
 socket.on("receive-message", (msg) => {
-    displayMessage(msg.message, false);
+    displayMessage(msg, false);
     if (chatContainer.style.display === "block" && parseInt(msg.user_id) === parseInt(friendChatId.innerHTML)) {
         let room = `user${friendChatId.innerHTML}`;
         socket.emit('read-message', room);
@@ -193,14 +191,11 @@ socket.on("receive-read-message", () => {
 })
 
 socket.on("self-receive-group-read-message", (hadReadCount) => {
-    console.log(hadReadCount)
     let groupIsReadStatus = document.querySelector(".group-read-status");
     groupIsReadStatus.innerHTML = `${hadReadCount}人已讀`;
 })
 
 socket.on("receive-group-read-message", (hadReadCount) => {
-    console.log(hadReadCount)
-
     let groupIsReadStatus = document.querySelector(".group-read-status");
     groupIsReadStatus.innerHTML = `${hadReadCount}人已讀`;
 })
@@ -286,22 +281,54 @@ searchFriendResultClose.addEventListener("click", () => {
 
 friendPopupClose.addEventListener("click", () => {
     friendPopup.style.display = "none";
+    groupMemberPopupAddFriend.style.display = "none";
+    popupChatBtn.style.display = "block";
 });
 
+//關閉聊天室窗
 chatCloseBtn.addEventListener("click", () => {
     chatContainer.style.display = "none";
     const parentDiv = document.querySelector(".chat-message");
+    const groupMember = document.querySelectorAll(".group-member-headshot-nickname");
     const pElements = parentDiv.querySelectorAll("p");
-    for (let i = 0; i < pElements.length; i++) {
-        parentDiv.removeChild(pElements[i]);
-    }
+    const ImgElements = parentDiv.querySelectorAll("img");
+    pElements.forEach(element => {
+        element.remove();
+    })
+    ImgElements.forEach(element => {
+        element.remove();
+    })
+    groupMember.forEach(element => {
+        element.remove();
+    })
     let groupIsReadStatus = document.querySelector(".group-read-status");
     groupIsReadStatus.innerHTML = "";
     isAddFriendPopup.style.display = "none";
+    groupMemberIcon.style.display = "none";
 })
 
 popupChatBtn.addEventListener("click", () => {
+    if (chatContainer.style.display === "block") {
+        const parentDiv = document.querySelector(".chat-message");
+        const groupMember = document.querySelectorAll(".group-member-headshot-nickname");
+        const pElements = parentDiv.querySelectorAll("p");
+        const ImgElements = parentDiv.querySelectorAll("img");
+        pElements.forEach(element => {
+            element.remove();
+        })
+        ImgElements.forEach(element => {
+            element.remove();
+        })
+        groupMember.forEach(element => {
+            element.remove();
+        })
+        let groupIsReadStatus = document.querySelector(".group-read-status");
+        groupIsReadStatus.innerHTML = "";
+        isAddFriendPopup.style.display = "none";
+        groupMemberIcon.style.display = "none";
+    }
     chatPopup();
+
 })
 
 
@@ -309,354 +336,70 @@ popupChatBtn.addEventListener("click", () => {
 snedMessage.addEventListener("click", async (e) => {
     const isGroup = isNaN(friendChatId.innerHTML);
     if (!isGroup) {
-        const package = {
-            "user_id": parseInt(selfId.innerHTML),
-            "friend_id": parseInt(friendChatId.innerHTML), //放陣列
-            "message": messageInput.value
-        }
-        e.preventDefault();
-        if (messageInput.value) {//分群組和單人 
-            let room = `user${package.friend_id}`;
-            await socket.emit('send-message', package, room);
-            if (hadHistoryMsg) {
-                let historyMsg = document.querySelector(`.user${package.friend_id}-message`);
-                const firstChildren = chatListContainer.children[0];
-                if (clickedDiv) {
-                    if (firstChildren !== clickedDiv) {
-                        chatListContainer.insertBefore(clickedDiv, chatListContainer.firstChild);
-                    }
-                    historyMsg.innerHTML = package.message;
-                } else {
-                    while (chatListContainer.firstChild) {
-                        chatListContainer.removeChild(chatListContainer.firstChild);
-                    }
-                    setTimeout(() => {
-                        fetch("/api/get_latest_message")
-                            .then((response) => {
-                                return response.json();
-                            })
-                            .then((data) => {
-                                createChatList(data, chatListContainer);
-                            })
-                    }, 1000);
-
-                }
-
-            } else {
-                setTimeout(() => {
-                    fetch("/api/get_latest_message")
-                        .then((response) => {
-                            return response.json();
-                        })
-                        .then((data) => {
-                            createChatList(data, chatListContainer);
-                        })
-                }, 2000);
-
-            }
-
-            displayMessage(package.message, true);
-            messageInput.value = '';
-
-        }
-
+        sendMsgInSingle();
     } else {
-        let groupIsReadStatus = document.querySelector(".group-read-status");
-        groupIsReadStatus.innerHTML = `0人已讀`;
-        let package = {
-            group_id: friendChatId.innerHTML,
-            sender_id: parseInt(selfId.innerHTML),
-            message: messageInput.value
-        }
-        e.preventDefault();
-        if (messageInput.value) {
-            await socket.emit("send-message-to-group", package);
-            let groupMessage = document.querySelector(`[data-attribute-name='${package.group_id}']`);
-            if (hadGroupHistoryMsg && groupMessage) {
-
-
-                // let attrValue = groupMessage.getAttribute(friendChatId.innerHTML);
-                // console.log("groupmsg", groupMessage)
-                // console.log(attrValue);
-                const firstChildren = groupChatListContainer.children[0];
-                let historyMsg = document.querySelector(`.user${package.friend_id}-message`);
-                if (clickedDiv) {
-                    if (firstChildren !== clickedDiv) {
-                        groupChatListContainer.insertBefore(clickedDiv, groupChatListContainer.firstChild);
-                    }
-                    groupMessage.innerHTML = package.message;
-                } else {
-                    while (groupChatListContainer.firstChild) {
-                        groupChatListContainer.removeChild(groupChatListContainer.firstChild);
-                    }
-                    setTimeout(() => {
-                        fetch("/api/get_latest_message")
-                            .then((response) => {
-                                return response.json();
-                            })
-                            .then((data) => {
-                                createGroupChatList(data);
-                            })
-                    }, 1000);
-
-                }
-
-            } else {
-                setTimeout(() => {
-                    fetch("/api/get_latest_group_message")
-                        .then((response) => {
-                            return response.json();
-                        })
-                        .then((data) => {
-                            createGroupChatList(data.data);
-                        })
-                }, 2000);
-
-            }
-
-            displayMessage(package.message, true);
-            messageInput.value = '';
-            // package = {
-            //     group_id: friendChatId.innerHTML,
-            //     self_id: parseInt(selfId.innerHTML)
-            // }
-            // socket.emit('group-read-message', package);
-        }
-
-
+        sendMsgInGroup();
     }
 
 })
 
 messageInput.addEventListener("keyup", (e) => {
-
+    const isGroup = isNaN(friendChatId.innerHTML);
     if (e.keyCode === 13) {
         let englishWord = messageInput.value.match(/[A-Za-z]/g);
         let symbolRegex = messageInput.value.match(/[^\u4e00-\u9fa5\w]/g);
         if (symbolRegex) {
             if (messageInput.value.length === symbolRegex.length) {
-                const package = {
-                    "user_id": parseInt(selfId.innerHTML),
-                    "friend_id": parseInt(friendChatId.innerHTML),
-                    "message": messageInput.value
-                }
-                e.preventDefault();
-
-                if (messageInput.value) {
-                    let room = `user${package.friend_id}`;
-                    socket.emit('send-message', package, room);
-                    if (hadHistoryMsg) {
-                        let historyMsg = document.querySelector(`.user${package.friend_id}-message`);
-                        const firstChildren = chatListContainer.children[0];
-                        if (clickedDiv) {
-                            if (firstChildren !== clickedDiv) {
-                                chatListContainer.insertBefore(clickedDiv, chatListContainer.firstChild);
-                            }
-                            historyMsg.innerHTML = package.message;
-                        } else {
-                            while (chatListContainer.firstChild) {
-                                chatListContainer.removeChild(chatListContainer.firstChild);
-                            }
-                            setTimeout(() => {
-                                fetch("/api/get_latest_message")
-                                    .then((response) => {
-                                        return response.json();
-                                    })
-                                    .then((data) => {
-                                        createChatList(data, chatListContainer);
-                                    })
-                            }, 2000);
-
-                        }
-
-                    } else {
-                        setTimeout(() => {
-                            fetch("/api/get_latest_message")
-                                .then((response) => {
-                                    return response.json();
-                                })
-                                .then((data) => {
-                                    createChatList(data, chatListContainer);
-                                })
-                        }, 2000);
-
-                    }
-                    displayMessage(package.message, true);
-                    messageInput.value = '';
+                if (!isGroup) {
+                    sendMsgInSingle();
+                } else {
+                    sendMsgInGroup();
                 }
             }
-
-
-
         }
-        if (englishWord) {
+        else if (englishWord) {
+            console.log(englishWord.length)
             if (messageInput.value.length === englishWord.length) {
-                const package = {
-                    "user_id": parseInt(selfId.innerHTML),
-                    "friend_id": parseInt(friendChatId.innerHTML),
-                    "message": messageInput.value
+                if (!isGroup) {
+                    sendMsgInSingle();
+                } else {
+                    sendMsgInGroup();
                 }
-                e.preventDefault();
+            }
 
-                if (messageInput.value) {
-                    let room = `user${package.friend_id}`;
-                    socket.emit('send-message', package, room);
-                    if (hadHistoryMsg) {
-                        let historyMsg = document.querySelector(`.user${package.friend_id}-message`);
-                        const firstChildren = chatListContainer.children[0];
-                        if (clickedDiv) {
-                            if (firstChildren !== clickedDiv) {
-                                chatListContainer.insertBefore(clickedDiv, chatListContainer.firstChild);
-                            }
-                            historyMsg.innerHTML = package.message;
-                        } else {
-                            while (chatListContainer.firstChild) {
-                                chatListContainer.removeChild(chatListContainer.firstChild);
-                            }
-                            setTimeout(() => {
-                                fetch("/api/get_latest_message")
-                                    .then((response) => {
-                                        return response.json();
-                                    })
-                                    .then((data) => {
-                                        createChatList(data, chatListContainer);
-                                    })
-                            }, 2000);
-
-                        }
-
-                    } else {
-                        setTimeout(() => {
-                            fetch("/api/get_latest_message")
-                                .then((response) => {
-                                    return response.json();
-                                })
-                                .then((data) => {
-                                    createChatList(data, chatListContainer);
-                                })
-                        }, 2000);
-
-                    }
-                    displayMessage(package.message, true);
-                    messageInput.value = '';
+        }
+        else if (symbolRegex && englishWord) {
+            if (messageInput.value.length === (englishWord.length + symbolRegex.length)) {
+                if (!isGroup) {
+                    sendMsgInSingle();
+                } else {
+                    sendMsgInGroup();
                 }
             }
         }
-
     }
-})
+});
 
 
 messageInput.addEventListener("compositionend", (e) => {
+    const isGroup = isNaN(friendChatId.innerHTML);
     messageInput.addEventListener("keyup", (e) => {
         if (e.keyCode === 13) {
-            const package = {
-                "user_id": parseInt(selfId.innerHTML),
-                "friend_id": parseInt(friendChatId.innerHTML),
-                "message": messageInput.value
-            }
-            e.preventDefault();
-
-            if (messageInput.value) {
-                let room = `user${package.friend_id}`;
-                socket.emit('send-message', package, room);
-                if (hadHistoryMsg) {
-                    let historyMsg = document.querySelector(`.user${package.friend_id}-message`);
-                    const firstChildren = chatListContainer.children[0];
-                    if (clickedDiv) {
-                        if (firstChildren !== clickedDiv) {
-                            chatListContainer.insertBefore(clickedDiv, chatListContainer.firstChild);
-                        }
-                        historyMsg.innerHTML = package.message;
-                    } else {
-                        while (chatListContainer.firstChild) {
-                            chatListContainer.removeChild(chatListContainer.firstChild);
-                        }
-                        setTimeout(() => {
-                            fetch("/api/get_latest_message")
-                                .then((response) => {
-                                    return response.json();
-                                })
-                                .then((data) => {
-                                    createChatList(data, chatListContainer);
-                                })
-                        }, 2000);
-
-                    }
-
-                } else {
-                    setTimeout(() => {
-                        fetch("/api/get_latest_message")
-                            .then((response) => {
-                                return response.json();
-                            })
-                            .then((data) => {
-                                createChatList(data, chatListContainer);
-                            })
-                    }, 2000);
-
-                }
-                displayMessage(package.message, true);
-                messageInput.value = '';
+            if (!isGroup) {
+                sendMsgInSingle();
+            } else {
+                sendMsgInGroup();
             }
         }
     })
     snedMessage.addEventListener("click", async (e) => {
-        const package = {
-            "user_id": parseInt(selfId.innerHTML),
-            "friend_id": parseInt(friendChatId.innerHTML),
-            "message": messageInput.value
+        if (!isGroup) {
+            sendMsgInSingle();
+        } else {
+            sendMsgInGroup();
         }
-        e.preventDefault();
-
-        if (messageInput.value) {
-            let room = `user${package.friend_id}`;
-            await socket.emit('send-message', package, room);
-            if (hadHistoryMsg) {
-                let historyMsg = document.querySelector(`.user${package.friend_id}-message`);
-                const firstChildren = chatListContainer.children[0];
-                if (clickedDiv) {
-                    if (firstChildren !== clickedDiv) {
-                        chatListContainer.insertBefore(clickedDiv, chatListContainer.firstChild);
-                    }
-                    historyMsg.innerHTML = package.message;
-                } else {
-                    while (chatListContainer.firstChild) {
-                        chatListContainer.removeChild(chatListContainer.firstChild);
-                    }
-                    setTimeout(() => {
-                        fetch("/api/get_latest_message")
-                            .then((response) => {
-                                return response.json();
-                            })
-                            .then((data) => {
-                                createChatList(data, chatListContainer);
-                            })
-                    }, 2000);
-
-                }
-
-            } else {
-                setTimeout(() => {
-                    fetch("/api/get_latest_message")
-                        .then((response) => {
-                            return response.json();
-                        })
-                        .then((data) => {
-                            createChatList(data, chatListContainer);
-                        })
-                }, 2000);
-
-            }
-
-            displayMessage(package.message, true);
-            messageInput.value = '';
-        }
-
     });
 })
-
-
 
 
 
@@ -810,20 +553,25 @@ function createUserHtml(resultArr) {
 
 }
 
-
-function displayMessage(msg, isSelf, is_read = 0, is_group = false) {
+let prevSenderId;
+function displayMessage(element, isSelf, is_read = 0, is_group = false) {
     let message = document.querySelector(".chat-message");
 
-    newP = document.createElement("p");
-    newP.innerHTML = msg;
+
     if (isSelf) {
+        newP = document.createElement("p");
+        newP.innerHTML = element.message;
         newP.style.marginRight = "5px";
         newP.style.marginLeft = "auto";
+        newP.style.marginBottom = "10px";
         newP.className = "chat-message-font";
 
         message.appendChild(newP);
 
+
+        //已讀狀態的顯示
         if (!is_group) {
+            groupMemberIcon.style.display = "none";
             newP = document.createElement("p");
             newP.className = "read-message-status";
             if (is_read === 1) {
@@ -838,23 +586,47 @@ function displayMessage(msg, isSelf, is_read = 0, is_group = false) {
             newP.style.marginRight = "10px";
             message.appendChild(newP);
         } else {
-            newP = document.createElement("p");
-            newP.className = "read-message-status";
-            newP.innerHTML = "";
-            newP.style.fontSize = "10px";
-            newP.style.textAlign = "right";
-            newP.style.paddingLeft = "5px";
-            newP.style.marginBottom = "10px";
-            newP.style.marginRight = "10px";
-            message.appendChild(newP);
+            groupMemberIcon.style.display = "block";
+
         }
 
     }
     else {
+        if (is_group) {
+            //顯示對方大頭貼跟暱稱
+            newDiv = document.createElement("div");
+            newDiv.className = 'group-member-headshot-nickname';
+            message.appendChild(newDiv);
+            let groupMember = document.querySelectorAll(".group-member-headshot-nickname");
+
+
+            if (groupMember.length === 1 || prevSenderId !== element.sender_id) {
+                newImg = document.createElement("img");
+                newImg.src = element.sender_headshot;
+                newImg.className = "group-chat-member-headshot";
+                newImg.style.width = "30px";
+                newImg.style.height = "30px";
+                newImg.style.borderRadius = "50px";
+                newImg.style.objectFit = "cover";
+                groupMember[groupMember.length - 1].appendChild(newImg);
+
+
+                newP = document.createElement("p");
+                newP.className = "group-chat-member-nickname";
+                newP.innerHTML = element.sender_nickname;
+                groupMember[groupMember.length - 1].appendChild(newP);
+
+
+            }
+
+        }
+        newP = document.createElement("p");
+        newP.innerHTML = element.message;
         newP.style.marginBottom = "10px";
         newP.className = "chat-message-font";
         message.appendChild(newP);
     }
+    prevSenderId = element.sender_id;
 
 
 }
@@ -882,16 +654,154 @@ function chatPopup() {
             return response.json();
         })
         .then((data) => {
-            console.log(data)
-            data.message.forEach(element => {
-                if (element.sender_id === parseInt(selfId.innerHTML)) {
-                    displayMessage(element.message, true, element.is_read);
-                } else {
-                    displayMessage(element.message, false, element.is_read);
-                }
+            if (isGroup) {
+                data.message.forEach(element => {
+                    if (element.sender_id === parseInt(selfId.innerHTML)) {
+                        displayMessage(element, true, element.is_read, true);
+                    } else {
+                        displayMessage(element, false, element.is_read, true);
+                    }
+                })
+                let groupIsReadStatus = document.querySelector(".group-read-status");
+                groupIsReadStatus.innerHTML = `${data.message[0].read_count}人已讀`;
+            } else {
+                data.message.forEach(element => {
+                    if (element.sender_id === parseInt(selfId.innerHTML)) {
+                        displayMessage(element, true, element.is_read);
+                    } else {
+                        displayMessage(element, false, element.is_read);
+                    }
 
-            })
+                })
+            }
+
         })
+
+}
+
+async function sendMsgInSingle() {
+    const package = {
+        "user_id": parseInt(selfId.innerHTML),
+        "friend_id": parseInt(friendChatId.innerHTML), //放陣列
+        "message": messageInput.value
+    }
+    if (messageInput.value) {
+        let room = `user${package.friend_id}`;
+        await socket.emit('send-message', package, room);
+        let historyMsg = document.querySelector(`.user${package.friend_id}-message`);
+        if (hadHistoryMsg && historyMsg) {
+
+            const firstChildren = chatListContainer.children[0];
+            if (clickedDiv) {
+                if (firstChildren !== clickedDiv) {
+                    chatListContainer.insertBefore(clickedDiv, chatListContainer.firstChild);
+                }
+                historyMsg.innerHTML = package.message;
+            } else {
+                while (chatListContainer.firstChild) {
+                    chatListContainer.removeChild(chatListContainer.firstChild);
+                }
+                setTimeout(() => {
+                    fetch("/api/get_latest_message")
+                        .then((response) => {
+                            return response.json();
+                        })
+                        .then((data) => {
+                            createChatList(data, chatListContainer);
+                        })
+                }, 1000);
+
+            }
+
+        } else {
+            while (chatListContainer.firstChild) {
+                chatListContainer.removeChild(chatListContainer.firstChild);
+            }
+            setTimeout(() => {
+                fetch("/api/get_latest_message")
+                    .then((response) => {
+                        return response.json();
+                    })
+                    .then((data) => {
+                        createChatList(data, chatListContainer);
+                    })
+            }, 1000);
+
+        }
+
+        displayMessage(package, true);
+        messageInput.value = '';
+
+    }
+}
+
+async function sendMsgInGroup() {
+    let groupIsReadStatus = document.querySelector(".group-read-status");
+    groupIsReadStatus.innerHTML = `0人已讀`;
+    let selfNickname = document.querySelector(".profile-name-content").innerHTML;
+    let selfHeadshot = document.querySelector(".headshot").src;
+    let package = {
+        group_id: friendChatId.innerHTML,
+        sender_id: parseInt(selfId.innerHTML),
+        message: messageInput.value,
+        sender_headshot: selfHeadshot,
+        sender_nickname: selfNickname
+    }
+    if (messageInput.value) {
+
+        await socket.emit("send-message-to-group", package);
+        let groupMessage = document.querySelector(`[data-attribute-name='${package.group_id}']`);
+        if (hadGroupHistoryMsg && groupMessage) {
+
+
+            // let attrValue = groupMessage.getAttribute(friendChatId.innerHTML);
+            // console.log("groupmsg", groupMessage)
+            // console.log(attrValue);
+            const firstChildren = groupChatListContainer.children[0];
+            if (clickedDiv) {
+                if (firstChildren !== clickedDiv) {
+                    groupChatListContainer.insertBefore(clickedDiv, groupChatListContainer.firstChild);
+                }
+                groupMessage.innerHTML = package.message;
+            } else {
+                while (groupChatListContainer.firstChild) {
+                    console.log(groupChatListContainer.firstChild)
+                    groupChatListContainer.removeChild(groupChatListContainer.firstChild);
+                }
+                setTimeout(() => {
+                    fetch("/api/get_latest_group_message")
+                        .then((response) => {
+                            return response.json();
+                        })
+                        .then((data) => {
+                            createGroupChatList(data.data);
+                        })
+                }, 1000);
+
+            }
+
+        } else {
+            while (groupChatListContainer.firstChild) {
+                console.log(groupChatListContainer.firstChild)
+                groupChatListContainer.removeChild(groupChatListContainer.firstChild);
+            }
+            setTimeout(() => {
+                fetch("/api/get_latest_group_message")
+                    .then((response) => {
+                        return response.json();
+                    })
+                    .then((data) => {
+                        createGroupChatList(data.data);
+                    })
+            }, 1000);
+
+        }
+
+        displayMessage(package.message, true);
+        messageInput.value = '';
+
+    }
+
 
 }
 

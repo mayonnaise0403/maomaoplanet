@@ -69,6 +69,13 @@ router.get("/api/search_friend", async (req, res) => {
     res.send({ status: "success", "self_id": selfId, "friend_list": result });
 })
 
+router.post("/api/get_group_member", async (req, res) => {
+    const token = req.cookies.access_token;
+    const selfId = jwt.decode(token, secretKey).userId;
+    const result = await Search.getGroupMember(selfId, req.body.groupId);
+    res.send({ status: "success", data: result })
+})
+
 
 
 async function findfriendId(email) {

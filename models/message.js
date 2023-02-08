@@ -75,8 +75,8 @@ class Message {
                     group_members.group_name, \
                     (CASE WHEN EXISTS(SELECT * FROM  group_message_is_read WHERE \
                     group_message.group_id = group_message.group_id and \
-                    is_read_member_id = 3 and group_message.sender_id!=? \
-                    ) THEN 1 ELSE 0 END) AS is_read\
+                    is_read_member_id = ? and group_message.sender_id!=? \
+                    ) THEN 1 else 0 END)AS is_read\
                     FROM group_message\
                     INNER JOIN group_members ON \
                     group_message.group_id = group_members.group_id\
@@ -89,7 +89,7 @@ class Message {
                     )\
                     GROUP BY group_message.group_id\
                     ORDER BY `time` desc; "
-        values = [userId, userId]
+        values = [userId, userId, userId]
         try {
             const queryResults = await pool.query(mysqlQuery, values);
             result = queryResults[0];
