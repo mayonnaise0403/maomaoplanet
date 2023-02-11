@@ -89,23 +89,28 @@ io.on('connection', (socket) => {
     })
 
     socket.on("recipient-join-room", (roomName) => {
-        socket.join(roomName);
+        console.log("recipient join the room");
+	socket.join(roomName);
     })
 
     socket.on("ready", (roomName) => {
+	console.log("ready");
         socket.broadcast.to(roomName).emit("ready");
     });
 
 
     socket.on("candidate", (candidate, roomName) => {
+	console.log("candidate")
         socket.broadcast.to(roomName).emit("candidate", candidate)
     })
 
     socket.on("offer", (offer, roomName) => {
+	console.log("offer")
         socket.broadcast.to(roomName).emit("offer", offer, roomName);
     });
 
     socket.on("answer", (answer, roomName) => {
+	console.log("answer")
         socket.broadcast.to(roomName).emit("answer", answer);
     })
 

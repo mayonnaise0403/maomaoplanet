@@ -116,6 +116,7 @@ grouopMemberPopupCloseBtn.addEventListener("click", () => {
 let iceServers = {
     iceServers: [
         { urls: "stun:stun.services.mozilla.com", },
+	 { urls: "stun:stun.l.google.com:19302" },
 
     ],
 };
@@ -151,6 +152,7 @@ friendPopupCall.addEventListener("click", () => {
     // 获取麦克风的媒体流
     navigator.mediaDevices.getUserMedia({ audio: true })
         .then(stream => {
+	    console.log("sender",stream)
             userStream = stream;
         })
         .catch(error => console.error(error));
@@ -165,17 +167,18 @@ socket.on("invite-join-call", (roomName, package) => {
     friendCallNickname.innerHTML = package.nickname;
     friendCallPopup.style.display = "block";
     friendCallAcceptBtn.addEventListener("click", () => {
-        friendCallAcceptBtn.style.display = "none";
-        friendCallLoader.style.display = "none";
-        friendCallTimer[0].style.visibility = "visible";
-        friendCallTimer[0].style.marginTop = "150px";
         socket.emit("recipient-join-room", roomName);
         creator = false;
 
         //撥打電話的計時器
         let timer = setInterval(phoneCallTimer, 1000);
+	friendCallAcceptBtn.style.display = "none";
+        friendCallLoader.style.display = "none";
+        friendCallTimer[0].style.visibility = "visible";
+        friendCallTimer[0].style.marginTop = "150px";
         navigator.mediaDevices.getUserMedia({ audio: true })
             .then((stream) => {
+		console.log("recipient",stream)
                 userStream = stream;
                 socket.emit("ready", roomName);
             })
@@ -186,6 +189,7 @@ socket.on("invite-join-call", (roomName, package) => {
 //sender
 socket.on("ready", () => {
     if (creator) {
+	console.log(creator)
         const selfPopupHangup = document.querySelector(".self-call-hangup-icon-container");
         // selfPopupHangup.style.marginTop = "220px";
         selfCallLoader.style.display = "none";
@@ -228,6 +232,7 @@ socket.on("candidate", (candidate) => {
 //reciver
 socket.on("offer", (offer, roomName) => {
     if (!creator) {
+	console.log(creator)
         peerConnection = new RTCPeerConnection(iceServers);
         peerConnection.oniceconnectionstatechange = onIceConnectionStateFunction();
         peerConnection.onicecandidate = (event) => {
