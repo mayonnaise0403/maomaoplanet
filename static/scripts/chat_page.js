@@ -22,6 +22,8 @@ const friendCallNickname = document.querySelector(".friend-call-nickname");
 const friendCallAcceptBtn = document.querySelector(".friend-call-icon-container");
 const friendCallRejectBtn = document.querySelector(".friend-call-hangup-icon-container");
 const friendCallTimer = document.querySelectorAll(".friend-call-timer");
+const recipientHangupCall = document.querySelector(".friend-call-hangup-icon");
+const selfCallHangup = document.querySelector(".self-call-hangup-icon");
 
 
 
@@ -326,7 +328,7 @@ socket.on("hangup-call", () => {
     callSuccess = false;
 })
 
-const recipientHangupCall = document.querySelector(".friend-call-hangup-icon");
+
 recipientHangupCall.addEventListener("click", () => {
     if (!callSuccess) {
         friendCallPopup.style.display = "none";
@@ -400,8 +402,8 @@ function phoneCallTimer() {
 
 
 //sender掛掉電話
-const selfCallHangup = document.querySelector(".self-call-hangup-icon");
 selfCallHangup.addEventListener("click", () => {
+    console.log("click")
     if (callSuccess) {
 
         socket.emit("leave", roomName);
@@ -428,6 +430,7 @@ selfCallHangup.addEventListener("click", () => {
         minutes = 0;
         hours = 0;
         callSuccess = false;
+        selfCallPopup.style.display = "none";
     } else {
         selfCallPopup.style.display = "none";
         socket.emit("hangup-call", roomName);
@@ -912,7 +915,6 @@ function createChatList(data, container) {
         }
 
         chatList[count].addEventListener("click", (event) => {
-            console.log("click")
             const clickedElement = event.target;
             clickedDiv = clickedElement.closest("div");
             if (clickedDiv.className === "chat-list-right") {
@@ -926,7 +928,7 @@ function createChatList(data, container) {
             }
 
             //跳出是否要加陌生人好友
-            if (parseInt(element.non_friend_id) === parseInt(selfId.innerHTML)) {
+            if (event.target.querySelector(".stranger-icon")) {
                 isAddFriendPopup.style.display = "block";
             }
 
