@@ -202,7 +202,10 @@ socket.on("ready", () => {
             onIceCandidateFunction(event, roomName);
         };
         peerConnection.ontrack = onTrackFunction;
-        peerConnection.addStream(userStream);
+        // peerConnection.addStream(userStream);
+        userStream.getTracks().forEach((track) => {
+            peerConnection.addTrack(track, userStream);
+        });
 
         // 创建 offer
         peerConnection.createOffer()
@@ -235,7 +238,11 @@ socket.on("offer", (offer, roomName) => {
             onIceCandidateFunction(event, roomName);
         };
         peerConnection.ontrack = onTrackFunction;
-        peerConnection.addStream(userStream);
+        // peerConnection.addStream(userStream);
+        userStream.getTracks().forEach((track) => {
+            peerConnection.addTrack(track, userStream);
+        });
+
         peerConnection.setRemoteDescription(offer);
         // 创建 offer
         peerConnection.createAnswer()
