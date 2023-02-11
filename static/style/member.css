@@ -268,7 +268,6 @@ body::-webkit-scrollbar-thumb:hover {
 
 .friend-popup-chatbox {
     width: 50px;
-    display: block;
     margin: auto;
     margin-top: 100px;
     cursor: pointer;
@@ -438,4 +437,251 @@ body::-webkit-scrollbar-thumb:hover {
 
 .search-result {
     text-align: center;
+}
+
+.friend-call-popup {
+    display: none;
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0 auto;
+    background-color: white;
+    border-radius: 10px;
+    width: 400px;
+    border: 2px solid black;
+    z-index: 2000;
+    text-align: center;
+    justify-content: center;
+}
+
+.friend-call-icon {
+
+    padding: 20px;
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    display: block;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+
+}
+
+.friend-call-icon-container {
+    background-color: rgb(39, 175, 39);
+    border-radius: 50px;
+    border: 2px solid black;
+}
+
+.friend-call-hangup-icon {
+    padding: 15px;
+    width: 60px;
+    cursor: pointer;
+    display: block;
+
+}
+
+.friend-call-hangup-icon-container {
+    border-radius: 50px;
+    background-color: rgb(248, 82, 82);
+    border: 2px solid black;
+}
+
+.friend-call-icon-container:hover {
+    transform: scale(1.05);
+}
+
+.friend-call-hangup-icon-container:hover {
+    transform: scale(1.05);
+}
+
+.friend-call-headshot {
+    width: 150px;
+    border-radius: 150px;
+    height: 150px;
+    object-fit: cover;
+    margin-top: 20px;
+}
+
+.friend-call-nickname {
+    font-weight: bolder;
+    font-size: 40px;
+}
+
+@keyframes ldio-f21110bk72v {
+    0% {
+        transform: translate(18px, 86px) scale(0);
+    }
+
+    25% {
+        transform: translate(18px, 86px) scale(0);
+    }
+
+    50% {
+        transform: translate(18px, 86px) scale(1);
+    }
+
+    75% {
+        transform: translate(86px, 86px) scale(1);
+    }
+
+    100% {
+        transform: translate(154px, 86px) scale(1);
+    }
+}
+
+@keyframes ldio-f21110bk72v-r {
+    0% {
+        transform: translate(154px, 86px) scale(1);
+    }
+
+    100% {
+        transform: translate(154px, 86px) scale(0);
+    }
+}
+
+@keyframes ldio-f21110bk72v-c {
+    0% {
+        background: #e15b64
+    }
+
+    25% {
+        background: #abbd81
+    }
+
+    50% {
+        background: #f8b26a
+    }
+
+    75% {
+        background: #f47e60
+    }
+
+    100% {
+        background: #e15b64
+    }
+}
+
+.ldio-f21110bk72v div {
+    position: absolute;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    transform: translate(86px, 86px) scale(1);
+    background: #e15b64;
+    animation: ldio-f21110bk72v 1.7241379310344827s infinite cubic-bezier(0, 0.5, 0.5, 1);
+}
+
+.ldio-f21110bk72v div:nth-child(1) {
+    background: #f47e60;
+    transform: translate(154px, 86px) scale(1);
+    animation: ldio-f21110bk72v-r 0.43103448275862066s infinite cubic-bezier(0, 0.5, 0.5, 1), ldio-f21110bk72v-c 1.7241379310344827s infinite step-start;
+}
+
+.ldio-f21110bk72v div:nth-child(2) {
+    animation-delay: -0.43103448275862066s;
+    background: #e15b64;
+}
+
+.ldio-f21110bk72v div:nth-child(3) {
+    animation-delay: -0.8620689655172413s;
+    background: #f47e60;
+}
+
+.ldio-f21110bk72v div:nth-child(4) {
+    animation-delay: -1.2931034482758619s;
+    background: #f8b26a;
+}
+
+.ldio-f21110bk72v div:nth-child(5) {
+    animation-delay: -1.7241379310344827s;
+    background: #abbd81;
+}
+
+.loadingio-spinner-ellipsis-tos2edjfqo {
+    width: 200px;
+    height: 200px;
+    display: inline-block;
+    overflow: hidden;
+    background: #ffffff;
+}
+
+.ldio-f21110bk72v {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform: translateZ(0) scale(1);
+    backface-visibility: hidden;
+    transform-origin: 0 0;
+    /* see note above */
+}
+
+.ldio-f21110bk72v div {
+    box-sizing: content-box;
+}
+
+.friend-call-timer {
+    visibility: hidden;
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    margin-bottom: 20px;
+
+}
+
+.friend-call-timer p {
+    font-size: 20px;
+}
+
+.self-call-popup {
+    display: none;
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0 auto;
+    background-color: white;
+    border-radius: 10px;
+    width: 400px;
+    border: 2px solid black;
+    z-index: 2000;
+    text-align: center;
+    justify-content: center;
+    height: 600px;
+}
+
+.self-call-popup-headshot {
+    width: 150px;
+    border-radius: 150px;
+    height: 150px;
+    object-fit: cover;
+    margin-top: 60px;
+}
+
+.self-call-popup-nickname {
+    font-size: 25px;
+    font-weight: bolder;
+}
+
+.self-call-hangup-icon-container {
+    background-color: rgb(248, 82, 82);
+    border-radius: 50px;
+    width: 90px;
+    border: 2px solid black;
+    margin: auto;
+}
+
+.self-call-hangup-icon-container:hover {
+    transform: scale(1.05);
+}
+
+.self-call-hangup-icon {
+    padding: 15px;
+    width: 60px;
+    cursor: pointer;
+    display: block;
+    margin: auto;
+
 }

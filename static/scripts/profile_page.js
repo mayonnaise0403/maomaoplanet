@@ -41,7 +41,11 @@ fetch("/api/user_data")
     .then((response) => {
         profileNickname.innerHTML = response.nickname;
         profileEmail.innerHTML = response.email;
-        headshot.src = response.headshot;
+        headshot.src = "./images/Loading_icon.gif"
+        headshot.onload = () => {
+            headshot.src = response.headshot;
+        }
+
 
     })
     .then(() => {
@@ -74,7 +78,6 @@ nameEditOk.addEventListener("click", () => {
             return response.json();
         })
         .then((data) => {
-            console.log(data);
             if (data.status === "success") {
                 nameEditOk.style.display = "none";
                 nameEditClose.style.display = "none";
@@ -202,10 +205,8 @@ uploadFile.addEventListener("click", () => {
             return response.json();
         })
         .then((data) => {
-            console.log(data);
             if (data.status === "success") {
                 let Id = document.querySelector(".self-id");
-                // headshot.src = `https://maomaoimage.s3.ap-northeast-1.amazonaws.com/headshot/userId${Id.innerHTML}`
                 headshotEditBtn.style.display = "block";
                 uploadImageBtn.style.display = "none";
                 uploadFile.style.display = "none";
@@ -252,7 +253,6 @@ function verifyEmail(emailVerifyCode) {
                 return response.json();
             })
             .then((data) => {
-                console.log(data);
                 if (data.status === "success") {
                     confirmEmailPopup.style.display = "none";
                     verifyEmailSuccessPopup.style.display = "block";

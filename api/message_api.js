@@ -31,6 +31,8 @@ router.get("/api/get_latest_group_message", async (req, res) => {
     const userId = jwt.decode(token, secretKey).userId;
     const data = await Message.getGroupLatestMessage(userId);
     res.send({ status: "success", data: data })
+
+
 })
 
 

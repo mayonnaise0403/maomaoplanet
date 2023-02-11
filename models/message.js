@@ -66,6 +66,19 @@ class Message {
         return result;
     }
 
+    async isHaveGroup(userId) {
+        mysqlQuery = 'select * from group_members where member_id = ?;';
+        values = [userId];
+        try {
+            const queryResults = await pool.query(mysqlQuery, values);
+            result = queryResults[0];
+
+        } catch (error) {
+            console.log(error.message);
+        }
+        return result;
+    }
+
     async getGroupLatestMessage(userId) {
         mysqlQuery = "SELECT \
                     group_message.group_id,\
@@ -79,7 +92,7 @@ class Message {
                     ) THEN 1 else 0 END)AS is_read\
                     FROM group_message\
                     INNER JOIN group_members ON \
-                    group_message.group_id = group_members.group_id\
+                    group_message.group_id = group_members.group_id and member_id = ?\
                     INNER JOIN member ON \
                     group_message.sender_id = member.user_id\
                     WHERE time = (\

@@ -69,10 +69,8 @@ class Search {
         values = [userId, friendId, userId, friendId];
         await pool.query(mysqlQuery, values, (error, results) => {
             if (error) {
-                console.log("error");
                 console.log(error.message);
             }
-            console.log(results);
         })
     }
 

@@ -74,7 +74,10 @@ fetch("/api/get_grouplist")
 
 
 socket.on("receive-group-message", (package) => {
-    displayMessage(package, false);
+    if (chatContainer.style.display === "block") {
+        displayMessage(package, false);
+    }
+
 
     //立即更新對方聊天列
     if (hadGroupHistoryMsg) {
@@ -142,7 +145,10 @@ socket.on("receive-group-message", (package) => {
 })
 
 socket.on("receive-message", (msg) => {
-    displayMessage(msg, false);
+    if (chatContainer.style.display === "block") {
+        displayMessage(msg, false);
+    }
+
     if (chatContainer.style.display === "block" && parseInt(msg.user_id) === parseInt(friendChatId.innerHTML)) {
         let room = `user${friendChatId.innerHTML}`;
         socket.emit('read-message', room);
@@ -199,6 +205,7 @@ socket.on("receive-group-read-message", (hadReadCount) => {
     let groupIsReadStatus = document.querySelector(".group-read-status");
     groupIsReadStatus.innerHTML = `${hadReadCount}人已讀`;
 })
+
 
 
 
@@ -283,6 +290,7 @@ friendPopupClose.addEventListener("click", () => {
     friendPopup.style.display = "none";
     groupMemberPopupAddFriend.style.display = "none";
     popupChatBtn.style.display = "block";
+    friendPopupCall.style.display = "block";
 });
 
 //關閉聊天室窗
@@ -330,8 +338,6 @@ popupChatBtn.addEventListener("click", () => {
     chatPopup();
 
 })
-
-
 
 snedMessage.addEventListener("click", async (e) => {
     const isGroup = isNaN(friendChatId.innerHTML);
@@ -406,6 +412,7 @@ messageInput.addEventListener("compositionend", (e) => {
 
 
 function createFriendList(friendData, list) {
+    let imgCount = 0;
     let count = 0;
     list.innerHTML = "";
     friendData.friend_list.forEach(element => {
@@ -414,10 +421,13 @@ function createFriendList(friendData, list) {
         list.appendChild(newDiv);
         friend = document.querySelectorAll(".friend");
 
-        newImg = document.createElement("img");
-        newImg.src = element.headshot;
+
+        let newImg = document.createElement("img");
         newImg.id = "friend-headshot";
+        newImg.src = element.headshot;
         friend[count].appendChild(newImg);
+
+
 
         newP = document.createElement("p");
         newP.innerHTML = element.nickname;
@@ -425,7 +435,11 @@ function createFriendList(friendData, list) {
 
         friend[count].addEventListener("click", () => {
             let friendPopupHeadshot = document.querySelector(".friend-popup-headshot");
-            friendPopupHeadshot.src = element.headshot;
+            friendPopupHeadshot.src = "./images/Loading_icon.gif";
+            friendPopupHeadshot.onload = () => {
+                friendPopupHeadshot.src = element.headshot;
+            }
+
             friendPopup.style.display = "block";
             friendName.innerHTML = element.nickname;
             friendId.innerHTML = element.user_id;
@@ -454,7 +468,10 @@ function createGroupList(groupData, list) {
 
         group[count].addEventListener("click", () => {
             let friendPopupHeadshot = document.querySelector(".friend-popup-headshot");
-            friendPopupHeadshot.src = element.headshot;
+            friendPopupHeadshot.src = "./images/Loading_icon.gif";
+            friendPopupHeadshot.onload = () => {
+                friendPopupHeadshot.src = element.headshot;
+            }
             friendPopup.style.display = "block";
             friendName.innerHTML = element.group_name;
             friendId.innerHTML = element.group_id;
@@ -471,12 +488,6 @@ function createUserHtml(resultArr) {
         newDiv.className = "search-result";
         popupAddFriendResult.appendChild(newDiv);
         let searchResult = document.querySelectorAll(".search-result");
-
-
-
-        // newP = document.createElement("p");
-        // newP.innerHTML = element.email;
-        // searchResult[count].appendChild(newP);
 
         newImg = document.createElement("img");
         newImg.src = element.headshot;
@@ -782,7 +793,6 @@ async function sendMsgInGroup() {
 
         } else {
             while (groupChatListContainer.firstChild) {
-                console.log(groupChatListContainer.firstChild)
                 groupChatListContainer.removeChild(groupChatListContainer.firstChild);
             }
             setTimeout(() => {
@@ -797,7 +807,7 @@ async function sendMsgInGroup() {
 
         }
 
-        displayMessage(package.message, true);
+        displayMessage(package, true);
         messageInput.value = '';
 
     }

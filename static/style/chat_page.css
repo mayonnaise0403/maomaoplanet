@@ -352,6 +352,7 @@ body {
     margin-top: 10px;
     margin-left: 20px;
     cursor: pointer;
+    display: none;
 }
 
 .group-member-icon:hover {
@@ -408,7 +409,6 @@ body {
 
 .friend-popup-add-friend {
     width: 50px;
-    display: block;
     margin: auto;
     margin-top: 100px;
     cursor: pointer;
@@ -418,4 +418,21 @@ body {
 
 .friend-popup-add-friend:hover {
     transform: scale(1.1);
+}
+
+.friend-popup-call {
+    width: 50px;
+    margin: auto;
+    margin-top: 100px;
+    cursor: pointer;
+    margin-bottom: 10px;
+
+}
+
+.friend-popup-call:hover {
+    transform: scale(1.1);
+}
+
+.friend-popup-pc-container {
+    display: flex;
 }

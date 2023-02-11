@@ -84,10 +84,9 @@
 
     <div class="container">
         <div class="left-content">
-            <img class="profile-btn" src="./images/profile.png" />
+            <img class="profile-btn" src="./images/ufo (5).png" />
             <img class="pc-icon" id="friend-icon" src="./images/friends.png" />
             <img class="pc-icon" id="chat-icon" src="./images/chat.png" />
-            <img class="pc-icon" id="post-icon" src="./images/instagram-post.png">
         </div>
 
         <div class="right-content" id="profile-page">
@@ -208,8 +207,12 @@
         <img class="friend-popup-headshot" src="./images/user.png" />
         <p class="friend-nickname"></p>
         <p class="friend-user_id"></p>
-        <img class="friend-popup-chatbox" src="./images/chat-box.png" />
+
         <img class="friend-popup-add-friend" src="./images/add-friend-btn.png" />
+        <div class="friend-popup-pc-container">
+            <img class="friend-popup-chatbox" src="./images/chat-box.png" />
+            <img class="friend-popup-call" src="./images/telephone.png">
+        </div>
     </div>
 
     <div class="search-friend-popup">
@@ -254,7 +257,65 @@
         </div>
     </div>
 
+    <div class="friend-call-popup">
+        <img class="friend-call-headshot" />
+        <p class="friend-call-nickname"></p>
+        <div class="loadingio-spinner-ellipsis-tos2edjfqo" id="phone-call-loading">
+            <div class="ldio-f21110bk72v">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+        </div>
 
+        <div class="friend-call-timer">
+            <p class="friend-call-hour"></p>
+            <p class="friend-call-minute"></p>
+            <p class="friend-call-seconds"></p>
+        </div>
+
+        <div style="display:flex;justify-content:space-around; align-items: center;margin-bottom:20px;">
+            <div class="friend-call-icon-container">
+                <img class="friend-call-icon" src="./images/telephone.png" />
+            </div>
+            <div class="friend-call-hangup-icon-container">
+                <img class="friend-call-hangup-icon" src="./images/rejected (1).png" />
+            </div>
+        </div>
+    </div>
+
+    <div class="self-call-popup">
+        <img class="self-call-popup-headshot" />
+        <p class="self-call-popup-nickname"></p>
+
+        <div class="loadingio-spinner-ellipsis-tos2edjfqo" id="self-phone-call-loading">
+            <div class="ldio-f21110bk72v">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+        </div>
+
+        <div class="friend-call-timer">
+            <p class="friend-call-hour"></p>
+            <p class="friend-call-minute"></p>
+            <p class="friend-call-seconds"></p>
+        </div>
+
+
+        <div class="self-call-hangup-icon-container">
+            <img class="self-call-hangup-icon" src="./images/rejected (1).png" />
+        </div>
+
+
+    </div>
+
+    <!-- <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script> -->
+    <!-- <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script> -->
     <script src="socket.io/socket.io.js"></script>
     <!-- <script src="https://cdn.jsdelivr.net/npm/socket.io-client@2/dist/socket.io.js"></script> -->
     <script type="text/javascript" src="scripts/left_content.js"></script>

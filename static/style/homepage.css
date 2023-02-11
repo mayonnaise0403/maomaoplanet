@@ -101,6 +101,7 @@ body {
 }
 
 #email-verification-container {
+    z-index: 2000;
     display: none;
 }
 
@@ -155,4 +156,15 @@ body {
     color: red;
     font-size: 20px;
     font-weight: bolder;
+}
+
+.darker {
+    position: fixed;
+    background-color: rgb(157, 157, 157);
+    opacity: 0.5;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    top: 0px;
+    display: none;
 }

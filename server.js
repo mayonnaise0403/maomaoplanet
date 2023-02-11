@@ -8,6 +8,7 @@ const searchRouter = require("./api/search_api");
 const messageRouter = require("./api/message_api");
 const memberRouter = require("./api/member_api");
 const updateRouter = require("./api/update_api");
+const adapter = require("webrtc-adapter");
 const app = express();
 const http = require('http').Server(app);
 
@@ -79,6 +80,34 @@ io.on('connection', (socket) => {
 
     })
 
+    //加入通話
+    socket.on("join", (roomName, package) => {
+        socket.join(roomName);
+        let userId = roomName.substring(roomName.indexOf("and"));
+        userId = userId.replace("and", "")
+        socket.to(`user${userId}`).emit("invite-join-call", roomName, package)
+    })
+
+    socket.on("recipient-join-room", (roomName) => {
+        socket.join(roomName);
+    })
+
+    socket.on("ready", (roomName) => {
+        socket.broadcast.to(roomName).emit("ready");
+    });
+
+
+    socket.on("candidate", (candidate, roomName) => {
+        socket.broadcast.to(roomName).emit("candidate", candidate)
+    })
+
+    socket.on("offer", (offer, roomName) => {
+        socket.broadcast.to(roomName).emit("offer", offer, roomName);
+    });
+
+    socket.on("answer", (answer, roomName) => {
+        socket.broadcast.to(roomName).emit("answer", answer);
+    })
 
 
 

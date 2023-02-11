@@ -1,4 +1,3 @@
-
 const isAddFriendOkBtn = document.querySelector(".is-add-friend-ok-btn");
 const isAddFriendCloseBtn = document.querySelector(".is-add-friend-no-btn");
 const isAddFriendPopup = document.querySelector(".is-add-friend-to-stranger");
@@ -17,6 +16,14 @@ const groupMemberPopup = document.querySelector(".group-member-popup");
 const grouopMemberPopupCloseBtn = document.querySelector(".group-member-popup-close");
 const groupMemberList = document.querySelector(".group-member-list");
 const groupMemberPopupAddFriend = document.querySelector(".friend-popup-add-friend");
+const friendPopupCall = document.querySelector(".friend-popup-call");
+const friendCallHeadshot = document.querySelector(".friend-call-headshot");
+const friendCallNickname = document.querySelector(".friend-call-nickname");
+const friendCallAcceptBtn = document.querySelector(".friend-call-icon-container");
+const friendCallRejectBtn = document.querySelector(".friend-call-hangup-icon-container");
+const friendCallTimer = document.querySelectorAll(".friend-call-timer");
+
+
 
 let clickedDiv, messageData;
 let hadHistoryMsg = false;
@@ -104,6 +111,223 @@ grouopMemberPopupCloseBtn.addEventListener("click", () => {
     })
 })
 
+//通話功能///////////////////////////////////////////////////
+
+let iceServers = {
+    iceServers: [
+        { urls: "stun:stun.services.mozilla.com", },
+
+    ],
+};
+let creator = false;
+let peerConnection, roomName, userStream;
+let seconds = 0;;
+let minutes = 0;
+let hours = 0;
+const friendCallPopup = document.querySelector(".friend-call-popup");
+const friendCallLoader = document.querySelector("#phone-call-loading");
+const selfCallLoader = document.querySelector("#self-phone-call-loading");
+
+//與好友通話 sender
+friendPopupCall.addEventListener("click", () => {
+    const selfCallNickname = document.querySelector(".self-call-popup-nickname");
+    const selfCallHeadshot = document.querySelector(".self-call-popup-headshot");
+    const selfCallPopup = document.querySelector(".self-call-popup");
+    const friendPopupHeadshot = document.querySelector(".friend-popup-headshot");
+    selfCallPopup.style.display = "block";
+    selfCallHeadshot.src = friendPopupHeadshot.src;
+    selfCallNickname.innerHTML = friendName.innerHTML;
+
+
+
+    const package = {
+        headshot: document.querySelector(".headshot").src,
+        nickname: document.querySelector(".profile-name-content").innerHTML,
+        userId: parseInt(selfId.innerHTML)
+    }
+    roomName = `${selfId.innerHTML}and${friendId.innerHTML}`;
+    socket.emit("join", roomName, package);
+    creator = true;
+    // 获取麦克风的媒体流
+    navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(stream => {
+            userStream = stream;
+        })
+        .catch(error => console.error(error));
+
+})
+
+
+
+//reciver 對方接聽
+socket.on("invite-join-call", (roomName, package) => {
+    friendCallHeadshot.src = package.headshot;
+    friendCallNickname.innerHTML = package.nickname;
+    friendCallPopup.style.display = "block";
+    friendCallAcceptBtn.addEventListener("click", () => {
+        friendCallAcceptBtn.style.display = "none";
+        friendCallLoader.style.display = "none";
+        friendCallTimer[0].style.visibility = "visible";
+        friendCallTimer[0].style.marginTop = "150px";
+        socket.emit("recipient-join-room", roomName);
+        creator = false;
+
+        //撥打電話的計時器
+        let timer = setInterval(phoneCallTimer, 1000);
+        navigator.mediaDevices.getUserMedia({ audio: true })
+            .then((stream) => {
+                userStream = stream;
+                socket.emit("ready", roomName);
+            })
+            .catch(error => console.error(error));
+    })
+})
+
+//sender
+socket.on("ready", () => {
+    if (creator) {
+        const selfPopupHangup = document.querySelector(".self-call-hangup-icon-container");
+        // selfPopupHangup.style.marginTop = "220px";
+        selfCallLoader.style.display = "none";
+        friendCallTimer[1].style.visibility = "visible";
+        friendCallTimer[1].style.marginTop = "200px";
+        let timer = setInterval(phoneCallTimer, 1000);
+        peerConnection = new RTCPeerConnection(iceServers);
+        peerConnection.oniceconnectionstatechange = onIceConnectionStateFunction;
+        peerConnection.onicecandidate = (event) => {
+            if (!event.candidate) {
+                console.log("All ice candidates have been sent.");
+                return;
+            }
+            onIceCandidateFunction(event, roomName);
+        };
+        peerConnection.ontrack = onTrackFunction;
+        peerConnection.addStream(userStream);
+
+        // 创建 offer
+        peerConnection.createOffer()
+            .then(offer => {
+                peerConnection.setLocalDescription(offer);
+                socket.emit("offer", offer, roomName);
+            })
+            .catch(error => console.error(error));
+
+    }
+
+})
+
+
+socket.on("candidate", (candidate) => {
+    let icecandidate = new RTCIceCandidate(candidate);
+    peerConnection.addIceCandidate(icecandidate);
+})
+
+//reciver
+socket.on("offer", (offer, roomName) => {
+    if (!creator) {
+        peerConnection = new RTCPeerConnection(iceServers);
+        peerConnection.oniceconnectionstatechange = onIceConnectionStateFunction();
+        peerConnection.onicecandidate = (event) => {
+            if (!event.candidate) {
+                console.log("All ice candidates have been sent.");
+                return;
+            }
+            onIceCandidateFunction(event, roomName);
+        };
+        peerConnection.ontrack = onTrackFunction;
+        peerConnection.addStream(userStream);
+        peerConnection.setRemoteDescription(offer);
+        // 创建 offer
+        peerConnection.createAnswer()
+            .then(answer => {
+                peerConnection.setLocalDescription(answer);
+                socket.emit("answer", answer, roomName);
+            })
+            .catch(error => console.error(error));
+
+    }
+})
+
+socket.on("answer", (answer) => {
+    peerConnection.setRemoteDescription(answer);
+})
+
+
+
+
+
+function onIceCandidateFunction(event, roomName) {
+    try {
+        if (event.candidate) {
+            socket.emit("candidate", event.candidate, roomName)
+        }
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+function onTrackFunction(event) {
+    console.log("here")
+    try {
+        if (event.track.kind === "audio") {
+            console.log("success")
+            const audioElement = new Audio();
+            audioElement.srcObject = event.streams[0];
+            audioElement.onloadedmetadata = (e) => {
+                audioElement.play();
+            };
+        } else {
+            console.log("unsuccess")
+        }
+    } catch (error) {
+        console.error(error);
+    }
+
+}
+
+function onIceConnectionStateFunction(event) {
+    console.log("Ice connection state: " + peerConnection.iceConnectionState);
+    if (peerConnection.iceConnectionState === "failed") {
+        console.error("ICE connection failed");
+    }
+}
+
+function phoneCallTimer() {
+    const friendCallTimerHour = document.querySelectorAll(".friend-call-hour");
+    const friendCallTimerMinute = document.querySelectorAll(".friend-call-minute");
+    const friendCallTimerSeconds = document.querySelectorAll(".friend-call-seconds");
+    friendCallTimerSeconds[0].innerHTML = `&nbsp;${seconds}`;
+    friendCallTimerSeconds[1].innerHTML = `&nbsp;${seconds}`;
+    friendCallTimerMinute[0].innerHTML = `&nbsp;${minutes} : `;
+    friendCallTimerMinute[1].innerHTML = `&nbsp;${minutes} : `;
+    friendCallTimerHour[0].innerHTML = `&nbsp;${hours} : `;
+    friendCallTimerHour[1].innerHTML = `&nbsp;${hours} : `;
+    seconds++;
+    if (seconds >= 60) {
+        seconds = 0;
+        minutes++;
+    }
+    if (minutes >= 60) {
+        minutes = 0;
+        hours++;
+    }
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 //查看群組成員
 groupMemberIcon.addEventListener("click", () => {
     groupMemberPopup.style.display = "block";
@@ -149,9 +373,11 @@ groupMemberIcon.addEventListener("click", () => {
                         if (element.is_friend === 0) {
                             groupMemberPopupAddFriend.style.display = "block";
                             popupChatBtn.style.display = "none";
+                            friendPopupCall.style.display = "none";
                         } else {
                             groupMemberPopupAddFriend.style.display = "none";
                             popupChatBtn.style.display = "block";
+                            friendPopupCall.style.display = "block";
                         }
                     }
                 })
@@ -179,6 +405,7 @@ groupMemberPopupAddFriend.addEventListener("click", () => {
             if (data.status === "success") {
                 groupMemberPopupAddFriend.style.display = "none";
                 popupChatBtn.style.display = "block";
+                friendPopupCall.style.display = "block";
 
                 addFriendStatusPopup.style.display = "block";
                 addFriendStatus.innerHTML = `✅${data.message}`;
@@ -227,7 +454,6 @@ isAddFriendOkBtn.addEventListener("click", () => {
                 let friendMsg = document.querySelector(`.user${friend_id}-message`).parentNode;
                 let strangerIcon = friendMsg.querySelector(".stranger-icon");
                 friendMsg.removeChild(strangerIcon);
-                console.log(2);
                 addFriendStatusPopup.style.display = "block";
                 addFriendStatus.innerHTML = `✅${data.message}`;
                 addFriendStatusPopup.style.animation = "slideInFromTop 0.5s ease-in-out";
@@ -538,6 +764,7 @@ function createChatList(data, container) {
         }
 
         chatList[count].addEventListener("click", (event) => {
+            console.log("click")
             const clickedElement = event.target;
             clickedDiv = clickedElement.closest("div");
             if (clickedDiv.className === "chat-list-right") {
@@ -552,7 +779,6 @@ function createChatList(data, container) {
 
             //跳出是否要加陌生人好友
             if (parseInt(element.non_friend_id) === parseInt(selfId.innerHTML)) {
-                console.log("here?")
                 isAddFriendPopup.style.display = "block";
             }
 

@@ -50,7 +50,6 @@ loginBtn.addEventListener("click", () => {
             return response.json();
         })
         .then((data) => {
-            console.log(data)
             if (data.status === "success") {
                 window.location.href = "/member";
             } else {
@@ -97,7 +96,7 @@ async function uploadDatabase() {
         },
     });
     let data = await response.json();
-    console.log(data);
+
     if (data.status === "success") {
         signupContainer.style.display = "none";
         emailVerification.style.display = "block";
@@ -136,6 +135,8 @@ async function uploadDatabase() {
                             })
                             .then((data) => {
                                 if (data.status === "success") {
+                                    const backgroundDarker = document.querySelector(".darker");
+                                    backgroundDarker.style.display = "block";
                                     signupPopup.style.display = "block";
                                     signupPopupMsg.innerHTML = "✅註冊成功";
                                     signupPopupMsg.style.color = "rgb(12, 194, 12)";
@@ -153,7 +154,9 @@ async function uploadDatabase() {
             })
 
     } else {
-        return false;
+        if (data.status === "error" && data.message === "email已被註冊過了") {
+            signupEmailErrorMsg.innerHTML = "⚠信箱已經被註冊過了";
+        }
     }
 }
 

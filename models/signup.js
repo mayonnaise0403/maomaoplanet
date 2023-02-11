@@ -10,7 +10,6 @@ class Signup {
             const mysqlQuery = 'INSERT INTO member(nickname,email,password,headshot) VALUES(?,?,?,?);';
             const values = [nickname, email, password, `${process.env.S3_Url}default_headshot.png`];
             const results = await pool.query(mysqlQuery, values);
-            console.log(results);
         } catch (error) {
             console.error("error:", error.message);
         }

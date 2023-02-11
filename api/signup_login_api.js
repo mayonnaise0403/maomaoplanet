@@ -61,7 +61,7 @@ router.post("/send_email", (req, res) => {
             pass: process.env.Email_Password
         },
     });
-
+    console.log(code)
     transporter.sendMail({
         from: process.env.email,
         to: userEmail,
@@ -93,7 +93,9 @@ router.post("/signup", (req, res) => {
             checkEmailAvailability(req.body.email)
                 .then((result) => {
                     if (result) {
-                        res.status(200).send({ "status": "success", "message": "email驗證" });
+                        res.status(200).send({ status: "success", message: "email驗證" });
+                    } else {
+                        res.status(400).send({ status: "error", message: "email已被註冊過了" });
                     }
                 }
 
