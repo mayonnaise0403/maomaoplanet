@@ -82,45 +82,65 @@ io.on('connection', (socket) => {
 
     //加入通話
     socket.on("join", (roomName, package) => {
+        const cookie = socket.request.headers.cookie;
+        const match = cookie.match(/access_token=([^;]+)/);
+        const token = match ? match[1] : null;
+        const senderId = jwt.decode(token, secretKey).userId;
+
         socket.join(roomName);
         let userId = roomName.substring(roomName.indexOf("and"));
         userId = userId.replace("and", "")
-        socket.to(`user${userId}`).emit("invite-join-call", roomName, package)
+        socket.to(`user${userId}`).emit("invite-join-call", roomName, package, senderId)
     })
 
     socket.on("recipient-join-room", (roomName) => {
         console.log("recipient join the room");
-	socket.join(roomName);
+        socket.join(roomName);
     })
 
     socket.on("ready", (roomName) => {
-	console.log("ready");
+        console.log("ready");
         socket.broadcast.to(roomName).emit("ready");
     });
 
 
     socket.on("candidate", (candidate, roomName) => {
-	console.log("candidate")
+        console.log("candidate")
         socket.broadcast.to(roomName).emit("candidate", candidate)
     })
 
     socket.on("offer", (offer, roomName) => {
-	console.log("offer")
+        console.log("offer")
         socket.broadcast.to(roomName).emit("offer", offer, roomName);
     });
 
     socket.on("answer", (answer, roomName) => {
-	console.log("answer")
+        console.log("answer")
         socket.broadcast.to(roomName).emit("answer", answer);
     })
-
-
-
 
 
     socket.on("join-self-room", async (room) => {
         socket.join(`user${room}`);
     });
+
+    socket.on("hangup-call", (roomName) => {
+        socket.leave(roomName);
+        let userId = roomName.substring(roomName.indexOf("and"));
+        userId = userId.replace("and", "")
+        socket.to(`user${userId}`).emit("hangup-call")
+    })
+
+    socket.on("recipient-hangup-call", (senderId) => {
+        socket.to(`user${senderId}`).emit("hangup-call")
+    })
+
+
+    socket.on("leave", (roomName) => {
+        console.log(roomName)
+        socket.leave(roomName);
+        socket.broadcast.to(roomName).emit("leave");
+    })
 
 });
 
@@ -130,9 +150,9 @@ app.get("/", (req, res) => {
 })
 
 
-app.get("/*", (req, res) => {
+// app.get("/*", (req, res) => {
 
-})
+// })
 
 
 
