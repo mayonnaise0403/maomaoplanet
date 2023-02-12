@@ -144,6 +144,17 @@ socket.on("receive-group-message", (package) => {
                 })
         }, 1000);
 
+        setTimeout(() => {
+            fetch("/api/get_grouplist")
+                .then((response) => {
+                    return response.json();
+                })
+                .then((data) => {
+                    createGroupList(data, groupList)
+                })
+        }, 1000);
+
+
     }
 
 })

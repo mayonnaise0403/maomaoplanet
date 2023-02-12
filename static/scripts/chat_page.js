@@ -100,6 +100,7 @@ createGroupBtn.addEventListener("click", () => {
                         .then((data) => {
                             createGroupList(data, groupList)
                         })
+
                 }
             })
     }
