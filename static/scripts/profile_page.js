@@ -41,10 +41,10 @@ fetch("/api/user_data")
     .then((response) => {
         profileNickname.innerHTML = response.nickname;
         profileEmail.innerHTML = response.email;
-        headshot.src = "./images/Loading_icon.gif"
-        headshot.onload = () => {
-            headshot.src = response.headshot;
-        }
+        // headshot.src = "./images/Loading_icon.gif"
+        // headshot.onload = () => {
+        headshot.src = response.headshot;
+        // }
 
 
     })
@@ -222,7 +222,9 @@ uploadFile.addEventListener("click", () => {
 
 //預覽大頭貼
 inputFile.addEventListener("change", e => {
+
     file = inputFile.files[0];
+    console.log(file)
     const reader = new FileReader();
 
     reader.addEventListener("load", () => {

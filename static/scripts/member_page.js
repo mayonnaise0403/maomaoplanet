@@ -714,6 +714,7 @@ async function sendMsgInSingle() {
                 historyMsg.innerHTML = package.message;
             } else {
                 while (chatListContainer.firstChild) {
+                    console.log("remove firstChild")
                     chatListContainer.removeChild(chatListContainer.firstChild);
                 }
                 setTimeout(() => {
@@ -730,6 +731,7 @@ async function sendMsgInSingle() {
 
         } else {
             while (chatListContainer.firstChild) {
+                console.log("remove firstChild")
                 chatListContainer.removeChild(chatListContainer.firstChild);
             }
             setTimeout(() => {
@@ -780,6 +782,7 @@ async function sendMsgInGroup() {
                 groupMessage.innerHTML = package.message;
             } else {
                 while (groupChatListContainer.firstChild) {
+                    console.log("remove firstChild")
                     console.log(groupChatListContainer.firstChild)
                     groupChatListContainer.removeChild(groupChatListContainer.firstChild);
                 }
@@ -797,6 +800,7 @@ async function sendMsgInGroup() {
 
         } else {
             while (groupChatListContainer.firstChild) {
+                console.log("remove firstChild")
                 groupChatListContainer.removeChild(groupChatListContainer.firstChild);
             }
             setTimeout(() => {
