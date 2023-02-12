@@ -33,6 +33,10 @@ const emailRule = /^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-
 let newP, newHr, newDiv, newImg;
 
 
+window.onbeforeunload = () => {
+    socket.disconnect();
+};
+
 fetch("/api/get_friendlist")
     .then((response) => {
         return response.json();

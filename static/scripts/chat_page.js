@@ -23,7 +23,7 @@ const friendCallAcceptBtn = document.querySelector(".friend-call-icon-container"
 const friendCallRejectBtn = document.querySelector(".friend-call-hangup-icon-container");
 const friendCallTimer = document.querySelectorAll(".friend-call-timer");
 const recipientHangupCall = document.querySelector(".friend-call-hangup-icon");
-const selfCallHangup = document.querySelector(".self-call-hangup-icon");
+
 
 
 
@@ -134,6 +134,7 @@ const friendCallPopup = document.querySelector(".friend-call-popup");
 const friendCallLoader = document.querySelector("#phone-call-loading");
 const selfCallLoader = document.querySelector("#self-phone-call-loading");
 const selfCallPopup = document.querySelector(".self-call-popup");
+const selfCallHangup = document.querySelector(".self-call-hangup-icon");
 
 //與好友通話 sender
 friendPopupCall.addEventListener("click", () => {
