@@ -929,7 +929,7 @@ function createChatList(data, container) {
             }
 
             //跳出是否要加陌生人好友
-            if (event.target.querySelector(".stranger-icon")) {
+            if (clickedDiv.querySelector(".stranger-icon") || event.target.className === "stranger-icon") {
                 isAddFriendPopup.style.display = "block";
             }
 
