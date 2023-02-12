@@ -680,12 +680,14 @@ function chatPopup() {
         .then((data) => {
             if (isGroup) {
                 data.message.forEach(element => {
+
                     if (element.sender_id === parseInt(selfId.innerHTML)) {
                         displayMessage(element, true, element.is_read, true);
                     } else {
                         displayMessage(element, false, element.is_read, true);
                     }
                 })
+                groupMemberIcon.style.display = "block";
                 let groupIsReadStatus = document.querySelector(".group-read-status");
                 groupIsReadStatus.innerHTML = `${data.message[0].read_count}人已讀`;
             } else {
