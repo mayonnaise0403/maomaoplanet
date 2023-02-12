@@ -709,6 +709,10 @@ function createGroupChatList(data) {
             chatBoxFriendName.innerHTML = element.group_name;
             friendChatId.innerHTML = element.group_id;
             const isGroup = isNaN(friendChatId.innerHTML);
+
+            if (isGroup) {
+                groupMemberIcon.style.display = "block";
+            }
             if (senderIsMe) {
                 fetch("/api/get_message", {
                     method: "POST",
