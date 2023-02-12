@@ -89,6 +89,7 @@ createGroupBtn.addEventListener("click", () => {
 
                 if (data.status === "success") {
                     chatContainer.style.display = "block";
+                    groupMemberIcon.style.display = "block";
                     addGroupPopup.style.display = "none";
                     chatBoxFriendName.innerHTML = data.groupName;
                     friendChatId.innerHTML = data.groupId;

@@ -163,15 +163,19 @@ socket.on("receive-message", (msg) => {
         const firstChildren = chatListContainer.children[0];
         let historyMsgFather = historyMsg.parentNode.parentNode;
 
-        //顯示未讀通知
-        newImg = document.createElement("img");
-        newImg.src = "./images/new-message.png";
-        newImg.className = "new-message-icon";
-        newImg.style.width = "50px";
-        newImg.style.position = "absolute";
-        newImg.style.right = "10px";
-        newImg.style.top = "10px";
-        historyMsgFather.appendChild(newImg);
+
+        if (chatContainer.style.display === "none" && (clickedDiv.querySelector(`.user${msg.user_id}-message`))) {
+            //顯示未讀通知
+            newImg = document.createElement("img");
+            newImg.src = "./images/new-message.png";
+            newImg.className = "new-message-icon";
+            newImg.style.width = "50px";
+            newImg.style.position = "absolute";
+            newImg.style.right = "10px";
+            newImg.style.top = "10px";
+            historyMsgFather.appendChild(newImg);
+        }
+
 
         if (firstChildren !== historyMsgFather) {
             chatListContainer.insertBefore(historyMsgFather, chatListContainer.firstChild);
@@ -299,6 +303,7 @@ friendPopupClose.addEventListener("click", () => {
 
 //關閉聊天室窗
 chatCloseBtn.addEventListener("click", () => {
+
     chatContainer.style.display = "none";
     const parentDiv = document.querySelector(".chat-message");
     const groupMember = document.querySelectorAll(".group-member-headshot-nickname");
