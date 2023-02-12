@@ -164,7 +164,9 @@ socket.on("receive-message", (msg) => {
         let historyMsgFather = historyMsg.parentNode.parentNode;
 
 
-        if (chatContainer.style.display === "none" && (clickedDiv.querySelector(`.user${msg.user_id}-message`))) {
+        if (chatContainer.style.display === "block" && (clickedDiv.querySelector(`.user${msg.user_id}-message`))) {
+
+        } else {
             //顯示未讀通知
             newImg = document.createElement("img");
             newImg.src = "./images/new-message.png";
