@@ -633,7 +633,7 @@ isAddFriendOkBtn.addEventListener("click", () => {
         })
 })
 
-function createGroupChatList(data) {
+function createGroupChatList(data, firstSend = false) {
     let count = 0;
     data.forEach(element => {
         hadGroupHistoryMsg = true;
@@ -681,6 +681,17 @@ function createGroupChatList(data) {
         newP.style.color = "gray";
         rightGroupChatList[count].appendChild(newP);
 
+
+        if (firstSend === true) {
+            newImg = document.createElement("img");
+            newImg.src = "./images/new-message.png";
+            newImg.className = "new-message-icon";
+            newImg.style.width = "50px";
+            newImg.style.position = "absolute";
+            newImg.style.right = "5px";
+            newImg.style.top = "0px";
+            rightGroupChatList[count].appendChild(newImg);
+        }
 
         if (element.is_read === 0 && element.sender_id !== parseInt(selfId.innerHTML)) {
             newImg = document.createElement("img");

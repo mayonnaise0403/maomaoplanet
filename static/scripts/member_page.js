@@ -140,9 +140,9 @@ socket.on("receive-group-message", (package) => {
                     return response.json();
                 })
                 .then((data) => {
-                    createGroupChatList(data.data);
+                    createGroupChatList(data.data, true);
                 })
-        }, 2000);
+        }, 1000);
 
     }
 
@@ -356,6 +356,7 @@ snedMessage.addEventListener("click", async (e) => {
         sendMsgInSingle();
     } else {
         sendMsgInGroup();
+        groupMemberIcon.style.display = "block";
     }
 
 })
@@ -592,6 +593,7 @@ function displayMessage(element, isSelf, is_read = 0, is_group = false) {
 
 
         //已讀狀態的顯示
+        console.log(is_group)
         if (!is_group) {
             groupMemberIcon.style.display = "none";
             newP = document.createElement("p");
@@ -822,7 +824,7 @@ async function sendMsgInGroup() {
 
         }
 
-        displayMessage(package, true);
+        displayMessage(package, true, 0, true);
         messageInput.value = '';
 
     }
