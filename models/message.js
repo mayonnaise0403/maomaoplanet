@@ -5,7 +5,6 @@ let mysqlQuery, values, result, isSuccess;
 class Message {
 
     async storeMessage(myId, friendId, message) {
-
         try {
             mysqlQuery = "INSERT INTO `chat_message`(sender_id, recipient_id, message) VALUES(?, ?, ?);";
             values = [myId, friendId, message];
@@ -87,8 +86,8 @@ class Message {
                     group_members.headshot as group_headshot,\
                     group_members.group_name, \
                     (CASE WHEN EXISTS(SELECT * FROM  group_message_is_read WHERE \
-                    group_message.group_id = group_message.group_id and \
-                    is_read_member_id = ? and group_message.sender_id!=? \
+                    group_message_is_read.group_id = group_message.group_id and \
+                    is_read_member_id = ? group by group_message.group_id \
                     ) THEN 1 else 0 END)AS is_read\
                     FROM group_message\
                     INNER JOIN group_members ON \
@@ -102,7 +101,7 @@ class Message {
                     )\
                     GROUP BY group_message.group_id\
                     ORDER BY `time` desc; "
-        values = [userId, userId, userId]
+        values = [userId, userId]
         try {
             const queryResults = await pool.query(mysqlQuery, values);
             result = queryResults[0];
@@ -207,6 +206,7 @@ class Message {
         }
         return result;
     }
+
 
 
 }

@@ -115,8 +115,8 @@ class Search {
         from member \
         inner join friend_list on\
         member.user_id = friend_list.user_friend_id\
-        where friend_list.user_id = ? AND member.nickname = ? ;";
-        values = [selfId, nickname];
+        where friend_list.user_id = ? AND member.nickname like ? ;";
+        values = [selfId, `%${nickname}%`];
         try {
             const queryResults = await pool.query(mysqlQuery, values);
             result = queryResults[0];

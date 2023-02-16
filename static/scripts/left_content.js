@@ -1,9 +1,9 @@
 const profilePage = document.querySelector("#profile-page");
 const friendPage = document.querySelector("#friend-page");
 const chatPage = document.querySelector("#chat-page");
-const friendIcon = document.querySelector("#friend-icon");
-const chatIcon = document.querySelector("#chat-icon");
-const profileIcon = document.querySelector(".profile-btn");
+const friendIcon = document.querySelector(".friend-btn-container");
+const chatIcon = document.querySelector(".chat-btn-container");
+const profileIcon = document.querySelector(".profile-btn-container");
 
 
 // 初始畫面

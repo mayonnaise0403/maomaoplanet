@@ -132,7 +132,7 @@ router.post("/upload_headshot", (req, res) => {
     });
     const s3 = new AWS.S3();
     const params = {
-        Bucket: 'maomaoimage/headshot',
+        Bucket: process.env.S3_Headshot_Bucket,
         Key: `userId${decoded.userId}`,
         Body: imageBuffer,
         ContentEncoding: 'base64',

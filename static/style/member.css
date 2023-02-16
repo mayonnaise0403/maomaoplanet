@@ -5,6 +5,7 @@
 
 body {
     position: relative;
+
 }
 
 .navbar {
@@ -29,13 +30,13 @@ body {
 
 .pc-icon {
     width: 70px;
-    margin: 10px;
-    cursor: pointer;
+    width: 75px;
+    text-align: center;
+    display: block;
+    margin: auto;
+    margin-top: 10px;
 }
 
-.pc-icon:hover {
-    transform: scale(1.1);
-}
 
 .right-content {
     width: 100%;
@@ -73,6 +74,7 @@ body {
 }
 
 .add-friend-btn {
+    margin-left: 30px;
     width: 50px;
     cursor: pointer;
 }
@@ -217,13 +219,11 @@ body {
 .friend-list {
     width: 500px;
     margin: auto;
-    margin-top: 15px;
 }
 
 .group-list {
     width: 500px;
     margin: auto;
-    margin-top: 15px;
 }
 
 
@@ -244,7 +244,7 @@ body::-webkit-scrollbar-thumb:hover {
 
 .friend-popup {
     display: none;
-    position: absolute;
+    position: fixed;
     top: 40%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -253,7 +253,7 @@ body::-webkit-scrollbar-thumb:hover {
     border-radius: 10px;
     width: 300px;
     border: 2px solid black;
-    z-index: 2000;
+    z-index: 3000;
 }
 
 .friend-popup-headshot {
@@ -310,6 +310,11 @@ body::-webkit-scrollbar-thumb:hover {
     border-radius: 10px;
     border: solid 3px black;
     display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2000;
 
 }
 
@@ -684,4 +689,45 @@ body::-webkit-scrollbar-thumb:hover {
     display: block;
     margin: auto;
 
+}
+
+.profile-btn-container {
+    cursor: pointer;
+    margin-bottom: 20px;
+}
+
+.profile-btn-container p {
+    text-align: center;
+    font-weight: bolder;
+}
+
+.profile-btn-container:hover {
+    transform: scale(1.1);
+}
+
+.friend-btn-container {
+    cursor: pointer;
+    margin-bottom: 20px;
+}
+
+.friend-btn-container p {
+    text-align: center;
+    font-weight: bolder;
+}
+
+.friend-btn-container:hover {
+    transform: scale(1.1);
+}
+
+.chat-btn-container {
+    cursor: pointer;
+}
+
+.chat-btn-container p {
+    text-align: center;
+    font-weight: bolder;
+}
+
+.chat-btn-container:hover {
+    transform: scale(1.1);
 }

@@ -5,12 +5,14 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="./images/ufo.png" />
     <link rel="stylesheet" href="style/navbar.css">
     <link rel="stylesheet" href="style/member.css">
     <link rel="stylesheet" href="style/profile_page.css">
     <link rel="stylesheet" href="style/friendpage.css">
     <link rel="stylesheet" href="style/chat_page.css">
-    <title>Document</title>
+    <link rel="stylesheet" href="style/phone_call.css">
+    <title>毛毛星球</title>
 </head>
 
 <body>
@@ -84,9 +86,18 @@
 
     <div class="container">
         <div class="left-content">
-            <img class="profile-btn" src="./images/ufo (5).png" />
-            <img class="pc-icon" id="friend-icon" src="./images/friends.png" />
-            <img class="pc-icon" id="chat-icon" src="./images/chat.png" />
+            <div class="profile-btn-container">
+                <img class="profile-btn" src="./images/ufo (5).png" />
+                <p>個人檔案</p>
+            </div>
+            <div class="friend-btn-container">
+                <img class="pc-icon" id="friend-icon" src="./images/friends.png" />
+                <p>好友</p>
+            </div>
+            <div class="chat-btn-container">
+                <img class="pc-icon" id="chat-icon" src="./images/chat.png" />
+                <p>聊天</p>
+            </div>
         </div>
 
         <div class="right-content" id="profile-page">
@@ -137,12 +148,23 @@
             </div>
             <div class="search-result-list">
 
+
             </div>
 
+            <p class="friend-page-list-title">好友列表</p>
             <div class="friend-list">
             </div>
+            <div class="list-empty" id="friend-list-empty">
+                <img src="./images/raccoon (1).png" />
+                <p>暫無好友</p>
+            </div>
 
+            <p class="group-page-list-title"> 群組列表</p>
             <div class="group-list">
+            </div>
+            <div class="list-empty" id="group-list-empty">
+                <img src="./images/surfing.png" />
+                <p>暫無群組</p>
             </div>
 
         </div>
@@ -154,10 +176,21 @@
                     <p>建立群祖</p>
                 </div>
             </div>
+            <p class="single-chat-history-title">單人聊天紀錄</p>
             <div class="chat-list-container">
             </div>
+            <div class="chat-list-empty" id="single-chat-empty">
+                <img src="./images/fox.png" />
+                <p>暫無單人聊天紀錄</p>
+            </div>
 
+            <p class="group-chat-history-title">群組聊天紀錄
+            </p>
             <div class="group-chat-list-container">
+            </div>
+            <div class="chat-list-empty" id="group-chat-empty">
+                <img src="./images/love.png" />
+                <p>暫無群組聊天紀錄</p>
             </div>
 
         </div>
@@ -204,7 +237,7 @@
 
     <div class="friend-popup">
         <img class="friend-popup-close" src="./images/close.png" />
-        <img class="friend-popup-headshot" src="./images/user.png" />
+        <img class="friend-popup-headshot" />
         <p class="friend-nickname"></p>
         <p class="friend-user_id"></p>
 
@@ -233,15 +266,70 @@
 
     <div class="chat-container">
         <img class="chat-container-close-btn" src="./images/close.png" />
-        <img class="group-member-icon" src="./images/family.png" />
-        <p class="chat-friend-name"></p>
+        <p class="group-member-icon">群組成員</p>
+        <div style="display:flex;">
+            <img class="chat-headshot-picture" />
+            <p class="chat-friend-name"></p>
+        </div>
         <p class="chat-friend-user_id"></p>
+        <div class="file-upload-loading">
+            <div class="loadingio-spinner-rolling-k0nzmx2tnqs">
+                <div class="ldio-ssrhod4cbld">
+                    <div></div>
+                </div>
+            </div>
+            <p>檔案上傳中</p>
+        </div>
         <div class="chat-message">
         </div>
         <div class="group-read-status"></div>
+        <p class="hover-font">可上傳圖片、影片、音樂、純文本等檔案</p>
         <div class="input-container">
+            <img class="message-picture-icon" src="./images/add-image.png" />
+            <input style="display:none;" type="file" class="chat-image-input"
+                accept="image/* audio/* video/* application/pdf text/plain">
             <input class="message-input" type="text" />
             <p class="send-message">送出</p>
+            <img class="message-sticker-icon" src="./images/emoji.png" />
+        </div>
+        <div class="sticker-popup">
+            <p>😀</p>
+            <p>😄</p>
+            <p>😁</p>
+            <p>😆</p>
+            <p>😅</p>
+            <p>😂</p>
+            <p>🤣</p>
+            <p>😇</p>
+            <p>😉</p>
+            <p>🥰</p>
+            <p>😘</p>
+            <p>🥲</p>
+            <p>🤪</p>
+            <p>😝</p>
+            <p>🤑</p>
+            <p>😎</p>
+            <p>🤡</p>
+            <p>🥳</p>
+            <p>😏</p>
+            <p>😶</p>
+            <p>😒</p>
+            <p>🤔</p>
+            <p>🫢</p>
+            <p>😡</p>
+            <p>😬</p>
+            <p>💩</p>
+            <p>🤖</p>
+            <p>😈</p>
+            <p>👻</p>
+            <p>😺</p>
+            <p>🫶</p>
+            <p>👍</p>
+            <p>💪</p>
+            <p>🙌</p>
+            <p>👏</p>
+            <p>👊</p>
+            <p>👀</p>
         </div>
 
     </div>
@@ -314,6 +402,25 @@
 
     </div>
 
+
+    <div class="group-call-popup">
+        <img class="group-call-popup-close" src="./images/minus.png" />
+        <div class="group-call-member-data">
+        </div>
+        <div style="display:flex;">
+            <div class="group-call-accept-btn">
+                <img src="./images/phone.png" />
+            </div>
+            <div class="group-call-reject-btn">
+                <img src="./images/rejected (1).png" />
+            </div>
+        </div>
+    </div>
+
+    <div class="group-call-icon">
+        <img src="./images/phone.png" />
+    </div>
+
     <!-- <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script> -->
     <!-- <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script> -->
     <script src="socket.io/socket.io.js"></script>
@@ -322,6 +429,9 @@
     <script type="text/javascript" src="scripts/profile_page.js"></script>
     <script type="text/javascript" src="scripts/member_page.js"></script>
     <script type="text/javascript" src="scripts/chat_page.js"></script>
+    <script type="text/javascript" src="scripts/friend_page.js"></script>
+    <script type="text/javascript" src="scripts/chat_popup.js"></script>
+    <script type="text/javascript" src="scripts/phone_call.js"></script>
 </body>
 
 </html>

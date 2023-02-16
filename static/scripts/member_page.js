@@ -78,14 +78,16 @@ fetch("/api/get_grouplist")
 
 
 socket.on("receive-group-message", (package) => {
-    if (chatContainer.style.display === "block") {
+    if (chatContainer.style.display === "block" && friendChatId.innerHTML === package.group_id) {
         displayMessage(package, false);
     }
 
 
     //立即更新對方聊天列
-    if (hadGroupHistoryMsg) {
-        let historyMsg = document.querySelector(`[data-attribute-name='${package.group_id}']`);
+
+    let historyMsg = document.querySelector(`[data-attribute-name='${package.group_id}']`);
+    if (hadGroupHistoryMsg && historyMsg) {
+
         const firstChildren = groupChatListContainer.children[0];
         let historyMsgFather = historyMsg.parentNode.parentNode;
 
@@ -107,7 +109,9 @@ socket.on("receive-group-message", (package) => {
                     socket.emit('group-read-message', package);
                 })
         }
-        if (!historyMsgFather.querySelector(".new-message-icon")) {
+        if (chatContainer.style.display === "block" && friendChatId.innerHTML === package.group_id) {
+
+        } else {
             //顯示未讀通知
             newImg = document.createElement("img");
             newImg.src = "./images/new-message.png";
@@ -123,7 +127,28 @@ socket.on("receive-group-message", (package) => {
         if (firstChildren !== historyMsgFather) {
             groupChatListContainer.insertBefore(historyMsgFather, groupChatListContainer.firstChild);
         }
-        historyMsg.innerHTML = package.message;
+        if (package.message.indexOf(S3Url) !== -1) {
+            if (package.message.match(/\(([^)]+)\)/)[1] === "video") {
+                historyMsg.innerHTML = '傳送了一則影片';
+            } else if (package.message.match(/\(([^)]+)\)/)[1] === "audio") {
+                historyMsg.innerHTML = '傳送了一則音檔';
+            } else if (package.message.match(/\(([^)]+)\)/)[1] === "image") {
+                historyMsg.innerHTML = '傳送了一張照片';
+            } else if (package.message.match(/\(([^)]+)\)/)[1] === "application") {
+                historyMsg.innerHTML = '傳送了一份檔案';
+            } else if (package.message.match(/\(([^)]+)\)/)[1] === "text") {
+                historyMsg.innerHTML = '傳送了一份純文本檔案';
+            }
+        } else {
+            if (package.message.length > 20) {
+                historyMsg.innerHTML = package.message.substring(0, 19);
+                historyMsg.innerHTML += ".....";
+            } else {
+                historyMsg.innerHTML = package.message;
+            }
+
+        }
+
 
         // const package = {
         //     group_id: friendChatId.innerHTML,
@@ -134,13 +159,20 @@ socket.on("receive-group-message", (package) => {
 
 
     } else {
+
+
+        //     // while (groupChatListContainer.firstChild) {
+        //     //     console.log("remove firstChild")
+        //     //     groupChatListContainer.removeChild(groupChatListContainer.firstChild);
+        //     // }
+
         setTimeout(() => {
             fetch("/api/get_latest_group_message")
                 .then((response) => {
                     return response.json();
                 })
                 .then((data) => {
-                    createGroupChatList(data.data, true);
+                    createLatestGroupChatList(data.data[0]);
                 })
         }, 1000);
 
@@ -160,17 +192,19 @@ socket.on("receive-group-message", (package) => {
 })
 
 socket.on("receive-message", (msg) => {
-    if (chatContainer.style.display === "block") {
-        displayMessage(msg, false);
-    }
-
-    if (chatContainer.style.display === "block" && parseInt(msg.user_id) === parseInt(friendChatId.innerHTML)) {
+    // if (chatContainer.style.display === "block" && parseInt(friendChatId.innerHTML) === parseInt(msg.user_id)) {
+    //     displayMessage(msg, false);
+    // }
+    console.log(msg)
+    if (chatContainer.style.display === "block" && parseInt(friendChatId.innerHTML) === parseInt(msg.user_id)) {
         let room = `user${friendChatId.innerHTML}`;
         socket.emit('read-message', room);
+        displayMessage(msg, false);
     }
     //立即更新對方聊天列
-    if (hadHistoryMsg) {
-        let historyMsg = document.querySelector(`.user${msg.user_id}-message`);
+    let historyMsg = document.querySelector(`.user${msg.user_id}-message`);
+    if (hadHistoryMsg && historyMsg) {
+
         const firstChildren = chatListContainer.children[0];
         let historyMsgFather = historyMsg.parentNode.parentNode;
 
@@ -179,21 +213,45 @@ socket.on("receive-message", (msg) => {
 
         } else {
             //顯示未讀通知
-            newImg = document.createElement("img");
-            newImg.src = "./images/new-message.png";
-            newImg.className = "new-message-icon";
-            newImg.style.width = "50px";
-            newImg.style.position = "absolute";
-            newImg.style.right = "10px";
-            newImg.style.top = "10px";
-            historyMsgFather.appendChild(newImg);
+            let isHaveUnReadMst = historyMsg.parentNode
+            if (!isHaveUnReadMst.querySelector(".new-message-icon")) {
+                newImg = document.createElement("img");
+                newImg.src = "./images/new-message.png";
+                newImg.className = "new-message-icon";
+                newImg.style.width = "50px";
+                newImg.style.position = "absolute";
+                newImg.style.right = "10px";
+                newImg.style.top = "10px";
+                historyMsgFather.appendChild(newImg);
+            }
+
         }
 
 
         if (firstChildren !== historyMsgFather) {
             chatListContainer.insertBefore(historyMsgFather, chatListContainer.firstChild);
         }
-        historyMsg.innerHTML = msg.message;
+        if (msg.message.indexOf(S3Url) !== -1) {
+            if (msg.message.match(/\(([^)]+)\)/)[1] === "video") {
+                historyMsg.innerHTML = '傳送了一則影片';
+            } else if (msg.message.match(/\(([^)]+)\)/)[1] === "audio") {
+                historyMsg.innerHTML = '傳送了一則音檔';
+            } else if (msg.message.match(/\(([^)]+)\)/)[1] === "image") {
+                historyMsg.innerHTML = '傳送了一張照片';
+            } else if (msg.message.match(/\(([^)]+)\)/)[1] === "application") {
+                historyMsg.innerHTML = '傳送了一份檔案';
+            } else if (msg.message.match(/\(([^)]+)\)/)[1] === "text") {
+                historyMsg.innerHTML = '傳送了一份純文本檔案';
+            }
+        } else {
+            if (msg.message.length > 20) {
+                historyMsg.innerHTML = msg.message.substring(0, 19);
+                historyMsg.innerHTML += ".....";
+            } else {
+                historyMsg.innerHTML = msg.message;
+            }
+
+        }
     } else {
         setTimeout(() => {
             fetch("/api/get_latest_message")
@@ -201,9 +259,40 @@ socket.on("receive-message", (msg) => {
                     return response.json();
                 })
                 .then((data) => {
-                    createChatList(data, chatListContainer);
+                    createLatestChatList(data[0], chatListContainer);
                 })
-        }, 2000);
+        }, 1000);
+
+
+        // if (hadHistoryMsg) {
+        //     setTimeout(() => {
+        //         fetch("/api/get_latest_message")
+        //             .then((response) => {
+        //                 return response.json();
+        //             })
+        //             .then((data) => {
+        //                 createChatList(data, chatListContainer);
+        //             })
+        //     }, 1000);
+        // } else {
+        //     while (chatListContainer.firstChild) {
+        //         console.log("remove firstChild")
+        //         chatListContainer.removeChild(chatListContainer.firstChild);
+        //     }
+
+
+        //     setTimeout(() => {
+        //         fetch("/api/get_latest_message")
+        //             .then((response) => {
+        //                 return response.json();
+        //             })
+        //             .then((data) => {
+        //                 createLatestChatList(data[0], chatListContainer);
+        //             })
+        //     }, 1000);
+        // }
+
+
 
     }
 
@@ -316,21 +405,13 @@ friendPopupClose.addEventListener("click", () => {
 
 //關閉聊天室窗
 chatCloseBtn.addEventListener("click", () => {
-
+    stickerPopup.style.visibility = "hidden";
     chatContainer.style.display = "none";
     const parentDiv = document.querySelector(".chat-message");
-    const groupMember = document.querySelectorAll(".group-member-headshot-nickname");
-    const pElements = parentDiv.querySelectorAll("p");
-    const ImgElements = parentDiv.querySelectorAll("img");
-    pElements.forEach(element => {
-        element.remove();
-    })
-    ImgElements.forEach(element => {
-        element.remove();
-    })
-    groupMember.forEach(element => {
-        element.remove();
-    })
+    while (parentDiv.firstChild) {
+        parentDiv.removeChild(parentDiv.firstChild);
+    }
+
     let groupIsReadStatus = document.querySelector(".group-read-status");
     groupIsReadStatus.innerHTML = "";
     isAddFriendPopup.style.display = "none";
@@ -434,74 +515,9 @@ messageInput.addEventListener("compositionend", (e) => {
 
 
 
-function createFriendList(friendData, list) {
-    let imgCount = 0;
-    let count = 0;
-    list.innerHTML = "";
-    friendData.friend_list.forEach(element => {
-        newDiv = document.createElement("div");
-        newDiv.className = "friend";
-        list.appendChild(newDiv);
-        friend = document.querySelectorAll(".friend");
-
-
-        let newImg = document.createElement("img");
-        newImg.id = "friend-headshot";
-        newImg.src = element.headshot;
-        friend[count].appendChild(newImg);
 
 
 
-        newP = document.createElement("p");
-        newP.innerHTML = element.nickname;
-        friend[count].appendChild(newP);
-
-        friend[count].addEventListener("click", () => {
-            let friendPopupHeadshot = document.querySelector(".friend-popup-headshot");
-            friendPopupHeadshot.src = "./images/Loading_icon.gif";
-            friendPopupHeadshot.onload = () => {
-                friendPopupHeadshot.src = element.headshot;
-            }
-
-            friendPopup.style.display = "block";
-            friendName.innerHTML = element.nickname;
-            friendId.innerHTML = element.user_id;
-        })
-        count++;
-    })
-}
-
-function createGroupList(groupData, list) {
-    let count = 0;
-    list.innerHTML = "";
-    groupData.group_list.forEach(element => {
-        newDiv = document.createElement("div");
-        newDiv.className = "group";
-        list.appendChild(newDiv);
-        let group = document.querySelectorAll(".group");
-
-        newImg = document.createElement("img");
-        newImg.src = element.headshot;
-        newImg.id = "group-headshot";
-        group[count].appendChild(newImg);
-
-        newP = document.createElement("p");
-        newP.innerHTML = element.group_name;
-        group[count].appendChild(newP);
-
-        group[count].addEventListener("click", () => {
-            let friendPopupHeadshot = document.querySelector(".friend-popup-headshot");
-            friendPopupHeadshot.src = "./images/Loading_icon.gif";
-            friendPopupHeadshot.onload = () => {
-                friendPopupHeadshot.src = element.headshot;
-            }
-            friendPopup.style.display = "block";
-            friendName.innerHTML = element.group_name;
-            friendId.innerHTML = element.group_id;
-        })
-        count++;
-    })
-}
 
 function createUserHtml(resultArr) {
 
@@ -588,9 +604,15 @@ function createUserHtml(resultArr) {
 }
 
 let prevSenderId;
+const S3Url = "https://maomaoimage.s3.ap-northeast-1.amazonaws.com/single_chat_file/"
 function displayMessage(element, isSelf, is_read = 0, is_group = false) {
     let message = document.querySelector(".chat-message");
 
+    if (element.message.indexOf(S3Url) !== -1) {
+        chatFile(element, isSelf, is_read, is_group);
+
+        return;
+    }
 
     if (isSelf) {
         newP = document.createElement("p");
@@ -604,7 +626,6 @@ function displayMessage(element, isSelf, is_read = 0, is_group = false) {
 
 
         //已讀狀態的顯示
-        console.log(is_group)
         if (!is_group) {
             groupMemberIcon.style.display = "none";
             newP = document.createElement("p");
@@ -625,8 +646,7 @@ function displayMessage(element, isSelf, is_read = 0, is_group = false) {
 
         }
 
-    }
-    else {
+    } else {
         if (is_group) {
             //顯示對方大頭貼跟暱稱
             newDiv = document.createElement("div");
@@ -666,7 +686,182 @@ function displayMessage(element, isSelf, is_read = 0, is_group = false) {
 
 }
 
+function chatFile(element, isSelf, is_read = 0, is_group = false) {
+    if (!isSelf && is_group) {
+        if (is_group) {
+            //顯示對方大頭貼跟暱稱
+            newDiv = document.createElement("div");
+            newDiv.className = 'group-member-headshot-nickname';
+            message.appendChild(newDiv);
+            let groupMember = document.querySelectorAll(".group-member-headshot-nickname");
 
+
+            if (groupMember.length === 1 || prevSenderId !== element.sender_id) {
+                newImg = document.createElement("img");
+                newImg.src = element.sender_headshot;
+                newImg.className = "group-chat-member-headshot";
+                newImg.style.width = "30px";
+                newImg.style.height = "30px";
+                newImg.style.borderRadius = "50px";
+                newImg.style.objectFit = "cover";
+                groupMember[groupMember.length - 1].appendChild(newImg);
+
+
+                newP = document.createElement("p");
+                newP.className = "group-chat-member-nickname";
+                newP.innerHTML = element.sender_nickname;
+                groupMember[groupMember.length - 1].appendChild(newP);
+
+
+            }
+
+        }
+    }
+    let fileName = element.message.replace(/\(.*\)/, '');
+    fileName = fileName.replace(S3Url, "")
+    const matches = element.message.match(/\(([^)]+)\)/);
+    const dataType = matches[1];
+    const S3VideoUrl = element.message.replace(/\(.*\)/, ''); //去除()裡面我寫的檔案型態
+    let chatMessage = document.querySelector(".chat-message");
+    if (dataType === "video") {  //檔案是影片時
+        if (isSelf) {
+
+            newDiv = document.createElement("div");
+            newDiv.style.maxWidth = "200px";
+            newDiv.style.position = "relative";
+            newDiv.style.marginRight = "5px";
+            newDiv.style.marginLeft = "auto";
+            newDiv.style.marginBottom = "10px";
+            newDiv.style.cursor = "pointer";
+            chatMessage.appendChild(newDiv)
+
+
+        } else {
+            let chatMessage = document.querySelector(".chat-message");
+            newDiv = document.createElement("div");
+            newDiv.style.maxWidth = "200PX";
+            newDiv.style.position = "relative";
+            newDiv.style.marginRight = "auto";
+            newDiv.style.marginLeft = "5px";
+            newDiv.style.marginBottom = "10px";
+            newDiv.style.cursor = "pointer";
+            chatMessage.appendChild(newDiv)
+
+        }
+        newImg = document.createElement("img");
+        newImg.src = `https://maomaoimage.s3.ap-northeast-1.amazonaws.com/videoImage/${fileName}`;
+        newImg.style.maxWidth = "200PX";
+        newImg.style.borderRadius = "10px";
+        newDiv.appendChild(newImg);
+        newDiv.addEventListener("click", () => {
+            window.open(`${S3Url}${fileName}(${dataType})`, "影片", "width=600,height=600,top=" + (screen.height - 600) / 2 + ",left=" + (screen.width - 600) / 2);
+        })
+
+
+        newImg = document.createElement("img");
+        newImg.src = "./images/play.png";
+        newImg.style.position = "absolute";
+        newImg.style.transform = "translate(-50%, -50%)";
+        newImg.style.top = "50%";
+        newImg.style.left = "50%";
+        newImg.style.width = "100px";
+        newDiv.appendChild(newImg)
+
+    } else if (dataType === "audio") {
+        let newAudio = document.createElement("audio");
+        newAudio.controls = true;
+        newAudio.style.display = "flex";
+        newAudio.style.width = "250px";
+        newAudio.style.marginBottom = "10px";
+        if (isSelf) {
+            newAudio.style.marginLeft = "auto";
+        }
+        newAudio.src = `${S3Url}${fileName}(${dataType})`;
+        chatMessage.appendChild(newAudio);
+    } else if (dataType === "image") {
+        newImg = document.createElement("img");
+        newImg.src = `${S3Url}${fileName}(${dataType})`;
+        newImg.style.maxWidth = "250px";
+        newImg.style.display = "block";
+        newImg.style.marginBottom = "10px";
+        if (isSelf) {
+
+            newImg.style.marginLeft = "auto";
+            newImg.style.marginRight = "5px";
+        }
+        newImg.style.borderRadius = "10px";
+        newImg.style.cursor = "pointer";
+        newImg.addEventListener("click", () => {
+            newImg.src = newImg.src;
+            window.open(`${S3Url}${fileName}(${dataType})`, "影片", "width=600,height=600,top=" + (screen.height - 600) / 2 + ",left=" + (screen.width - 600) / 2);
+        })
+        chatMessage.appendChild(newImg);
+    } else if (dataType === "application") {
+        newImg = document.createElement("img");
+        newImg.src = "./images/word-doc.png";
+        newImg.style.width = "100px";
+        newImg.style.display = "block";
+        newImg.style.marginBottom = "10px";
+        if (isSelf) {
+
+            newImg.style.marginLeft = "auto";
+            newImg.style.marginRight = "5px";
+        }
+        newImg.style.cursor = "pointer";
+        newImg.addEventListener("click", () => {
+            newImg.src = newImg.src;
+            window.open(`${S3Url}${fileName}(${dataType})`, "影片", "width=600,height=600,top=" + (screen.height - 600) / 2 + ",left=" + (screen.width - 600) / 2);
+        })
+        chatMessage.appendChild(newImg);
+    } else if (dataType === "text") {
+        newImg = document.createElement("img");
+        newImg.src = "./images/txt.png";
+        newImg.style.width = "100px";
+        newImg.style.display = "block";
+        newImg.style.marginBottom = "10px";
+        if (isSelf) {
+
+            newImg.style.marginLeft = "auto";
+            newImg.style.marginRight = "5px";
+        }
+        newImg.style.cursor = "pointer";
+        newImg.addEventListener("click", () => {
+            newImg.src = newImg.src;
+            window.open(`${S3Url}${fileName}(${dataType})`, "影片", "width=600,height=600,top=" + (screen.height - 600) / 2 + ",left=" + (screen.width - 600) / 2);
+        })
+        chatMessage.appendChild(newImg);
+    }
+
+
+
+
+    //已讀狀態的顯示
+    if (isSelf) {
+        if (!is_group) {
+            groupMemberIcon.style.display = "none";
+            newP = document.createElement("p");
+            newP.className = "read-message-status";
+            if (is_read === 1) {
+                newP.innerHTML = "已讀";
+            } else {
+                newP.innerHTML = "";
+            }
+            newP.style.fontSize = "10px";
+            newP.style.textAlign = "right";
+            newP.style.paddingLeft = "5px";
+            newP.style.marginBottom = "10px";
+            newP.style.marginRight = "10px";
+            chatMessage.appendChild(newP);
+        } else {
+            groupMemberIcon.style.display = "block";
+
+        }
+    }
+
+
+    prevSenderId = element.sender_id;
+
+}
 
 function chatPopup() {
     chatContainer.style.display = "block";
@@ -716,13 +911,23 @@ function chatPopup() {
 
 }
 
-async function sendMsgInSingle() {
-    const package = {
-        "user_id": parseInt(selfId.innerHTML),
-        "friend_id": parseInt(friendChatId.innerHTML), //放陣列
-        "message": messageInput.value
+async function sendMsgInSingle(fileName = "") {
+    let package;
+    if (fileName) {
+        package = {
+            "user_id": parseInt(selfId.innerHTML),
+            "friend_id": parseInt(friendChatId.innerHTML),
+            "message": fileName
+        }
+
+    } else {
+        package = {
+            "user_id": parseInt(selfId.innerHTML),
+            "friend_id": parseInt(friendChatId.innerHTML),
+            "message": messageInput.value
+        }
     }
-    if (messageInput.value) {
+    if (messageInput.value || fileName) {
         let room = `user${package.friend_id}`;
         await socket.emit('send-message', package, room);
         let historyMsg = document.querySelector(`.user${package.friend_id}-message`);
@@ -733,7 +938,27 @@ async function sendMsgInSingle() {
                 if (firstChildren !== clickedDiv) {
                     chatListContainer.insertBefore(clickedDiv, chatListContainer.firstChild);
                 }
-                historyMsg.innerHTML = package.message;
+                if (package.message.indexOf(S3Url) !== -1) {
+                    if (package.message.match(/\(([^)]+)\)/)[1] === "video") {
+                        historyMsg.innerHTML = '傳送了一則影片';
+                    } else if (package.message.match(/\(([^)]+)\)/)[1] === "audio") {
+                        historyMsg.innerHTML = '傳送了一則音檔';
+                    } else if (package.message.match(/\(([^)]+)\)/)[1] === "image") {
+                        historyMsg.innerHTML = '傳送了一張照片';
+                    } else if (package.message.match(/\(([^)]+)\)/)[1] === "application") {
+                        historyMsg.innerHTML = '傳送了一份檔案';
+                    } else if (package.message.match(/\(([^)]+)\)/)[1] === "text") {
+                        historyMsg.innerHTML = '傳送了一份純文本檔案';
+                    }
+                } else {
+                    if (package.message.length > 20) {
+                        historyMsg.innerHTML = package.message.substring(0, 19);
+                        historyMsg.innerHTML += ".....";
+                    } else {
+                        historyMsg.innerHTML = package.message;
+                    }
+
+                }
             } else {
                 while (chatListContainer.firstChild) {
                     console.log("remove firstChild")
@@ -774,19 +999,32 @@ async function sendMsgInSingle() {
     }
 }
 
-async function sendMsgInGroup() {
+async function sendMsgInGroup(fileName = "") {
     let groupIsReadStatus = document.querySelector(".group-read-status");
     groupIsReadStatus.innerHTML = `0人已讀`;
     let selfNickname = document.querySelector(".profile-name-content").innerHTML;
     let selfHeadshot = document.querySelector(".headshot").src;
-    let package = {
-        group_id: friendChatId.innerHTML,
-        sender_id: parseInt(selfId.innerHTML),
-        message: messageInput.value,
-        sender_headshot: selfHeadshot,
-        sender_nickname: selfNickname
+    let package;
+    if (fileName) {
+        package = {
+            group_id: friendChatId.innerHTML,
+            sender_id: parseInt(selfId.innerHTML),
+            message: fileName,
+            sender_headshot: selfHeadshot,
+            sender_nickname: selfNickname
+        }
+
+    } else {
+        package = {
+            group_id: friendChatId.innerHTML,
+            sender_id: parseInt(selfId.innerHTML),
+            message: messageInput.value,
+            sender_headshot: selfHeadshot,
+            sender_nickname: selfNickname
+        }
     }
-    if (messageInput.value) {
+
+    if (messageInput.value || fileName) {
 
         await socket.emit("send-message-to-group", package);
         let groupMessage = document.querySelector(`[data-attribute-name='${package.group_id}']`);
@@ -801,7 +1039,27 @@ async function sendMsgInGroup() {
                 if (firstChildren !== clickedDiv) {
                     groupChatListContainer.insertBefore(clickedDiv, groupChatListContainer.firstChild);
                 }
-                groupMessage.innerHTML = package.message;
+                if (package.message.indexOf(S3Url) !== -1) {
+                    if (package.message.match(/\(([^)]+)\)/)[1] === "video") {
+                        groupMessage.innerHTML = '傳送了一則影片';
+                    } else if (package.message.match(/\(([^)]+)\)/)[1] === "audio") {
+                        groupMessage.innerHTML = '傳送了一則音檔';
+                    } else if (package.message.match(/\(([^)]+)\)/)[1] === "image") {
+                        groupMessage.innerHTML = '傳送了一張照片';
+                    } else if (package.message.match(/\(([^)]+)\)/)[1] === "application") {
+                        groupMessage.innerHTML = '傳送了一份檔案';
+                    } else if (package.message.match(/\(([^)]+)\)/)[1] === "text") {
+                        groupMessage.innerHTML = '傳送了一份純文本檔案';
+                    }
+                } else {
+                    if (package.message.length > 20) {
+                        groupMessage.innerHTML = package.message.substring(0, 19);
+                        groupMessage.innerHTML += ".....";
+                    } else {
+                        groupMessage.innerHTML = package.message;
+                    }
+
+                }
             } else {
                 while (groupChatListContainer.firstChild) {
                     console.log("remove firstChild")

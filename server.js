@@ -93,6 +93,43 @@ io.on('connection', (socket) => {
         socket.to(`user${userId}`).emit("invite-join-call", roomName, package, senderId)
     })
 
+    socket.on("join-group-call", async (groupId) => {
+        const cookie = socket.request.headers.cookie;
+        const match = cookie.match(/access_token=([^;]+)/);
+        const token = match ? match[1] : null;
+        const selfId = jwt.decode(token, secretKey).userId;
+        const MemberIdArr = await Search.getGroupMemberId(groupId);
+        socket.join(groupId);
+        MemberIdArr.forEach(element => {
+            socket.to(`user${element.member_id}`).emit("invite-join-group-call", groupId, selfId);
+        })
+
+    })
+
+    socket.on("group-accept-call-member", async (groupId) => {
+        const cookie = socket.request.headers.cookie;
+        const match = cookie.match(/access_token=([^;]+)/);
+        const token = match ? match[1] : null;
+        const selfId = jwt.decode(token, secretKey).userId;
+        const MemberIdArr = await Search.getGroupMemberId(groupId);
+        MemberIdArr.forEach(element => {
+            socket.to(`user${element.member_id}`).emit("group-accept-call-member", selfId);
+        })
+
+    })
+
+    socket.on("accept-group-call", (groupId) => {
+        socket.join(groupId);
+    })
+
+    socket.on("group-ready", (groupId) => {
+        socket.broadcast.to(groupId).emit("group-ready", groupId);
+    })
+
+    socket.on("group-offer", (offer, roomName) => {
+        socket.broadcast.to(roomName).emit("group-offer", offer, roomName);
+    })
+
     socket.on("recipient-join-room", (roomName) => {
         console.log("recipient join the room");
         socket.join(roomName);
@@ -102,6 +139,8 @@ io.on('connection', (socket) => {
         console.log("ready");
         socket.broadcast.to(roomName).emit("ready");
     });
+
+
 
 
     socket.on("candidate", (candidate, roomName) => {
