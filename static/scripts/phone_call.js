@@ -1,9 +1,12 @@
 //通話功能///////////////////////////////////////////////////
 
+
+
 let iceServers = {
     iceServers: [
-        { urls: "stun:stun.services.mozilla.com", },
         { urls: "stun:stun.l.google.com:19302" },
+        { urls: "stun:stun.services.mozilla.com" },
+
 
     ],
 };
@@ -134,8 +137,6 @@ socket.on("group-accept-call-member", (acceptMemberId) => {
         acceptMemberLoading.src = "./images/check (1).png";
         acceptMemberLoading.style.width = "40px";
     }
-
-
 })
 
 //群組對方接聽
@@ -325,18 +326,20 @@ socket.on("ready", () => {
         callSuccess = true;
         console.log(creator)
         const selfPopupHangup = document.querySelector(".self-call-hangup-icon-container");
-        // selfPopupHangup.style.marginTop = "220px";
         selfCallLoader.style.display = "none";
 
         clearInterval(timer);
         timer = setInterval(selfPhoneCallTimer, 1000);
         peerConnection = new RTCPeerConnection(iceServers);
+        console.log(peerConnection.signalingState);//用來確保 RTCPeerConnection 物件狀態的合法性
         peerConnection.oniceconnectionstatechange = onIceConnectionStateFunction;
+        console.log("hello")
         peerConnection.onicecandidate = (event) => {
             if (!event.candidate) {
                 console.log("All ice candidates have been sent.");
                 return;
             }
+            console.log("here")
             onIceCandidateFunction(event, roomName);
         };
         peerConnection.ontrack = onTrackFunction;
@@ -359,8 +362,17 @@ socket.on("ready", () => {
 
 
 socket.on("candidate", (candidate) => {
-    let icecandidate = new RTCIceCandidate(candidate);
-    peerConnection.addIceCandidate(icecandidate);
+    // let icecandidate = new RTCIceCandidate(candidate);
+    // peerConnection.addIceCandidate(icecandidate);
+    if (peerConnection.remoteDescription) {
+        peerConnection.addIceCandidate(candidate);
+    } else {
+        peerConnection.addEventListener("icecandidate", function (event) {
+            if (event.candidate) {
+                peerConnection.addIceCandidate(event.candidate);
+            }
+        });
+    }
 })
 
 //reciver
@@ -382,7 +394,12 @@ socket.on("offer", (offer, roomName) => {
         timer = setInterval(phoneCallTimer, 1000);
         callSuccess = true;
         peerConnection = new RTCPeerConnection(iceServers);
-        peerConnection.oniceconnectionstatechange = onIceConnectionStateFunction();
+        console.log(peerConnection.signalingState);//用來確保 RTCPeerConnection 物件狀態的合法性
+        peerConnection.setRemoteDescription(offer);
+        console.log(offer)
+
+
+        peerConnection.oniceconnectionstatechange = onIceConnectionStateFunction;
         peerConnection.onicecandidate = (event) => {
             if (!event.candidate) {
                 console.log("All ice candidates have been sent.");
@@ -396,7 +413,7 @@ socket.on("offer", (offer, roomName) => {
             peerConnection.addTrack(track, userStream);
         });
 
-        peerConnection.setRemoteDescription(offer);
+
         // 创建 offer
         peerConnection.createAnswer()
             .then(answer => {
@@ -467,6 +484,7 @@ function onIceCandidateFunction(event, roomName) {
             socket.emit("candidate", event.candidate, roomName)
         }
     } catch (error) {
+        console.log("onIceCandidate Error : ");
         console.error(error);
     }
 }
@@ -474,7 +492,6 @@ function onIceCandidateFunction(event, roomName) {
 function onTrackFunction(event) {
     try {
         if (event.track.kind === "audio") {
-            console.log("success")
             audioElement.srcObject = event.streams[0];
             audioElement.onloadedmetadata = (e) => {
                 audioElement.play();
@@ -540,6 +557,7 @@ selfCallHangup.addEventListener("click", () => {
             audioElement.srcObject = null;
         }
         if (peerConnection) {
+            console.log("hey")
             peerConnection.close();
             peerConnection.ontrack = null;
             peerConnection.onicecandidate = null;
@@ -575,6 +593,7 @@ socket.on("leave", () => {
         audioElement.srcObject = null;
     }
     if (peerConnection) {
+        console.log("hey")
         peerConnection.close();
         peerConnection.ontrack = null;
         peerConnection.onicecandidate = null;

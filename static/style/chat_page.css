@@ -132,13 +132,13 @@ body {
     display: flex;
     background-color: white;
     width: 500px;
-    padding: 5px;
+    padding: 10px;
     border: 1px solid black;
     margin: auto;
     cursor: pointer;
     position: relative;
     justify-content: center;
-
+    box-sizing: border-box;
 }
 
 .add-group-btn:hover {

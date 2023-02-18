@@ -21,6 +21,8 @@ let Search = require("./models/search").Search;
 Search = new Search();
 const secretKey = process.env.Jwt_Secrect_Key;
 
+
+
 app.use(cookieParser());
 app.use("/", memberRouter);
 app.use('/', signupRouter);

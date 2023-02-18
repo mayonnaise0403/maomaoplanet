@@ -47,6 +47,7 @@ router.get("/api/search_user", async (req, res) => {  //要扣除自己
 })
 
 router.get("/api/get_friendlist", async (req, res) => {
+
     const token = req.cookies.access_token;
     const selfId = jwt.decode(token, secretKey).userId;
     const friendData = await Search.getFriendList(selfId);

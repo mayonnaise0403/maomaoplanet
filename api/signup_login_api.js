@@ -6,6 +6,7 @@ const cookieParser = require('cookie-parser');
 const dotenv = require("dotenv");
 let Signup = require("../models/signup").Signup;
 let Login = require("../models/login").Login;
+let cookieToken;
 dotenv.config();
 
 
@@ -38,6 +39,7 @@ router.post("/login", async (req, res) => {
             const options = { expiresIn: '24h' };
             const token = jwt.sign(payload, secretKey, options);
             res.cookie('access_token', token, { httpOnly: true, expires: new Date(Date.now() + 3600000 * 24 * 7) });
+            cookieToken = token;
             res.status(200).send({ status: "success", "message": "登入成功", "nickname": isLogin.nickname });
         } else {
             res.status(400).send({ status: "error", "message": "無此用戶" });
