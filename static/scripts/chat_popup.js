@@ -4,9 +4,21 @@ const uploadFileBtn = document.querySelector(".message-picture-icon");
 const uploadFileInput = document.querySelector(".chat-image-input");
 const hoverFont = document.querySelector(".hover-font");
 const fileUploadLoading = document.querySelector(".file-upload-loading");
+const chatPopupHamburgerIcon = document.querySelector(".chat-page-hamburger-icon");
+const chatPopupSettingContainer = document.querySelector(".chat-popup-setting");
+const chatPopupPictureAndVideo = document.querySelector(".chat-popup-photo-icon");
+const chatPopupFile = document.querySelector(".char-popup-file-icon");
+const pictureVideoContainer = document.querySelector(".picture-video-container");
+const closePcVideoContainer = document.querySelector(".close-picture-video-container");
+const pictureBtn = document.querySelector(".picture-btn");
+const videoBtn = document.querySelector(".video-btn");
+const pictureList = document.querySelector(".picture-list");
+const videoList = document.querySelector(".video-list");
+videoList.style.display = "none";
 
 
 stickerPopup.style.visibility = "hidden";
+chatPopupSettingContainer.style.visibility = "hidden";
 
 
 //點擊傳送貼圖
@@ -37,6 +49,164 @@ uploadFileBtn.addEventListener("mouseleave", () => {
 
 uploadFileBtn.addEventListener("click", () => {
     uploadFileInput.click();
+})
+
+chatPopupHamburgerIcon.addEventListener("click", () => {
+    if (chatPopupSettingContainer.style.visibility === "hidden") {
+        chatPopupSettingContainer.style.visibility = "visible";
+    } else {
+        chatPopupSettingContainer.style.visibility = "hidden";
+    }
+})
+
+videoBtn.addEventListener("click", () => {
+    videoList.style.display = "block";
+    pictureList.style.display = "none";
+})
+
+pictureBtn.addEventListener("click", () => {
+    videoList.style.display = "none";
+    pictureList.style.display = "block";
+})
+
+chatPopupPictureAndVideo.addEventListener("click", () => {
+    pictureVideoContainer.style.display = "block";
+    const isGroup = isNaN(friendChatId.innerHTML);
+    if (isGroup) {
+        fetch("/get_group_picture", {
+            method: "POST",
+            body: JSON.stringify({
+                groupId: friendChatId.innerHTML,
+            }),
+            headers: {
+                'Content-type': 'application/json; charset=UTF-8',
+            },
+        })
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+                pictureList.style.display = "block";
+                videoList.style.display = "none";
+                data.data.forEach(element => {
+                    const index = element.message.indexOf("(", element.message.length - 1 - 14);
+                    const dataType = element.message.substring(index, element.message.length)
+                    if (dataType === "(image)" || dataType === "(video)") {
+                        if (dataType === "(image)") {
+                            newImg = document.createElement("img");
+                            newImg.src = element.message;
+                            newImg.style.width = "150px";
+                            newImg.style.height = "150px";
+                            newImg.style.borderRadius = "10px";
+                            newImg.style.marginLeft = "10px";
+                            newImg.style.objectFit = "cover";
+                            newImg.style.cursor = "pointer";
+                            pictureList.appendChild(newImg);
+
+                            newImg.addEventListener("click", () => {
+                                window.open(element.message, "影片", "width=600,height=600,top=" + (screen.height - 600) / 2 + ",left=" + (screen.width - 600) / 2);
+                            })
+                        } else {
+                            let fileName = element.message.substring(0, index);
+                            fileName = fileName.replace(S3Url, "");
+                            newImg = document.createElement("img");
+                            newImg.src = `https://maomaoimage.s3.ap-northeast-1.amazonaws.com/videoImage/${fileName}`;
+                            newImg.style.width = "150px";
+                            newImg.style.height = "150px";
+                            newImg.style.borderRadius = "10px";
+                            newImg.style.marginLeft = "10px";
+                            newImg.style.objectFit = "cover";
+                            newImg.style.cursor = "pointer";
+                            videoList.appendChild(newImg);
+
+                            newImg.addEventListener("click", () => {
+                                window.open(element.message, "影片", "width=600,height=600,top=" + (screen.height - 600) / 2 + ",left=" + (screen.width - 600) / 2);
+                            })
+                        }
+                    }
+
+                })
+
+            })
+    } else {
+        fetch("/get_chat_picture", {
+            method: "POST",
+            body: JSON.stringify({
+                recipientId: friendChatId.innerHTML,
+            }),
+            headers: {
+                'Content-type': 'application/json; charset=UTF-8',
+            },
+        })
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+
+                pictureList.style.display = "block";
+                videoList.style.display = "none";
+                data.data.forEach(element => {
+                    const index = element.message.indexOf("(", element.message.length - 1 - 14);
+                    const dataType = element.message.substring(index, element.message.length)
+                    if (dataType === "(image)" || dataType === "(video)") {
+
+
+                        if (dataType === "(image)") {
+                            newImg = document.createElement("img");
+                            newImg.src = element.message;
+                            newImg.style.width = "150px";
+                            newImg.style.height = "150px";
+                            newImg.style.borderRadius = "10px";
+                            newImg.style.marginLeft = "10px";
+                            newImg.style.objectFit = "cover";
+                            newImg.style.cursor = "pointer";
+                            pictureList.appendChild(newImg);
+
+                            newImg.addEventListener("click", () => {
+                                window.open(element.message, "影片", "width=600,height=600,top=" + (screen.height - 600) / 2 + ",left=" + (screen.width - 600) / 2);
+                            })
+                        } else {
+                            let fileName = element.message.substring(0, index);
+
+
+                            fileName = fileName.replace(S3Url, "");
+                            newImg = document.createElement("img");
+                            newImg.src = `https://maomaoimage.s3.ap-northeast-1.amazonaws.com/videoImage/${fileName}`;
+                            newImg.style.width = "150px";
+                            newImg.style.height = "150px";
+                            newImg.style.borderRadius = "10px";
+                            newImg.style.marginLeft = "10px";
+                            newImg.style.objectFit = "cover";
+                            newImg.style.cursor = "pointer";
+                            videoList.appendChild(newImg);
+
+                            newImg.addEventListener("click", () => {
+                                window.open(element.message, "影片", "width=600,height=600,top=" + (screen.height - 600) / 2 + ",left=" + (screen.width - 600) / 2);
+                            })
+
+                        }
+                    }
+                })
+            })
+    }
+
+
+
+
+
+
+})
+
+closePcVideoContainer.addEventListener("click", () => {
+    pictureVideoContainer.style.display = "none";
+
+
+    while (pictureList.firstChild) {
+        pictureList.removeChild(pictureList.firstChild);
+    }
+    while (videoList.firstChild) {
+        videoList.removeChild(videoList.firstChild);
+    }
 })
 
 

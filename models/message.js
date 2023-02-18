@@ -1,5 +1,7 @@
 const pool = require("../database_connect").pool;
 let mysqlQuery, values, result, isSuccess;
+const dotenv = require("dotenv");
+dotenv.config();
 
 
 class Message {
@@ -197,6 +199,36 @@ class Message {
     async getIsReadCount(group_id) {
         mysqlQuery = 'SELECT COUNT(*) AS readCount FROM group_message_is_read WHERE group_id = ?';
         values = [group_id];
+        try {
+            const queryResults = await pool.query(mysqlQuery, values);
+            result = queryResults[0];
+
+        } catch (error) {
+            console.log(error.message);
+        }
+        return result;
+    }
+
+    async getChatPictureAndVideo(selfId, friendId) {
+        mysqlQuery = 'SELECT message from chat_message where\
+                     ((sender_id = ? AND recipient_id = ?) OR (sender_id = ? AND recipient_id = ?))  \
+                     AND message like ?';
+        values = [selfId, friendId, friendId, selfId, `${process.env.S3_File_Url}%`];
+        try {
+            const queryResults = await pool.query(mysqlQuery, values);
+            result = queryResults[0];
+
+        } catch (error) {
+            console.log(error.message);
+        }
+        return result;
+    }
+
+    async getGroupPictureAndVideo(groupId) {
+        mysqlQuery = 'SELECT message from group_message where\
+                     group_id = ? \
+                     AND message like ?';
+        values = [groupId, `${process.env.S3_File_Url}%`];
         try {
             const queryResults = await pool.query(mysqlQuery, values);
             result = queryResults[0];

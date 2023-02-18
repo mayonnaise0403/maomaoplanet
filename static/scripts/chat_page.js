@@ -58,11 +58,21 @@ closeGroupPopup.addEventListener("click", () => {
         element.remove();
     })
     addGroupPopup.style.display = "none";
+    groupNameInput.value = "群組";
 })
 
 //建立群組按鈕
 createGroupBtn.addEventListener("click", () => {
+    const searchUser = document.querySelectorAll(".search-user");
     const hadAddUser = document.querySelectorAll(".had-add-user");
+    searchUser.forEach(element => {
+        element.remove();
+    })
+    hadAddUser.forEach(element => {
+        element.remove();
+    })
+
+
     let groupMemberIdArr = [];
     if (groupNameInput.value) {
 
@@ -96,6 +106,7 @@ createGroupBtn.addEventListener("click", () => {
                     addGroupPopup.style.display = "none";
                     chatBoxFriendName.innerHTML = data.groupName;
                     friendChatId.innerHTML = data.groupId;
+                    groupNameInput.value = "群組";
                     fetch("/api/get_grouplist")
                         .then((response) => {
                             return response.json();
@@ -158,13 +169,24 @@ groupMemberIcon.addEventListener("click", () => {
                 newP.style.marginLeft = "10px";
                 groupMember[groupMember.length - 1].appendChild(newP);
 
-                newDiv.addEventListener("click", () => {
+                newDiv.addEventListener("click", (event) => {
                     if (element.member_id !== parseInt(selfId.innerHTML)) {
                         friendPopup.style.display = "block";
                         let friendPopupHeadshot = document.querySelector(".friend-popup-headshot");
                         friendName.innerHTML = element.nickname;
                         friendId.innerHTML = element.member_id;
                         friendPopupHeadshot.src = element.headshot;
+                        // if (event.target.tagName === "IMG") {
+                        //     console.log("here1")
+                        //     friendPopupHeadshot.src = event.target.src;
+                        //     console.log(event.target.src)
+                        // } else if (event.target.getElementsByTagName("img").length > 0) {
+                        //     console.log("here2")
+                        //     friendPopupHeadshot.src = event.target.getElementsByTagName("img").src;
+                        // }
+
+
+                        // console.log(event.target.nodeName === "IMG")
                         if (element.is_friend === 0) {
                             groupMemberPopupAddFriend.style.display = "block";
                             popupChatBtn.style.display = "none";
@@ -305,7 +327,7 @@ function createLatestGroupChatList(element) {
 
     newP = document.createElement("p");
     newP.innerHTML = element.group_name;
-    newP.style.fontSize = "30px";
+    newP.style.fontSize = "25px";
     newP.style.fontWeight = "bolder";
     newP.style.marginTop = "10px";
     newP.style.marginLeft = "10px";
@@ -529,7 +551,7 @@ function createGroupChatList(data) {
 
         newP = document.createElement("p");
         newP.innerHTML = element.group_name;
-        newP.style.fontSize = "30px";
+        newP.style.fontSize = "25px";
         newP.style.fontWeight = "bolder";
         newP.style.marginTop = "10px";
         newP.style.marginLeft = "10px";
@@ -758,7 +780,7 @@ function createLatestChatList(element, container) {
         newP.innerHTML = element.sender_nickname;
     }
 
-    newP.style.fontSize = "30px";
+    newP.style.fontSize = "25px";
     newP.style.fontWeight = "bolder";
     newP.style.marginTop = "10px";
     newP.style.marginLeft = "10px";
@@ -995,7 +1017,7 @@ function createChatList(data, container) {
             newP.innerHTML = element.sender_nickname;
         }
 
-        newP.style.fontSize = "30px";
+        newP.style.fontSize = "25px";
         newP.style.fontWeight = "bolder";
         newP.style.marginTop = "10px";
         newP.style.marginLeft = "10px";
@@ -1076,6 +1098,7 @@ function createChatList(data, container) {
 
             //跳出是否要加陌生人好友
             if (clickedDiv.querySelector(".stranger-icon") || event.target.className === "stranger-icon") {
+                console.log("here")
                 isAddFriendPopup.style.display = "block";
             }
 

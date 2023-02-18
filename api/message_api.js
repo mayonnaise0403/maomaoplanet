@@ -72,6 +72,19 @@ router.post("/update_group_message_status", async (req, res) => {
     res.send({ status: "success" });
 })
 
+router.post("/get_chat_picture", async (req, res) => {
+    const token = req.cookies.access_token;
+    const userId = jwt.decode(token, secretKey).userId;
+    const data = await Message.getChatPictureAndVideo(userId, req.body.recipientId)
+    res.send({ status: "success", data: data });
+
+})
+
+router.post("/get_group_picture", async (req, res) => {
+    const data = await Message.getGroupPictureAndVideo(req.body.groupId)
+    res.send({ status: "success", data: data })
+})
+
 router.post("/upload_file", async (req, res) => {
     const token = req.cookies.access_token;
     const myId = jwt.decode(token, secretKey).userId;

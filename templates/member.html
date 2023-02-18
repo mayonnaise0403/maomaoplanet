@@ -139,9 +139,10 @@
 
         <div class="right-content" id="friend-page">
             <div class="search-bar">
-                <input class="search-friend" id="search-friend" type="text" placeholder="輸入好友名稱來搜尋好友" />
-                <img class="search-friend-btn" id="search-friend-btn" src="./images/search.png" />
-                <img class="add-friend-btn" src="./images/add-friend.png">
+                <div class="add-friends-btn">
+                    <img class="add-friend-btn" src="./images/add-friend.png">
+                    <p>加好友</p>
+                </div>
             </div>
             <div class="search-result-list-close-container">
                 <img class="search-result-list-close" src="./images/delete.png">
@@ -222,13 +223,7 @@
             <p class="create-group-btn">建立群組</p>
         </div>
 
-        <div class="is-add-friend-to-stranger">
-            <p class="is-add-friend-title">要加對方為好友嗎?</p>
-            <div class="is-add-friend-container">
-                <p class="is-add-friend-ok-btn">好的</p>
-                <p class="is-add-friend-no-btn">取消</p>
-            </div>
-        </div>
+
 
 
 
@@ -261,10 +256,16 @@
             <div class="search-friend-popup-result">
             </div>
         </div>
-
     </div>
 
     <div class="chat-container">
+        <div class="is-add-friend-to-stranger">
+            <p class="is-add-friend-title">要加對方為好友嗎?</p>
+            <div class="is-add-friend-container">
+                <p class="is-add-friend-ok-btn">好的</p>
+                <p class="is-add-friend-no-btn">取消</p>
+            </div>
+        </div>
         <img class="chat-container-close-btn" src="./images/close.png" />
         <p class="group-member-icon">群組成員</p>
         <div style="display:flex;">
@@ -278,13 +279,14 @@
                     <div></div>
                 </div>
             </div>
-            <p>檔案上傳中</p>
+            <p>檔案傳送中</p>
         </div>
         <div class="chat-message">
         </div>
         <div class="group-read-status"></div>
-        <p class="hover-font">可上傳圖片、影片、音樂、純文本等檔案</p>
+        <p class="hover-font">可傳送圖片、影片、音樂、純文本等檔案</p>
         <div class="input-container">
+            <img class="chat-page-hamburger-icon" src="./images/menu.png" />
             <img class="message-picture-icon" src="./images/add-image.png" />
             <input style="display:none;" type="file" class="chat-image-input"
                 accept="image/* audio/* video/* application/pdf text/plain">
@@ -292,6 +294,29 @@
             <p class="send-message">送出</p>
             <img class="message-sticker-icon" src="./images/emoji.png" />
         </div>
+        <div class="chat-popup-setting">
+            <div class="chat-popup-photo-icon">
+                <img src="./images/image.png" />
+                <p>相片、影片</p>
+            </div>
+            <div class="char-popup-file-icon">
+                <img src="./images/folder.png">
+                <p>檔案</p>
+            </div>
+        </div>
+
+        <div class="picture-video-container">
+            <img class="close-picture-video-container" src="./images/close.png" />
+            <div style="display:flex">
+                <p class="picture-btn">圖片</p>
+                <p class="video-btn">影片</p>
+            </div>
+            <div class="picture-list">
+            </div>
+            <div class="video-list">
+            </div>
+        </div>
+
         <div class="sticker-popup">
             <p>😀</p>
             <p>😄</p>
@@ -388,10 +413,10 @@
             </div>
         </div>
 
-        <div class="friend-call-timer">
-            <p class="friend-call-hour"></p>
-            <p class="friend-call-minute"></p>
-            <p class="friend-call-seconds"></p>
+        <div class="self-call-timer">
+            <p class="self-call-hour"></p>
+            <p class="self-call-minute"></p>
+            <p class="self-call-seconds"></p>
         </div>
 
 

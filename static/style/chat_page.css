@@ -36,6 +36,8 @@ body {
     margin: auto;
     cursor: pointer;
     position: relative;
+    box-sizing: border-box;
+    padding: 10px;
 }
 
 .chat-list:hover {
@@ -51,6 +53,8 @@ body {
     margin: auto;
     cursor: pointer;
     position: relative;
+    box-sizing: border-box;
+    padding: 10px;
 }
 
 .chat-group-list:hover {
@@ -63,7 +67,7 @@ body {
     width: 300px;
     height: 90px;
     background-color: white;
-    top: 70px;
+    top: 10px;
     left: 50%;
     transform: translate(-50%, 0);
     border-radius: 10px;
@@ -452,7 +456,7 @@ body {
 
 .single-chat-history-title {
     text-align: center;
-    font-size: 20px;
+    font-size: 30px;
     font-weight: bolder;
     width: 100px;
     background-color: white;
@@ -461,11 +465,13 @@ body {
     padding: 5px;
     border: 1px solid black;
     margin-top: 50px;
+    box-sizing: border-box;
+    padding: 10px;
 }
 
 .group-chat-history-title {
     text-align: center;
-    font-size: 20px;
+    font-size: 30px;
     font-weight: bolder;
     width: 100px;
     background-color: white;
@@ -474,6 +480,8 @@ body {
     padding: 5px;
     border: 1px solid black;
     margin-top: 50px;
+    box-sizing: border-box;
+    padding: 10px;
 
 }
 
@@ -663,4 +671,207 @@ body {
 
 .ldio-ssrhod4cbld div {
     box-sizing: content-box;
+}
+
+.chat-page-hamburger-icon {
+    width: 35px;
+    height: 40px;
+    margin-right: 5px;
+    cursor: pointer;
+}
+
+.chat-page-hamburger-icon:hover {
+    transform: scale(1.1);
+}
+
+.chat-popup-setting {
+    height: 100px;
+    border: 2px solid black;
+    border-radius: 10px;
+    position: fixed;
+    bottom: 60px;
+    background-color: white;
+    left: 10px;
+    display: flex;
+}
+
+.chat-popup-photo-icon {
+    width: 100px;
+    margin-top: 15px;
+    cursor: pointer;
+    text-align: center;
+}
+
+.chat-popup-photo-icon:hover {
+    transform: scale(1.1);
+}
+
+.chat-popup-photo-icon img {
+    width: 50px;
+}
+
+.chat-popup-photo-icon p {
+    font-weight: bolder;
+    font-size: 15px;
+}
+
+.char-popup-file-icon {
+    width: 100px;
+    margin-top: 15px;
+    cursor: pointer;
+    text-align: center;
+}
+
+.char-popup-file-icon:hover {
+    transform: scale(1.1);
+}
+
+.char-popup-file-icon img {
+    width: 50px;
+}
+
+.char-popup-file-icon p {
+    font-weight: bolder;
+    font-size: 15px;
+}
+
+.picture-video-container {
+    width: 400px;
+    height: 400px;
+    border: 2px solid black;
+    border-radius: 10px;
+}
+
+.picture-video-container {
+    display: none;
+    position: fixed;
+    top: 0px;
+    background-color: white;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 550px;
+    height: 600px;
+    z-index: 2003;
+}
+
+.close-picture-video-container {
+    width: 40px;
+    display: flex;
+    margin-left: auto;
+    margin-right: 10px;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+.close-picture-video-container:hover {
+    transform: scale(1.1);
+}
+
+.picture-video-list {
+    overflow: scroll;
+    overflow-x: hidden;
+    height: 500px;
+    width: 500px;
+    margin: auto;
+    margin-top: 10px;
+
+}
+
+.picture-video-list::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+    background-color: #eaeaea00;
+    border-radius: 10px;
+}
+
+.picture-video-list::-webkit-scrollbar-thumb {
+    background-color: rgb(194, 194, 194);
+    border-radius: 10px;
+}
+
+
+.picture-video-list::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(156, 156, 156);
+}
+
+.picture-btn {
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: bolder;
+    background-color: rgb(119 181 252);
+    border-radius: 10px;
+    padding: 5px;
+    margin-left: 10px;
+    margin-bottom: 10px;
+    margin-left: 30px;
+}
+
+.picture-btn:hover {
+    transform: scale(1.1);
+}
+
+.video-btn {
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: bolder;
+    background-color: rgb(119 181 252);
+    border-radius: 10px;
+    padding: 5px;
+    margin-left: 10px;
+    margin-bottom: 10px;
+}
+
+.video-btn:hover {
+    transform: scale(1.1);
+}
+
+.picture-list {
+    height: 450px;
+    overflow: scroll;
+    overflow-x: hidden;
+    width: 500px;
+    margin: auto;
+}
+
+.picture-list::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+    background-color: #eaeaea00;
+    border-radius: 10px;
+}
+
+.picture-list::-webkit-scrollbar-thumb {
+    background-color: rgb(194, 194, 194);
+    border-radius: 10px;
+}
+
+
+.picture-list::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(156, 156, 156);
+}
+
+.video-list {
+    height: 450px;
+    overflow: scroll;
+    overflow-x: hidden;
+    width: 500px;
+    margin: auto;
+}
+
+.video-list::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+    background-color: #eaeaea00;
+    border-radius: 10px;
+}
+
+.video-list::-webkit-scrollbar-thumb {
+    background-color: rgb(194, 194, 194);
+    border-radius: 10px;
+}
+
+
+.video-list::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(156, 156, 156);
 }

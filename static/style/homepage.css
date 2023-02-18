@@ -23,6 +23,7 @@ body {
     margin: auto;
     margin-top: 100px;
     border-radius: 15px;
+
 }
 
 #signup-container {
@@ -103,6 +104,7 @@ body {
 #email-verification-container {
     z-index: 2000;
     display: none;
+    height: 250px;
 }
 
 .sign-successful-popup {

@@ -13,6 +13,7 @@ let roomName = "";
 let seconds = 0;;
 let minutes = 0;
 let hours = 0;
+let timer;
 let callSuccess = false;
 const audioElement = new Audio();
 const friendCallPopup = document.querySelector(".friend-call-popup");
@@ -22,6 +23,19 @@ const selfCallPopup = document.querySelector(".self-call-popup");
 const selfCallHangup = document.querySelector(".self-call-hangup-icon");
 const groupCallMemberData = document.querySelector(".group-call-member-data");
 const groupCallAcceptBtn = document.querySelector(".group-call-accept-btn");
+const groupCallRejectBtn = document.querySelector(".group-call-reject-btn");
+const selfCallTime = document.querySelector(".self-call-timer");
+const friendCallTime = document.querySelector(".friend-call-timer");
+const friendCallTimerHour = document.querySelector(".friend-call-hour");
+const friendCallTimerMinute = document.querySelector(".friend-call-minute");
+const friendCallTimerSeconds = document.querySelector(".friend-call-seconds");
+const selfCallTimerHour = document.querySelector(".self-call-hour");
+const selfCallTimerMinute = document.querySelector(".self-call-minute");
+const selfCallTimerSeconds = document.querySelector(".self-call-seconds");
+const selfCallNickname = document.querySelector(".self-call-popup-nickname");
+const selfCallHeadshot = document.querySelector(".self-call-popup-headshot");
+const friendPopupHeadshot = document.querySelector(".friend-popup-headshot");
+
 //與好友通話 sender
 friendPopupCall.addEventListener("click", () => {
     const isGroup = isNaN(friendId.innerHTML);
@@ -49,6 +63,7 @@ friendPopupCall.addEventListener("click", () => {
                     newDiv.className = "group-call-member";
                     groupCallMemberData.appendChild(newDiv);
                     let groupCallMember = document.querySelectorAll(".group-call-member");
+
 
                     newImg = document.createElement("img");
                     newImg.src = element.headshot;
@@ -86,10 +101,9 @@ friendPopupCall.addEventListener("click", () => {
             })
 
     } else {
+        selfCallNickname.style.marginBottom = "0px";
         friendPopup.style.display = "none";
-        const selfCallNickname = document.querySelector(".self-call-popup-nickname");
-        const selfCallHeadshot = document.querySelector(".self-call-popup-headshot");
-        const friendPopupHeadshot = document.querySelector(".friend-popup-headshot");
+        selfCallTime.style.display = "none";
         selfCallPopup.style.display = "block";
         selfCallHeadshot.src = friendPopupHeadshot.src;
         selfCallNickname.innerHTML = friendName.innerHTML;
@@ -126,6 +140,7 @@ socket.on("group-accept-call-member", (acceptMemberId) => {
 
 //群組對方接聽
 socket.on("invite-join-group-call", (groupId, senderId) => {
+
     groupCallPopUp.style.display = "block";
     friendPopup.style.display = "none";
     fetch("/api/get_group_member", {
@@ -199,8 +214,6 @@ socket.on("invite-join-group-call", (groupId, senderId) => {
 
 
 socket.on("group-ready", (roomName) => {
-
-
     peerConnection.oniceconnectionstatechange = onIceConnectionStateFunction;
     peerConnection.onicecandidate = (event) => {
         if (!event.candidate) {
@@ -258,6 +271,8 @@ socket.on("group-offer", (offer, roomName) => {
 
 //reciver 對方接聽
 socket.on("invite-join-call", (roomName, package, senderId) => {
+    friendCallNickname.style.marginBottom = "0px";
+    friendCallTime.style.display = "none";
     friendCallAcceptBtn.style.display = "block";
     friendCallLoader.style.display = "block";
     roomName = roomName;
@@ -265,15 +280,12 @@ socket.on("invite-join-call", (roomName, package, senderId) => {
     friendCallNickname.innerHTML = package.nickname;
     friendCallPopup.style.display = "block";
     friendCallAcceptBtn.addEventListener("click", () => {
+        friendCallNickname.style.marginBottom = "100px";
         socket.emit("recipient-join-room", roomName);
         creator = false;
 
-        //撥打電話的計時器
-        let timer = setInterval(phoneCallTimer, 1000);
         friendCallAcceptBtn.style.display = "none";
         friendCallLoader.style.display = "none";
-        friendCallTimer[0].style.visibility = "visible";
-        friendCallTimer[0].style.marginTop = "150px";
         navigator.mediaDevices.getUserMedia({ audio: true })
             .then((stream) => {
                 console.log("recipient", stream)
@@ -299,14 +311,25 @@ socket.on("invite-join-call", (roomName, package, senderId) => {
 //sender
 socket.on("ready", () => {
     if (creator) {
+        selfCallNickname.style.marginBottom = "100px";
+        seconds = 0;
+        minutes = 0;
+        hours = 0;
+        selfCallTimerSeconds.innerHTML = `&nbsp;${seconds}`;
+        selfCallTimerMinute.innerHTML = `&nbsp;${minutes} : `;
+        selfCallTimerHour.innerHTML = `&nbsp;${hours} : `;
+        setTimeout(() => {
+            selfCallTime.style.display = "flex";
+        }, 1000)
+
         callSuccess = true;
         console.log(creator)
         const selfPopupHangup = document.querySelector(".self-call-hangup-icon-container");
         // selfPopupHangup.style.marginTop = "220px";
         selfCallLoader.style.display = "none";
-        friendCallTimer[1].style.visibility = "visible";
-        friendCallTimer[1].style.marginTop = "200px";
-        let timer = setInterval(phoneCallTimer, 1000);
+
+        clearInterval(timer);
+        timer = setInterval(selfPhoneCallTimer, 1000);
         peerConnection = new RTCPeerConnection(iceServers);
         peerConnection.oniceconnectionstatechange = onIceConnectionStateFunction;
         peerConnection.onicecandidate = (event) => {
@@ -344,6 +367,19 @@ socket.on("candidate", (candidate) => {
 socket.on("offer", (offer, roomName) => {
 
     if (!creator) {
+        seconds = 0;
+        minutes = 0;
+        hours = 0;
+        friendCallTimerSeconds.innerHTML = `&nbsp;${0}`;
+        friendCallTimerMinute.innerHTML = `&nbsp;${0} : `;
+        friendCallTimerHour.innerHTML = `&nbsp;${0} : `;
+        setTimeout(() => {
+            friendCallTime.style.display = "flex";
+        }, 1000)
+
+        clearInterval(timer);
+        //撥打電話的計時器
+        timer = setInterval(phoneCallTimer, 1000);
         callSuccess = true;
         peerConnection = new RTCPeerConnection(iceServers);
         peerConnection.oniceconnectionstatechange = onIceConnectionStateFunction();
@@ -375,8 +411,8 @@ socket.on("offer", (offer, roomName) => {
         const recipientHangupCall = document.querySelector(".friend-call-hangup-icon");
         recipientHangupCall.addEventListener("click", () => {
             if (callSuccess) {
-                socket.emit("leave", roomName);
 
+                socket.emit("leave", roomName);
                 if (userStream.getTracks()) {
                     userStream.getTracks().forEach(track => track.stop());
 
@@ -388,10 +424,11 @@ socket.on("offer", (offer, roomName) => {
                     peerConnection.onicecandidate = null;
                     peerConnection = null;
                 }
-                seconds = 0;;
+                seconds = 0;
                 minutes = 0;
                 hours = 0;
-
+                clearInterval(timer);
+                friendCallTime.style.display = "none";
                 friendCallPopup.style.display = "none";
                 callSuccess = false;
 
@@ -435,7 +472,6 @@ function onIceCandidateFunction(event, roomName) {
 }
 
 function onTrackFunction(event) {
-    console.log("here")
     try {
         if (event.track.kind === "audio") {
             console.log("success")
@@ -460,15 +496,26 @@ function onIceConnectionStateFunction(event) {
 }
 
 function phoneCallTimer() {
-    const friendCallTimerHour = document.querySelectorAll(".friend-call-hour");
-    const friendCallTimerMinute = document.querySelectorAll(".friend-call-minute");
-    const friendCallTimerSeconds = document.querySelectorAll(".friend-call-seconds");
-    friendCallTimerSeconds[0].innerHTML = `&nbsp;${seconds}`;
-    friendCallTimerSeconds[1].innerHTML = `&nbsp;${seconds}`;
-    friendCallTimerMinute[0].innerHTML = `&nbsp;${minutes} : `;
-    friendCallTimerMinute[1].innerHTML = `&nbsp;${minutes} : `;
-    friendCallTimerHour[0].innerHTML = `&nbsp;${hours} : `;
-    friendCallTimerHour[1].innerHTML = `&nbsp;${hours} : `;
+
+    friendCallTimerSeconds.innerHTML = `&nbsp;${seconds}`;
+    friendCallTimerMinute.innerHTML = `&nbsp;${minutes} : `;
+    friendCallTimerHour.innerHTML = `&nbsp;${hours} : `;
+    seconds++;
+    if (seconds >= 60) {
+        seconds = 0;
+        minutes++;
+    }
+    if (minutes >= 60) {
+        minutes = 0;
+        hours++;
+    }
+}
+
+function selfPhoneCallTimer() {
+
+    selfCallTimerSeconds.innerHTML = `&nbsp;${seconds}`;
+    selfCallTimerMinute.innerHTML = `&nbsp;${minutes} : `;
+    selfCallTimerHour.innerHTML = `&nbsp;${hours} : `;
     seconds++;
     if (seconds >= 60) {
         seconds = 0;
@@ -484,7 +531,7 @@ function phoneCallTimer() {
 //sender掛掉電話
 selfCallHangup.addEventListener("click", () => {
     if (callSuccess) {
-
+        console.log("掛掉")
         socket.emit("leave", roomName);
 
         if (userStream.getTracks()) {
@@ -502,6 +549,9 @@ selfCallHangup.addEventListener("click", () => {
         minutes = 0;
         hours = 0;
         callSuccess = false;
+        clearInterval(timer);
+
+        selfCallTime.style.display = "none";
         selfCallPopup.style.display = "none";
     } else {
         selfCallPopup.style.display = "none";
@@ -512,6 +562,12 @@ selfCallHangup.addEventListener("click", () => {
 })
 
 socket.on("leave", () => {
+    console.log("leave")
+    clearInterval(timer);
+    console.log(timer)
+    selfCallTime.style.display = "none";
+    friendCallTime.style.display = "none";
+
     callSuccess = false;
     if (userStream.getTracks()) {
         userStream.getTracks().forEach(track => track.stop());

@@ -45,7 +45,7 @@ body {
 }
 
 .search-bar {
-    margin-top: 60px;
+    margin-top: 50px;
     margin-left: 10px;
     display: flex;
     justify-content: center;
@@ -73,15 +73,7 @@ body {
     transform: scale(1.1);
 }
 
-.add-friend-btn {
-    margin-left: 30px;
-    width: 50px;
-    cursor: pointer;
-}
 
-.add-friend-btn:hover {
-    transform: scale(1.1);
-}
 
 .search-friend-popup {
     display: none;
@@ -152,10 +144,11 @@ body {
 }
 
 #add-friend-btn {
-    width: 40px;
+    width: 60px;
     display: block;
-    margin: auto;
+    /* margin: auto; */
     cursor: pointer;
+    margin-left: 40px;
 }
 
 #add-friend-btn:hover {
@@ -168,18 +161,22 @@ body {
     display: flex;
     border: 1px black solid;
     cursor: pointer;
-    border-radius: 10px;
+    /* border-radius: 10px; */
     background-color: white;
     width: 500px;
+    padding: 10px;
+    box-sizing: border-box;
 }
 
 .group {
     display: flex;
     border: 1px black solid;
     cursor: pointer;
-    border-radius: 10px;
+    /* border-radius: 10px; */
     background-color: white;
     width: 500px;
+    padding: 10px;
+    box-sizing: border-box;
 }
 
 .group p {
@@ -340,7 +337,7 @@ body::-webkit-scrollbar-thumb:hover {
 }
 
 .message-input {
-    width: 400px;
+    width: 380px;
     outline: none;
     border: 2px solid black;
     border-radius: 10px;
@@ -441,12 +438,19 @@ body::-webkit-scrollbar-thumb:hover {
 }
 
 .search-result {
-    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid black;
+    width: 300px;
+    margin: auto;
+    margin-top: 10px;
+    padding: 10px;
 }
 
 .friend-call-popup {
     display: none;
-    position: absolute;
+    position: fixed;
     top: 40%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -611,6 +615,7 @@ body::-webkit-scrollbar-thumb:hover {
     display: inline-block;
     overflow: hidden;
     background: #ffffff;
+    margin: auto;
 }
 
 .ldio-f21110bk72v {
@@ -628,11 +633,18 @@ body::-webkit-scrollbar-thumb:hover {
 }
 
 .friend-call-timer {
-    visibility: hidden;
     display: flex;
     text-align: center;
     justify-content: center;
     margin-bottom: 20px;
+}
+
+.self-call-timer {
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    font-size: 20px;
 
 }
 
@@ -642,7 +654,7 @@ body::-webkit-scrollbar-thumb:hover {
 
 .self-call-popup {
     display: none;
-    position: absolute;
+    position: fixed;
     top: 40%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -654,7 +666,6 @@ body::-webkit-scrollbar-thumb:hover {
     z-index: 2000;
     text-align: center;
     justify-content: center;
-    height: 600px;
 }
 
 .self-call-popup-headshot {
@@ -676,6 +687,7 @@ body::-webkit-scrollbar-thumb:hover {
     width: 90px;
     border: 2px solid black;
     margin: auto;
+    margin-bottom: 20px;
 }
 
 .self-call-hangup-icon-container:hover {

@@ -1,6 +1,6 @@
 const closePopup = document.querySelector(".popup-close-btn");
 const searchFriendPopup = document.querySelector(".search-friend-popup");
-const addFriendBtn = document.querySelector(".add-friend-btn");
+const addFriendBtn = document.querySelector(".add-friends-btn");
 const popupAddFriendBtn = document.querySelector("#add-friend-popup-btn");
 const addFriendInput = document.querySelector("#add-friend-popup-input");
 const popupAddFriendResult = document.querySelector(".search-friend-popup-result");
@@ -375,19 +375,19 @@ popupAddFriendBtn.addEventListener("click", () => {
 })
 
 //點擊搜尋好友按鈕
-searchFriendBton.addEventListener("click", () => {
-    if (searchFriendInput.value) {
-        fetch(`/api/search_friend?nickname=${searchFriendInput.value}`)
-            .then((response) => {
-                return response.json();
-            })
-            .then((data) => {
-                searchFriendResultClose.style.display = "block";
-                searchFriendResultList.style.display = "block";
-                createFriendList(data, searchFriendResultList);
-            })
-    }
-})
+// searchFriendBton.addEventListener("click", () => {
+//     if (searchFriendInput.value) {
+//         fetch(`/api/search_friend?nickname=${searchFriendInput.value}`)
+//             .then((response) => {
+//                 return response.json();
+//             })
+//             .then((data) => {
+//                 searchFriendResultClose.style.display = "block";
+//                 searchFriendResultList.style.display = "block";
+//                 createFriendList(data, searchFriendResultList);
+//             })
+//     }
+// })
 
 //點擊關閉搜尋好友按鈕
 searchFriendResultClose.addEventListener("click", () => {
@@ -416,6 +416,7 @@ chatCloseBtn.addEventListener("click", () => {
     groupIsReadStatus.innerHTML = "";
     isAddFriendPopup.style.display = "none";
     groupMemberIcon.style.display = "none";
+    chatPopupSettingContainer.style.visibility = "hidden";
 })
 
 popupChatBtn.addEventListener("click", () => {
@@ -532,7 +533,6 @@ function createUserHtml(resultArr) {
         newImg.src = element.headshot;
         newImg.style.width = "100px";
         newImg.style.height = "100px";
-        newImg.style.marginTop = "20px";
         newImg.style.objectFit = "cover";
         newImg.style.borderRadius = "10px";
         searchResult[count].appendChild(newImg);
@@ -540,7 +540,8 @@ function createUserHtml(resultArr) {
         newP = document.createElement("p");
         newP.innerHTML = element.nickname;
         newP.style.fontWeight = "bolder";
-        newP.style.fontSize = "30px";
+        newP.style.fontSize = "25px";
+        newP.style.marginLeft = "10px";
         searchResult[count].appendChild(newP);
 
         newImg = document.createElement("img");
@@ -592,10 +593,7 @@ function createUserHtml(resultArr) {
 
         })
         searchResult[count].appendChild(newImg);
-        newHr = document.createElement("hr");
-        newHr.style.width = "70%";
-        newHr.style.margin = "auto";
-        searchResult[count].appendChild(newHr);
+
         count++;
 
     })
@@ -717,13 +715,13 @@ function chatFile(element, isSelf, is_read = 0, is_group = false) {
 
         }
     }
-    let fileName = element.message.replace(/\(.*\)/, '');
-    fileName = fileName.replace(S3Url, "")
-    const matches = element.message.match(/\(([^)]+)\)/);
-    const dataType = matches[1];
-    const S3VideoUrl = element.message.replace(/\(.*\)/, ''); //去除()裡面我寫的檔案型態
+
+    const index = element.message.indexOf("(", element.message.length - 1 - 14);
+    let fileName = element.message.substring(0, index);
+    fileName = fileName.replace(S3Url, "");
+    const dataType = element.message.substring(index, element.message.length);
     let chatMessage = document.querySelector(".chat-message");
-    if (dataType === "video") {  //檔案是影片時
+    if (dataType === "(video)") {  //檔案是影片時
         if (isSelf) {
 
             newDiv = document.createElement("div");
@@ -754,7 +752,7 @@ function chatFile(element, isSelf, is_read = 0, is_group = false) {
         newImg.style.borderRadius = "10px";
         newDiv.appendChild(newImg);
         newDiv.addEventListener("click", () => {
-            window.open(`${S3Url}${fileName}(${dataType})`, "影片", "width=600,height=600,top=" + (screen.height - 600) / 2 + ",left=" + (screen.width - 600) / 2);
+            window.open(`${S3Url}${fileName}${dataType}`, "影片", "width=600,height=600,top=" + (screen.height - 600) / 2 + ",left=" + (screen.width - 600) / 2);
         })
 
 
@@ -767,7 +765,7 @@ function chatFile(element, isSelf, is_read = 0, is_group = false) {
         newImg.style.width = "100px";
         newDiv.appendChild(newImg)
 
-    } else if (dataType === "audio") {
+    } else if (dataType === "(audio)") {
         let newAudio = document.createElement("audio");
         newAudio.controls = true;
         newAudio.style.display = "flex";
@@ -776,11 +774,11 @@ function chatFile(element, isSelf, is_read = 0, is_group = false) {
         if (isSelf) {
             newAudio.style.marginLeft = "auto";
         }
-        newAudio.src = `${S3Url}${fileName}(${dataType})`;
+        newAudio.src = `${S3Url}${fileName}${dataType}`;
         chatMessage.appendChild(newAudio);
-    } else if (dataType === "image") {
+    } else if (dataType === "(image)") {
         newImg = document.createElement("img");
-        newImg.src = `${S3Url}${fileName}(${dataType})`;
+        newImg.src = `${S3Url}${fileName}${dataType}`;
         newImg.style.maxWidth = "250px";
         newImg.style.display = "block";
         newImg.style.marginBottom = "10px";
@@ -793,10 +791,10 @@ function chatFile(element, isSelf, is_read = 0, is_group = false) {
         newImg.style.cursor = "pointer";
         newImg.addEventListener("click", () => {
             newImg.src = newImg.src;
-            window.open(`${S3Url}${fileName}(${dataType})`, "影片", "width=600,height=600,top=" + (screen.height - 600) / 2 + ",left=" + (screen.width - 600) / 2);
+            window.open(`${S3Url}${fileName}${dataType}`, "影片", "width=600,height=600,top=" + (screen.height - 600) / 2 + ",left=" + (screen.width - 600) / 2);
         })
         chatMessage.appendChild(newImg);
-    } else if (dataType === "application") {
+    } else if (dataType === "(application)") {
         newImg = document.createElement("img");
         newImg.src = "./images/word-doc.png";
         newImg.style.width = "100px";
@@ -810,10 +808,10 @@ function chatFile(element, isSelf, is_read = 0, is_group = false) {
         newImg.style.cursor = "pointer";
         newImg.addEventListener("click", () => {
             newImg.src = newImg.src;
-            window.open(`${S3Url}${fileName}(${dataType})`, "影片", "width=600,height=600,top=" + (screen.height - 600) / 2 + ",left=" + (screen.width - 600) / 2);
+            window.open(`${S3Url}${fileName}${dataType}`, "影片", "width=600,height=600,top=" + (screen.height - 600) / 2 + ",left=" + (screen.width - 600) / 2);
         })
         chatMessage.appendChild(newImg);
-    } else if (dataType === "text") {
+    } else if (dataType === "(text)") {
         newImg = document.createElement("img");
         newImg.src = "./images/txt.png";
         newImg.style.width = "100px";
@@ -827,7 +825,7 @@ function chatFile(element, isSelf, is_read = 0, is_group = false) {
         newImg.style.cursor = "pointer";
         newImg.addEventListener("click", () => {
             newImg.src = newImg.src;
-            window.open(`${S3Url}${fileName}(${dataType})`, "影片", "width=600,height=600,top=" + (screen.height - 600) / 2 + ",left=" + (screen.width - 600) / 2);
+            window.open(`${S3Url}${fileName}${dataType}`, "影片", "width=600,height=600,top=" + (screen.height - 600) / 2 + ",left=" + (screen.width - 600) / 2);
         })
         chatMessage.appendChild(newImg);
     }

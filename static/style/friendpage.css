@@ -84,30 +84,33 @@ body {
 
 .friend-page-list-title {
     text-align: center;
-    font-size: 20px;
+    font-size: 30px;
     font-weight: bolder;
-    background-color: white;
+    background-color: #ffffff;
     width: 500px;
     margin: auto;
     border: 1px solid black;
-    border-radius: 10px;
+    /* border-radius: 10px; */
     padding-top: 5px;
     padding-bottom: 5px;
+    color: black;
+    margin-top: 50px;
 
 }
 
 .group-page-list-title {
     text-align: center;
-    font-size: 20px;
+    font-size: 30px;
     font-weight: bolder;
-    background-color: white;
+    background-color: #ffffff;
     width: 500px;
     margin: auto;
     border: 1px solid black;
-    margin-top: 50px;
-    border-radius: 10px;
+    /* border-radius: 10px; */
     padding-top: 5px;
     padding-bottom: 5px;
+    color: black;
+    margin-top: 50px;
 }
 
 .list-empty {
@@ -129,4 +132,30 @@ body {
 
 .list-empty img {
     width: 200px;
+}
+
+.add-friends-btn {
+    display: flex;
+    background-color: white;
+    width: 500px;
+    padding: 5px;
+    border: 1px solid black;
+    margin: auto;
+    cursor: pointer;
+    position: relative;
+    justify-content: center;
+}
+
+.add-friends-btn:hover {
+    transform: scale(1.03);
+}
+
+.add-friends-btn p {
+    font-size: 30px;
+    font-weight: bolder;
+    margin-left: 10px;
+}
+
+.add-friends-btn img {
+    width: 50px;
 }

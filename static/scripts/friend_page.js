@@ -73,11 +73,11 @@ function createFriendList(friendData, list) {
 
         friend[count].addEventListener("click", () => {
             let friendPopupHeadshot = document.querySelector(".friend-popup-headshot");
-            friendPopupHeadshot.src = "./images/Loading_icon.gif";
-            friendPopupHeadshot.onload = () => {
-                friendPopupHeadshot.src = element.headshot;
-            }
-
+            // friendPopupHeadshot.src = "./images/Loading_icon.gif";
+            // friendPopupHeadshot.onload = () => {
+            //     friendPopupHeadshot.src = element.headshot;
+            // }
+            friendPopupHeadshot.src = element.headshot;
             friendPopup.style.display = "block";
             friendName.innerHTML = element.nickname;
             friendId.innerHTML = element.user_id;
