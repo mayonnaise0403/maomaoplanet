@@ -370,6 +370,7 @@ socket.on("ready", async () => {
             });
         }
 
+
         // 创建 offer
         peerConnection.createOffer()
             .then(offer => {
@@ -378,9 +379,14 @@ socket.on("ready", async () => {
                         // 傳送 RTCSessionDescription 回 sender
                         socket.emit("offer", offer, roomName);
                     })
-                    .catch(error => console.error(error));
+                    .catch(error => {
+                        console.error(error);
+
+                    });
             })
-            .catch(error => console.error(error));
+            .catch(error => {
+                console.error(error);
+            });
 
     }
 
