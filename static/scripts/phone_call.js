@@ -347,14 +347,28 @@ socket.on("ready", async () => {
         };
         peerConnection.ontrack = onTrackFunction;
         // peerConnection.addStream(userStream);
-        peerConnection.getSenders().forEach(sender => {
-            peerConnection.removeTrack(sender);
-        });
+        // peerConnection.getSenders().forEach(sender => {
+        //     peerConnection.removeTrack(sender);
+        // });
 
 
-        userStream.getTracks().forEach((track) => {
-            peerConnection.addTrack(track, userStream);
+        // userStream.getTracks().forEach((track) => {
+        //     peerConnection.addTrack(track, userStream);
+        // });
+
+        let hasTrack = false;
+        peerConnection.getSenders().forEach((sender) => {
+            let track = sender.track;
+            if (track.kind === track.kind) {
+                hasTrack = true;
+            }
         });
+
+        if (!hasTrack) {
+            userStream.getTracks().forEach((track) => {
+                peerConnection.addTrack(track, userStream);
+            });
+        }
 
         // 创建 offer
         peerConnection.createOffer()
@@ -433,13 +447,28 @@ socket.on("offer", async (offer, roomName) => {
 
         peerConnection.ontrack = onTrackFunction;
 
-        peerConnection.getSenders().forEach(sender => {
-            peerConnection.removeTrack(sender);
+        // peerConnection.getSenders().forEach(sender => {
+        //     peerConnection.removeTrack(sender);
+        // });
+        // // peerConnection.addStream(userStream);
+        // userStream.getTracks().forEach((track) => {
+        //     peerConnection.addTrack(track, userStream);
+        // });
+
+        let hasTrack = false;
+        peerConnection.getSenders().forEach((sender) => {
+            let track = sender.track;
+            if (track.kind === track.kind) {
+                hasTrack = true;
+            }
         });
-        // peerConnection.addStream(userStream);
-        userStream.getTracks().forEach((track) => {
-            peerConnection.addTrack(track, userStream);
-        });
+
+        if (!hasTrack) {
+            userStream.getTracks().forEach((track) => {
+                peerConnection.addTrack(track, userStream);
+            });
+        }
+
 
 
         // 创建 offer
