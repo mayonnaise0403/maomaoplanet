@@ -432,6 +432,10 @@ socket.on("offer", async (offer, roomName) => {
         // };
 
         peerConnection.ontrack = onTrackFunction;
+
+        peerConnection.getSenders().forEach(sender => {
+            peerConnection.removeTrack(sender);
+        });
         // peerConnection.addStream(userStream);
         userStream.getTracks().forEach((track) => {
             peerConnection.addTrack(track, userStream);
@@ -461,8 +465,8 @@ socket.on("offer", async (offer, roomName) => {
                 }
                 if (peerConnection) {
                     console.log("hey")
-                    // peerConnection.ontrack = null;
-                    // peerConnection.onicecandidate = null;
+                    peerConnection.ontrack = null;
+                    peerConnection.onicecandidate = null;
                     peerConnection.close();
                     peerConnection = null;
                     peerConnection = new RTCPeerConnection(iceServers);
@@ -641,8 +645,8 @@ socket.on("leave", () => {
     }
     if (peerConnection) {
         console.log("hey")
-        // peerConnection.ontrack = null;
-        // peerConnection.onicecandidate = null;
+        peerConnection.ontrack = null;
+        peerConnection.onicecandidate = null;
         peerConnection.close();
         peerConnection = null;
         peerConnection = new RTCPeerConnection(iceServers);
