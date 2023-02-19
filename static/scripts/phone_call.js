@@ -310,7 +310,7 @@ socket.on("invite-join-call", (roomName, package, senderId) => {
 })
 
 //sender
-socket.on("ready", () => {
+socket.on("ready", async () => {
     if (creator) {
         selfCallNickname.style.marginBottom = "100px";
         seconds = 0;
@@ -330,7 +330,10 @@ socket.on("ready", () => {
 
         clearInterval(timer);
         timer = setInterval(selfPhoneCallTimer, 1000);
-        peerConnection = new RTCPeerConnection(iceServers);
+        if (!peerConnection) {
+            peerConnection = new RTCPeerConnection(iceServers);
+        }
+        await waitForStableState(peerConnection);
         console.log(peerConnection.signalingState);//用來確保 RTCPeerConnection 物件狀態的合法性
         peerConnection.oniceconnectionstatechange = onIceConnectionStateFunction;
         console.log("hello")
@@ -344,6 +347,11 @@ socket.on("ready", () => {
         };
         peerConnection.ontrack = onTrackFunction;
         // peerConnection.addStream(userStream);
+        peerConnection.getSenders().forEach(sender => {
+            peerConnection.removeTrack(sender);
+        });
+
+
         userStream.getTracks().forEach((track) => {
             peerConnection.addTrack(track, userStream);
         });
@@ -351,8 +359,12 @@ socket.on("ready", () => {
         // 创建 offer
         peerConnection.createOffer()
             .then(offer => {
-                peerConnection.setLocalDescription(offer);
-                socket.emit("offer", offer, roomName);
+                peerConnection.setLocalDescription(offer)
+                    .then(() => {
+                        // 傳送 RTCSessionDescription 回 sender
+                        socket.emit("offer", offer, roomName);
+                    })
+                    .catch(error => console.error(error));
             })
             .catch(error => console.error(error));
 
@@ -361,22 +373,23 @@ socket.on("ready", () => {
 })
 
 
-socket.on("candidate", (candidate) => {
+socket.on("candidate", async (candidate) => {
     // let icecandidate = new RTCIceCandidate(candidate);
     // peerConnection.addIceCandidate(icecandidate);
     if (peerConnection.remoteDescription) {
-        peerConnection.addIceCandidate(candidate);
+        await peerConnection.addIceCandidate(candidate);
     } else {
-        peerConnection.addEventListener("icecandidate", function (event) {
+        peerConnection.addEventListener("icecandidate", async (event) => {
             if (event.candidate) {
-                peerConnection.addIceCandidate(event.candidate);
+                console.log(event.candidate)
+                await peerConnection.addIceCandidate(event.candidate);
             }
-        });
+        })
     }
 })
 
 //reciver
-socket.on("offer", (offer, roomName) => {
+socket.on("offer", async (offer, roomName) => {
 
     if (!creator) {
         seconds = 0;
@@ -393,7 +406,12 @@ socket.on("offer", (offer, roomName) => {
         //撥打電話的計時器
         timer = setInterval(phoneCallTimer, 1000);
         callSuccess = true;
-        peerConnection = new RTCPeerConnection(iceServers);
+        if (!peerConnection) {
+            peerConnection = new RTCPeerConnection(iceServers);
+        }
+
+        await waitForStableState(peerConnection);
+
         console.log(peerConnection.signalingState);//用來確保 RTCPeerConnection 物件狀態的合法性
         peerConnection.setRemoteDescription(offer);
         console.log(offer)
@@ -407,6 +425,12 @@ socket.on("offer", (offer, roomName) => {
             }
             onIceCandidateFunction(event, roomName);
         };
+        // peerConnection.onicecandidate = function (event) {
+        //     if (event.candidate) {
+        //         addIceCandidate(event.candidate, roomName);
+        //     }
+        // };
+
         peerConnection.ontrack = onTrackFunction;
         // peerConnection.addStream(userStream);
         userStream.getTracks().forEach((track) => {
@@ -436,10 +460,12 @@ socket.on("offer", (offer, roomName) => {
                     audioElement.srcObject = null;
                 }
                 if (peerConnection) {
+                    console.log("hey")
+                    // peerConnection.ontrack = null;
+                    // peerConnection.onicecandidate = null;
                     peerConnection.close();
-                    peerConnection.ontrack = null;
-                    peerConnection.onicecandidate = null;
                     peerConnection = null;
+                    peerConnection = new RTCPeerConnection(iceServers);
                 }
                 seconds = 0;
                 minutes = 0;
@@ -457,6 +483,35 @@ socket.on("offer", (offer, roomName) => {
     }
 })
 
+socket.on("answer", async (answer) => {
+    console.log("answer")
+    console.log(answer)
+    peerConnection.setRemoteDescription(answer);
+})
+
+
+async function addIceCandidate(candidate, roomName) {
+    try {
+        await peerConnection.addIceCandidate(candidate);
+
+        console.log("Ice candidate added successfully");
+    } catch (error) {
+        console.error("Error adding ice candidate: " + error);
+    }
+}
+
+async function onIceCandidateFunction(event, roomName) {
+    try {
+        if (event.candidate) {
+            socket.emit("candidate", event.candidate, roomName)
+        }
+    } catch (error) {
+        console.log("onIceCandidate Error : ");
+        console.error(error);
+    }
+}
+
+
 socket.on("hangup-call", () => {
     friendCallPopup.style.display = "none";
     selfCallPopup.style.display = "none";
@@ -470,24 +525,16 @@ recipientHangupCall.addEventListener("click", () => {
     }
 })
 
-socket.on("answer", (answer) => {
-    peerConnection.setRemoteDescription(answer);
-})
 
 
-
-
-
-function onIceCandidateFunction(event, roomName) {
-    try {
-        if (event.candidate) {
-            socket.emit("candidate", event.candidate, roomName)
-        }
-    } catch (error) {
-        console.log("onIceCandidate Error : ");
-        console.error(error);
+async function waitForStableState(peerConnection) {
+    while (peerConnection.signalingState !== "stable") {
+        await new Promise(resolve => peerConnection.oniceconnectionstatechange = resolve);
     }
 }
+
+
+
 
 function onTrackFunction(event) {
     try {
@@ -558,9 +605,9 @@ selfCallHangup.addEventListener("click", () => {
         }
         if (peerConnection) {
             console.log("hey")
+            // peerConnection.ontrack = null;
+            // peerConnection.onicecandidate = null;
             peerConnection.close();
-            peerConnection.ontrack = null;
-            peerConnection.onicecandidate = null;
             peerConnection = null;
         }
         seconds = 0;
@@ -594,10 +641,11 @@ socket.on("leave", () => {
     }
     if (peerConnection) {
         console.log("hey")
+        // peerConnection.ontrack = null;
+        // peerConnection.onicecandidate = null;
         peerConnection.close();
-        peerConnection.ontrack = null;
-        peerConnection.onicecandidate = null;
         peerConnection = null;
+        peerConnection = new RTCPeerConnection(iceServers);
     }
     seconds = 0;
     minutes = 0;
