@@ -142,7 +142,20 @@ io.on('connection', (socket) => {
         socket.broadcast.to(roomName).emit("ready");
     });
 
-
+    socket.on("group-leave", () => {
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+        const cookie = socket.request.headers.cookie;
+        const match = cookie.match(/access_token=([^;]+)/);
+        const token = match ? match[1] : null;
+        const selfId = jwt.decode(token, secretKey).userId;
+        console.log(Array.from(socket.rooms))
+        Array.from(socket.rooms).forEach(room => {
+            if (uuidRegex.test(room)) {
+                socket.leave(room);
+                socket.broadcast.to(room).emit("group-leave", selfId);
+            }
+        })
+    })
 
 
     socket.on("candidate", (candidate, roomName) => {

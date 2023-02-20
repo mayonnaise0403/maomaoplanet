@@ -100,7 +100,6 @@ friendPopupCall.addEventListener("click", () => {
                 myLoading.style.width = "40px";
                 groupId = friendId.innerHTML
                 socket.emit("join-group-call", groupId);
-                peerConnection = new RTCPeerConnection(iceServers);
             })
 
     } else {
@@ -202,7 +201,7 @@ socket.on("invite-join-group-call", (groupId, senderId) => {
                 myLoading.src = "./images/check (1).png";
                 myLoading.style.width = "40px";
                 socket.emit("group-accept-call-member", groupId);
-                peerConnection = new RTCPeerConnection(iceServers);
+
                 navigator.mediaDevices.getUserMedia({ audio: true })
                     .then((stream) => {
                         userStream = stream;
@@ -214,7 +213,83 @@ socket.on("invite-join-group-call", (groupId, senderId) => {
 })
 
 
-socket.on("group-ready", (roomName) => {
+socket.on("group-ready", async (roomName) => {
+    if (!peerConnection) {
+        peerConnection = new RTCPeerConnection(iceServers);
+    }
+    await waitForStableState(peerConnection);
+    console.log(peerConnection.signalingState);//用來確保 RTCPeerConnection 物件狀態的合法性
+    peerConnection.oniceconnectionstatechange = onIceConnectionStateFunction;
+    console.log("hello")
+    peerConnection.onicecandidate = (event) => {
+        if (!event.candidate) {
+            console.log("All ice candidates have been sent.");
+            return;
+        }
+        console.log("here")
+        onIceCandidateFunction(event, roomName);
+    };
+    peerConnection.ontrack = onTrackFunction;
+    // peerConnection.addStream(userStream);
+    // peerConnection.getSenders().forEach(sender => {
+    //     peerConnection.removeTrack(sender);
+    // });
+
+
+    // userStream.getTracks().forEach((track) => {
+    //     peerConnection.addTrack(track, userStream);
+    // });
+
+    let hasTrack = false;
+    peerConnection.getSenders().forEach((sender) => {
+        let track = sender.track;
+        if (track.kind === track.kind) {
+            hasTrack = true;
+        }
+    });
+
+    if (!hasTrack) {
+        userStream.getTracks().forEach((track) => {
+            peerConnection.addTrack(track, userStream);
+        });
+    }
+
+
+    // 创建 offer
+    peerConnection.createOffer()
+        .then(offer => {
+            peerConnection.setLocalDescription(offer)
+                .then(() => {
+                    // 傳送 RTCSessionDescription 回 sender
+                    socket.emit("offer", offer, roomName);
+                })
+                .catch(error => {
+                    console.error(error);
+
+                });
+        })
+        .catch(error => {
+            console.error(error);
+        });
+
+
+
+
+
+})
+
+
+socket.on("group-offer", async (offer, roomName) => {
+    if (!peerConnection) {
+        peerConnection = new RTCPeerConnection(iceServers);
+    }
+    await waitForStableState(peerConnection);
+
+    console.log(peerConnection.signalingState);//用來確保 RTCPeerConnection 物件狀態的合法性
+    peerConnection.setRemoteDescription(offer);
+    console.log(offer)
+
+
     peerConnection.oniceconnectionstatechange = onIceConnectionStateFunction;
     peerConnection.onicecandidate = (event) => {
         if (!event.candidate) {
@@ -223,42 +298,39 @@ socket.on("group-ready", (roomName) => {
         }
         onIceCandidateFunction(event, roomName);
     };
+    // peerConnection.onicecandidate = function (event) {
+    //     if (event.candidate) {
+    //         addIceCandidate(event.candidate, roomName);
+    //     }
+    // };
+
     peerConnection.ontrack = onTrackFunction;
-    // peerConnection.addStream(userStream);
-    userStream.getTracks().forEach((track) => {
-        peerConnection.addTrack(track, userStream);
-    });
 
-    // 创建 offer
-    peerConnection.createOffer()
-        .then(offer => {
-            peerConnection.setLocalDescription(offer);
-            socket.emit("offer", offer, roomName);
-        })
-        .catch(error => console.error(error));
+    // peerConnection.getSenders().forEach(sender => {
+    //     peerConnection.removeTrack(sender);
+    // });
+    // // peerConnection.addStream(userStream);
+    // userStream.getTracks().forEach((track) => {
+    //     peerConnection.addTrack(track, userStream);
+    // });
 
-
-
-
-})
-
-socket.on("group-offer", (offer, roomName) => {
-    peerConnection.oniceconnectionstatechange = onIceConnectionStateFunction();
-    peerConnection.onicecandidate = (event) => {
-        if (!event.candidate) {
-            console.log("All ice candidates have been sent.");
-            return;
+    let hasTrack = false;
+    peerConnection.getSenders().forEach((sender) => {
+        let track = sender.track;
+        if (track.kind === track.kind) {
+            hasTrack = true;
         }
-        onIceCandidateFunction(event, roomName);
-    };
-    peerConnection.ontrack = onTrackFunction;
-    // peerConnection.addStream(userStream);
-    userStream.getTracks().forEach((track) => {
-        peerConnection.addTrack(track, userStream);
     });
 
-    peerConnection.setRemoteDescription(offer);
-    // 创建 offer
+    if (!hasTrack) {
+        userStream.getTracks().forEach((track) => {
+            peerConnection.addTrack(track, userStream);
+        });
+    }
+
+
+
+
     peerConnection.createAnswer()
         .then(answer => {
             peerConnection.setLocalDescription(answer);
@@ -267,8 +339,43 @@ socket.on("group-offer", (offer, roomName) => {
         .catch(error => console.error(error));
 
 
+})
+
+//掛掉電話
+groupCallRejectBtn.addEventListener("click", () => {
+    if (userStream.getTracks()) {
+        userStream.getTracks().forEach(track => track.stop());
+
+        audioElement.srcObject = null;
+    }
+    if (peerConnection) {
+        console.log("hey")
+        peerConnection.ontrack = null;
+        peerConnection.onicecandidate = null;
+        peerConnection.close();
+        peerConnection = null;
+        peerConnection = new RTCPeerConnection(iceServers);
+    }
+
+    while (groupCallMemberData.firstChild) {
+        groupCallMemberData.removeChild(groupCallMemberData.firstChild);
+    }
+    groupCallPopUp.style.display = "none";
+    socket.emit("group-leave")
+})
+
+
+
+socket.on("group-leave", (selfId) => {
+
+    console.log("someone leaving")
+    const myStatus = document.querySelector(`.loading${selfId}`);
+    myStatus.src = "./images/cancel (1).png";
+    myStatus.style.width = "40px";
 
 })
+
+
 
 //reciver 對方接聽
 socket.on("invite-join-call", (roomName, package, senderId) => {
@@ -644,10 +751,11 @@ selfCallHangup.addEventListener("click", () => {
         }
         if (peerConnection) {
             console.log("hey")
-            // peerConnection.ontrack = null;
-            // peerConnection.onicecandidate = null;
+            peerConnection.ontrack = null;
+            peerConnection.onicecandidate = null;
             peerConnection.close();
             peerConnection = null;
+            peerConnection = new RTCPeerConnection(iceServers);
         }
         seconds = 0;
         minutes = 0;

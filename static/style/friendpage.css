@@ -34,7 +34,7 @@ body {
     width: 30%;
     border: 2px solid black;
     display: none;
-    z-index: 1500;
+    z-index: 5000;
     /* animation: slideInFromTop 0.5s ease-in-out; */
 
 }
