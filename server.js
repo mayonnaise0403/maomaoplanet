@@ -102,8 +102,11 @@ io.on('connection', (socket) => {
         const selfId = jwt.decode(token, secretKey).userId;
         const MemberIdArr = await Search.getGroupMemberId(groupId);
         socket.join(groupId);
+        const host = socket.id;
+        console.log("host")
+        console.log(host)
         MemberIdArr.forEach(element => {
-            socket.to(`user${element.member_id}`).emit("invite-join-group-call", groupId, selfId);
+            socket.to(`user${element.member_id}`).emit("invite-join-group-call", groupId, selfId, host);
         })
 
     })
@@ -124,12 +127,16 @@ io.on('connection', (socket) => {
         socket.join(groupId);
     })
 
-    socket.on("group-ready", (groupId) => {
-        socket.broadcast.to(groupId).emit("group-ready", groupId);
+    socket.on("group-ready", (groupId, host) => {
+        socket.broadcast.to(groupId).emit("group-ready", groupId, host);
     })
 
-    socket.on("group-offer", (offer, roomName) => {
-        socket.broadcast.to(roomName).emit("group-offer", offer, roomName);
+    socket.on("group-offer", (offer, roomName, host) => {
+        socket.broadcast.to(roomName).emit("group-offer", offer, roomName, host);
+    })
+
+    socket.on("group-answer", (answer, roomName) => {
+        socket.broadcast.to(roomName).emit("group-answer", answer);
     })
 
     socket.on("recipient-join-room", (roomName) => {
