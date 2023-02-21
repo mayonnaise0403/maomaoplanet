@@ -95,7 +95,7 @@ io.on('connection', (socket) => {
         socket.to(`user${userId}`).emit("invite-join-call", roomName, package, senderId)
     })
 
-    socket.on("join-group-call", async (groupId) => {
+    socket.on("join-group-call", async (groupId, peerId) => {
         const cookie = socket.request.headers.cookie;
         const match = cookie.match(/access_token=([^;]+)/);
         const token = match ? match[1] : null;
@@ -106,7 +106,7 @@ io.on('connection', (socket) => {
         console.log("host")
         console.log(host)
         MemberIdArr.forEach(element => {
-            socket.to(`user${element.member_id}`).emit("invite-join-group-call", groupId, selfId, host);
+            socket.to(`user${element.member_id}`).emit("invite-join-group-call", groupId, selfId, peerId);
         })
 
     })

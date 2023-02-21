@@ -1,0 +1,18 @@
+version: '3'
+services:
+  server:
+    build:
+      context: .
+      dockerfile: serverDocker/Dockerfile
+    ports:
+      - 8080:8080
+    volumes:
+      - ./server/.env:/usr/src/app/.env
+  peerjs:
+    build:
+      context: .
+      dockerfile: peerjsDocker/Dockerfile
+    ports:
+      - 8081:8081
+    volumes:
+      - .env:/app/.env

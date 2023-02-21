@@ -36,8 +36,21 @@ const selfCallTimerSeconds = document.querySelector(".self-call-seconds");
 const selfCallNickname = document.querySelector(".self-call-popup-nickname");
 const selfCallHeadshot = document.querySelector(".self-call-popup-headshot");
 const friendPopupHeadshot = document.querySelector(".friend-popup-headshot");
+let PeerId;
+const thePeers = {};
+
+const myPeer = new Peer({
+    host: "localhost",
+    port: "8081",
+
+});
+
+myPeer.on('open', (name) => {
+    PeerId = name;
+});
 
 
+console.log(myPeer)
 //與好友通話 sender
 friendPopupCall.addEventListener("click", () => {
     const isGroup = isNaN(friendId.innerHTML);
@@ -98,10 +111,13 @@ friendPopupCall.addEventListener("click", () => {
                 myLoading.src = "./images/check (1).png";
                 myLoading.style.width = "40px";
                 groupId = friendId.innerHTML
-                socket.emit("join-group-call", groupId);
-                if (!peerConnection) {
-                    peerConnection = new RTCPeerConnection(iceServers);
-                }
+
+                // if (!peerConnection) {
+                //     peerConnection = new RTCPeerConnection(iceServers);
+                // }
+
+                socket.emit("join-group-call", groupId, PeerId);
+
             })
 
     } else {
@@ -126,6 +142,13 @@ friendPopupCall.addEventListener("click", () => {
     navigator.mediaDevices.getUserMedia({ audio: true })
         .then(stream => {
             userStream = stream;
+            myPeer.on("call", call => {
+                call.answer(stream);
+                const audioElement = new Audio();
+                call.on("stream", userAudioStream => {
+                    addAudioStream(audioElement, userAudioStream)
+                })
+            })
         })
         .catch(error => console.error(error));
 
@@ -141,7 +164,7 @@ socket.on("group-accept-call-member", (acceptMemberId) => {
 })
 
 //群組對方接聽
-socket.on("invite-join-group-call", (groupId, senderId, host) => {
+socket.on("invite-join-group-call", (groupId, senderId, peerId) => {
 
     groupCallPopUp.style.display = "block";
     friendPopup.style.display = "none";
@@ -196,7 +219,7 @@ socket.on("invite-join-group-call", (groupId, senderId, host) => {
             })
         })
         .then(() => {
-
+            //接受通話
             groupCallAcceptBtn.addEventListener("click", () => {
                 console.log("clickclick")
                 socket.emit("accept-group-call", groupId);
@@ -207,8 +230,16 @@ socket.on("invite-join-group-call", (groupId, senderId, host) => {
 
                 navigator.mediaDevices.getUserMedia({ audio: true })
                     .then((stream) => {
+                        myPeer.on("call", call => {
+                            call.answer(stream);
+
+                            call.on("stream", userAudioStream => {
+                                addAudioStream(audioElement, userAudioStream)
+                            })
+                        })
                         userStream = stream;
-                        socket.emit("group-ready", groupId, host);
+                        connectToNewUser(peerId, stream)
+                        // socket.emit("group-ready", groupId, host);
                     })
                     .catch(error => console.error(error));
 
@@ -219,6 +250,25 @@ socket.on("invite-join-group-call", (groupId, senderId, host) => {
         })
 })
 
+function connectToNewUser(peerId, stream) {
+    const call = myPeer.call(peerId, stream);
+    const audioElement = new Audio();
+    call.on("stream", userAudioStream => {
+        addAudioStream(audioElement, userAudioStream);
+    })
+    call.on('close', () => {
+        audioElement.remove()
+    })
+    thePeers[peerId] = call
+}
+
+function addAudioStream(audio, stream) {
+    audio.srcObject = stream;
+    audio.onloadedmetadata = () => {
+        audio.play();
+    };
+
+}
 
 socket.on("group-ready", async (roomName, host) => {
 

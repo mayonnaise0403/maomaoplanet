@@ -18,5 +18,4 @@ RUN chmod a+x /usr/local/bin/nodemon
 
 RUN chown -R $USER:$GROUP ~/.npm 
 
-CMD ["nodemon", "server.js"]
-
+CMD ["npm", "run", "dev"]
