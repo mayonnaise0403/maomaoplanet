@@ -40,9 +40,10 @@ let PeerId;
 const thePeers = {};
 
 const myPeer = new Peer({
-    host: "localhost",
-    port: "8081",
-
+    host: "0.peerjs.com",
+    port: 443,
+    path: "/",
+    pingInterval: 5000,
 });
 
 myPeer.on('open', (name) => {
