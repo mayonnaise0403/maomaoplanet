@@ -1,9 +1,18 @@
 From node:18.11.0
 
-WORKDIR /app
+RUN mkdir -p /usr/src/app
 
-COPY . .
+WORKDIR /usr/src/app
 
-RUN npm install
+RUN npm install -g peer
 
-CMD ["npm", "run", "dev:peerjs"]
+RUN npm install peerjs
+
+COPY . /usr/src/app
+
+EXPOSE 8081
+
+# CMD ["peerjs", "--port", "8081"]
+
+ENTRYPOINT ["peerjs"]
+CMD ["--port", "8081"]
