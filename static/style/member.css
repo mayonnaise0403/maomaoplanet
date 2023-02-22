@@ -45,7 +45,7 @@ body {
 }
 
 .search-bar {
-    margin-top: 50px;
+    margin-top: 60px;
     margin-left: 10px;
     display: flex;
     justify-content: center;
@@ -742,4 +742,21 @@ body::-webkit-scrollbar-thumb:hover {
 
 .chat-btn-container:hover {
     transform: scale(1.1);
+}
+
+.error-message {
+    width: 400px;
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translate(-50%);
+    z-index: 6000;
+    background: white;
+    border: 2px solid black;
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 20px;
+    font-weight: bolder;
+    text-align: center;
+    display: none;
 }

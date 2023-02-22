@@ -36,7 +36,7 @@ const selfCallTimerSeconds = document.querySelector(".self-call-seconds");
 const selfCallNickname = document.querySelector(".self-call-popup-nickname");
 const selfCallHeadshot = document.querySelector(".self-call-popup-headshot");
 const friendPopupHeadshot = document.querySelector(".friend-popup-headshot");
-let PeerId;
+let peerId;
 const thePeers = {};
 
 const myPeer = new Peer({
@@ -47,7 +47,8 @@ const myPeer = new Peer({
 });
 
 myPeer.on('open', (name) => {
-    PeerId = name;
+    peerId = name;
+    console.log(peerId)
 });
 
 
@@ -117,7 +118,7 @@ friendPopupCall.addEventListener("click", () => {
                 //     peerConnection = new RTCPeerConnection(iceServers);
                 // }
 
-                socket.emit("join-group-call", groupId, PeerId);
+                socket.emit("join-group-call", groupId, peerId);
 
             })
 
@@ -143,13 +144,16 @@ friendPopupCall.addEventListener("click", () => {
     navigator.mediaDevices.getUserMedia({ audio: true })
         .then(stream => {
             userStream = stream;
-            myPeer.on("call", call => {
-                call.answer(stream);
-                const audioElement = new Audio();
-                call.on("stream", userAudioStream => {
-                    addAudioStream(audioElement, userAudioStream)
+            if (isGroup) {
+                myPeer.on("call", call => {
+                    call.answer(stream);
+                    const audioElement = new Audio();
+                    call.on("stream", userAudioStream => {
+                        addAudioStream(audioElement, userAudioStream)
+                    })
                 })
-            })
+            }
+
         })
         .catch(error => console.error(error));
 
@@ -218,11 +222,12 @@ socket.on("invite-join-group-call", (groupId, senderId, peerId) => {
                 groupCallMember[groupCallMember.length - 1].appendChild(newImg);
 
             })
+            groupCallAcceptBtn.style.display = "block";
         })
         .then(() => {
             //接受通話
-            groupCallAcceptBtn.addEventListener("click", () => {
-                console.log("clickclick")
+            groupCallAcceptBtn.addEventListener("click", function acceptGroupCall() {
+                groupCallAcceptBtn.style.display = "none";
                 socket.emit("accept-group-call", groupId);
                 const myLoading = document.querySelector(`.loading${selfId.innerHTML}`);
                 myLoading.src = "./images/check (1).png";
@@ -240,15 +245,14 @@ socket.on("invite-join-group-call", (groupId, senderId, peerId) => {
                         })
                         userStream = stream;
                         connectToNewUser(peerId, stream)
-                        // socket.emit("group-ready", groupId, host);
+                        groupCallAcceptBtn.removeEventListener("click", acceptGroupCall);
                     })
                     .catch(error => console.error(error));
 
-                if (!peerConnection) {
-                    peerConnection = new RTCPeerConnection(iceServers);
-                }
+
             })
         })
+
 })
 
 function connectToNewUser(peerId, stream) {
@@ -271,121 +275,6 @@ function addAudioStream(audio, stream) {
 
 }
 
-socket.on("group-ready", async (roomName, host) => {
-
-    await waitForStableState(peerConnection);
-    console.log(peerConnection.signalingState);//用來確保 RTCPeerConnection 物件狀態的合法性
-    peerConnection.oniceconnectionstatechange = onIceConnectionStateFunction;
-    console.log("hello")
-    peerConnection.onicecandidate = (event) => {
-        if (!event.candidate) {
-            console.log("All ice candidates have been sent.");
-            return;
-        }
-        console.log("here")
-        onIceCandidateFunction(event, roomName);
-    };
-    peerConnection.ontrack = onTrackFunction;
-
-
-    // userStream.getTracks().forEach((track) => {
-    //     peerConnection.addTrack(track, userStream);
-    // });
-
-    let hasTrack = false;
-    peerConnection.getSenders().forEach((sender) => {
-        let track = sender.track;
-        if (track.kind === track.kind) {
-            hasTrack = true;
-        }
-    });
-
-    if (!hasTrack) {
-        userStream.getTracks().forEach((track) => {
-            peerConnection.addTrack(track, userStream);
-        });
-    }
-
-
-    // 创建 offer
-    peerConnection.createOffer()
-        .then(offer => {
-            peerConnection.setLocalDescription(offer)
-                .then(() => {
-                    // 傳送 RTCSessionDescription 回 sender
-                    socket.emit("group-offer", offer, roomName, host);
-                })
-                .catch(error => {
-                    console.error(error);
-
-                });
-        })
-        .catch(error => {
-            console.error(error);
-        });
-
-
-
-
-
-})
-
-
-socket.on("group-offer", async (offer, roomName, host) => {
-
-    await waitForStableState(peerConnection);
-
-
-    peerConnection.setRemoteDescription(offer);
-    console.log(peerConnection.signalingState);//用來確保 RTCPeerConnection 物件狀態的合法性
-
-    peerConnection.oniceconnectionstatechange = onIceConnectionStateFunction;
-    peerConnection.onicecandidate = (event) => {
-        if (!event.candidate) {
-            console.log("All ice candidates have been sent.");
-            return;
-        }
-        onIceCandidateFunction(event, roomName);
-    };
-
-
-    console.log(offer)
-
-    peerConnection.ontrack = onTrackFunction;
-
-
-
-    let hasTrack = false;
-    peerConnection.getSenders().forEach((sender) => {
-        let track = sender.track;
-        if (track.kind === track.kind) {
-            hasTrack = true;
-        }
-    });
-
-    if (!hasTrack) {
-        userStream.getTracks().forEach((track) => {
-            peerConnection.addTrack(track, userStream);
-        });
-    }
-
-    // peerConnection.setRemoteDescription(offer)
-    peerConnection.createAnswer()
-        .then(answer => {
-            if (!answer) {
-                console.log("!!!!!!!!!!!answer")
-                throw new Error("createAnswer() returned an empty value.");
-            }
-            console.log("answeransweranswer")
-            peerConnection.setLocalDescription(answer);
-            socket.emit("group-answer", answer, roomName);
-        })
-        .catch((error) => {
-            console.log("error::::::")
-            console.error(error);
-        });
-
-})
 
 //掛掉電話
 groupCallRejectBtn.addEventListener("click", () => {
@@ -393,28 +282,28 @@ groupCallRejectBtn.addEventListener("click", () => {
         userStream.getTracks().forEach(track => track.stop());
 
         audioElement.srcObject = null;
-    }
-    if (peerConnection) {
-        console.log("hey")
-        peerConnection.ontrack = null;
-        peerConnection.onicecandidate = null;
-        peerConnection.close();
-        peerConnection = null;
-        peerConnection = new RTCPeerConnection(iceServers);
+        userStream = null;
     }
 
     while (groupCallMemberData.firstChild) {
         groupCallMemberData.removeChild(groupCallMemberData.firstChild);
     }
     groupCallPopUp.style.display = "none";
-    socket.emit("group-leave")
+    socket.emit("group-leave");
+
+    for (const peerId in thePeers) {
+        if (thePeers.hasOwnProperty(peerId)) {
+            const call = thePeers[peerId];
+            if (call) {
+                console.log("關閉連接")
+                call.close();
+            }
+        }
+    }
+
 })
 
-socket.on("group-answer", (answer) => {
-    console.log("answer")
-    console.log(answer)
-    peerConnection.setRemoteDescription(answer);
-})
+
 
 socket.on("group-leave", (selfId) => {
 
@@ -866,12 +755,3 @@ groupCallIcon.addEventListener("click", () => {
     groupCallPopUp.style.display = "block";
     groupCallIcon.style.display = "none";
 })
-
-
-
-
-
-
-
-
-

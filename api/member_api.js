@@ -25,7 +25,7 @@ Signup = new Signup();
 
 router.get("/api/user_data", async (req, res) => {
     try {
-        const token = req.cookies.access_token;
+        const token = req.signedCookies.access_token;
         const decoded = jwt.decode(token, secretKey);
         const defaultUrl = `${process.env.S3_Url}default_headshot.png`;
         const url = `${process.env.S3_Url}userId${decoded.userId}`;
@@ -44,7 +44,7 @@ router.get("/api/user_data", async (req, res) => {
 })
 
 router.post("/update_nickname", (req, res) => {
-    const token = req.cookies.access_token;
+    const token = req.signedCookies.access_token;
     const decoded = jwt.decode(token, secretKey);
     const newNickname = req.body.newNickname;
     isUpdateNicknameSuccess(newNickname, decoded.userId)
@@ -97,7 +97,7 @@ router.post("/update_verify_email", (req, res) => {
 })
 
 router.post("/update_email", (req, res) => {
-    const token = req.cookies.access_token;
+    const token = req.signedCookies.access_token;
     const decoded = jwt.decode(token, secretKey);
     const newEmail = req.body.newEmail;
     isUpdateEmailSuccess(newEmail, decoded.userId)
@@ -106,7 +106,7 @@ router.post("/update_email", (req, res) => {
                 //更新token
                 decoded.email = newEmail;
                 const token = jwt.sign(decoded, secretKey);
-                res.cookie('access_token', token, { httpOnly: true, expires: new Date(Date.now() + 3600000 * 24 * 7) });
+                res.cookie('access_token', token, { signed: true, httpOnly: true, expires: new Date(Date.now() + 3600000 * 24 * 7) });
                 res.status(200).send({ status: "success" })
             } else {
                 res.status(500).send({ status: "error" })
@@ -116,7 +116,7 @@ router.post("/update_email", (req, res) => {
 })
 
 router.post("/upload_headshot", (req, res) => {
-    const token = req.cookies.access_token;
+    const token = req.signedCookies.access_token;
     const decoded = jwt.decode(token, secretKey);
     let image = req.body.image;
     let email = req.body.email;

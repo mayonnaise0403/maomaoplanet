@@ -31,7 +31,8 @@ class Message {
         mysqlQuery = 'SELECT sender_id,\
                         recipient_id,\
                         message,\
-                        is_read\
+                        is_read,\
+                        time\
                         FROM chat_message WHERE (sender_id = ? AND recipient_id = ?) OR (sender_id = ? AND recipient_id = ?) order by time  asc;';
         values = [myId, friendId, friendId, myId];
         try {
@@ -48,6 +49,7 @@ class Message {
         mysqlQuery = 'SELECT\
                     group_message.sender_id,\
                     group_message.message,\
+                    group_message.time,\
                     member.nickname as sender_nickname,\
                     member.headshot as sender_headshot,\
                     (SELECT COUNT(*) FROM group_message_is_read WHERE group_id = ?) as read_count\

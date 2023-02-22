@@ -5,6 +5,8 @@
 
 .left-navbar {
     width: 50%;
+    display: flex;
+    align-items: center;
 }
 
 .left-navbar p {
@@ -16,7 +18,8 @@
 
 .right-navbar {
     width: 50%;
-
+    display: flex;
+    justify-content: right;
 }
 
 .right-navbar p {
@@ -25,4 +28,20 @@
     font-weight: bolder;
     padding: 5px;
     text-align: right;
+}
+
+.navbar-icon {
+    width: 40px;
+    height: 40px;
+    margin-left: 10px;
+}
+
+.sign-out-btn {
+    margin-right: 10px;
+    cursor: pointer;
+    width: 60px;
+}
+
+.sign-out-btn:hover {
+    transform: scale(1.1);
 }

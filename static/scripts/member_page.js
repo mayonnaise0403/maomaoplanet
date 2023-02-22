@@ -29,6 +29,8 @@ const searchFriendResultClose = document.querySelector(".search-result-list-clos
 const groupList = document.querySelector(".group-list");
 const chatListContainer = document.querySelector(".chat-list-container");
 const emailRule = /^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z]+$/;
+const signOutBtn = document.querySelector(".sign-out-btn");
+const errorMessage = document.querySelector(".error-message");
 
 let newP, newHr, newDiv, newImg;
 
@@ -74,6 +76,8 @@ fetch("/api/get_grouplist")
                 createGroupChatList(data.data);
             })
     })
+
+
 
 
 
@@ -317,7 +321,9 @@ socket.on("receive-group-read-message", (hadReadCount) => {
 })
 
 
+signOutBtn.addEventListener("click", () => {
 
+})
 
 closePopup.addEventListener("click", () => {
     searchFriendPopup.style.display = "none";
@@ -331,6 +337,27 @@ addFriendBtn.addEventListener("click", () => {
     searchFriendPopup.style.display = "block";
 })
 
+
+signOutBtn.addEventListener("click", () => {
+    fetch("/signout", {
+        method: 'POST'
+    })
+        .then((response) => {
+            return response.json();
+        })
+        .then((data) => {
+            if (data.status === "success") {
+                window.location = "/";
+            } else {
+                errorMessage.style.display = "block";
+                errorMessage.innerHTML = data.message;
+                setTimeout(() => {
+                    errorMessage.style.display = "none";
+                }, 2000)
+            }
+        })
+})
+
 //點擊搜尋使用者
 popupAddFriendBtn.addEventListener("click", () => {
     removeSearchList();
@@ -341,16 +368,29 @@ popupAddFriendBtn.addEventListener("click", () => {
                 return response.json();
             })
             .then((data) => {
-                if (data.user.length === 0) {
-                    searchFriendPopImage.style.display = "none";
-                    searchEmptyImage.style.display = "block";
-                    popupAddFriendResult.style.display = "none";
+                if (data.status === "success") {
+                    if (data.user.length === 0) {
+                        searchFriendPopImage.style.display = "none";
+                        searchEmptyImage.style.display = "block";
+                        popupAddFriendResult.style.display = "none";
+                    } else {
+                        searchFriendPopImage.style.display = "none";
+                        searchEmptyImage.style.display = "none";
+                        popupAddFriendResult.style.display = "block";
+                        createUserHtml(data.user);
+                    }
                 } else {
-                    searchFriendPopImage.style.display = "none";
-                    searchEmptyImage.style.display = "none";
-                    popupAddFriendResult.style.display = "block";
-                    createUserHtml(data.user);
+                    if (data.message === "cookie被更改") {
+                        window.location = "/";
+                    } else {
+                        errorMessage.style.display = "block";
+                        errorMessage.innerHTML = data.message;
+                        setTimeout(() => {
+                            errorMessage.style.display = "none";
+                        }, 2000)
+                    }
                 }
+
 
             })
     } else if (searchContent.search(emailRule) === -1 && searchContent != null) {
@@ -359,16 +399,29 @@ popupAddFriendBtn.addEventListener("click", () => {
                 return response.json();
             })
             .then((data) => {
-                if (data.user.length === 0) {
-                    searchFriendPopImage.style.display = "none";
-                    searchEmptyImage.style.display = "block";
-                    popupAddFriendResult.style.display = "none";
+                if (data.status === "success") {
+                    if (data.user.length === 0) {
+                        searchFriendPopImage.style.display = "none";
+                        searchEmptyImage.style.display = "block";
+                        popupAddFriendResult.style.display = "none";
+                    } else {
+                        searchFriendPopImage.style.display = "none";
+                        searchEmptyImage.style.display = "none";
+                        popupAddFriendResult.style.display = "block";
+                        createUserHtml(data.user);
+                    }
                 } else {
-                    searchFriendPopImage.style.display = "none";
-                    searchEmptyImage.style.display = "none";
-                    popupAddFriendResult.style.display = "block";
-                    createUserHtml(data.user);
+                    if (data.message === "cookie被更改") {
+                        window.location = "/";
+                    } else {
+                        errorMessage.style.display = "block";
+                        errorMessage.innerHTML = data.message;
+                        setTimeout(() => {
+                            errorMessage.style.display = "none";
+                        }, 2000)
+                    }
                 }
+
             })
     }
 
@@ -604,23 +657,37 @@ function createUserHtml(resultArr) {
 let prevSenderId;
 const S3Url = "https://maomaoimage.s3.ap-northeast-1.amazonaws.com/single_chat_file/"
 function displayMessage(element, isSelf, is_read = 0, is_group = false) {
+    let date = new Date(element.time);
+    date = date.toLocaleString();
+    console.log(date)
     let message = document.querySelector(".chat-message");
 
     if (element.message.indexOf(S3Url) !== -1) {
-        chatFile(element, isSelf, is_read, is_group);
+        chatFile(element, date, isSelf, is_read, is_group);
 
         return;
     }
 
     if (isSelf) {
+        newDiv = document.createElement("div");
+        newDiv.style.display = "flex";
+        newDiv.style.justifyContent = "right";
+        newDiv.style.alignItems = "end";
+        message.appendChild(newDiv);
+
+
+        newP = document.createElement("p");
+        newP.innerHTML = date.substring(10, 16);
+        newDiv.appendChild(newP);
+
         newP = document.createElement("p");
         newP.innerHTML = element.message;
-        newP.style.marginRight = "5px";
-        newP.style.marginLeft = "auto";
-        newP.style.marginBottom = "10px";
+        // newP.style.marginRight = "5px";
+        // newP.style.marginLeft = "auto";
+        // newP.style.marginBottom = "10px";
         newP.className = "chat-message-font";
 
-        message.appendChild(newP);
+        newDiv.appendChild(newP);
 
 
         //已讀狀態的顯示
@@ -673,18 +740,32 @@ function displayMessage(element, isSelf, is_read = 0, is_group = false) {
             }
 
         }
+
+        newDiv = document.createElement("div");
+        newDiv.style.display = "flex";
+        newDiv.style.justifyContent = "left";
+        newDiv.style.alignItems = "end";
+        newDiv.style.marginBottom = "10px";
+        message.appendChild(newDiv);
+
+
+        newP = document.createElement("p");
+        newP.innerHTML = date.substring(10, 16);
+        newP.style.marginLeft = "10px";
+        newDiv.appendChild(newP);
+
         newP = document.createElement("p");
         newP.innerHTML = element.message;
-        newP.style.marginBottom = "10px";
         newP.className = "chat-message-font";
-        message.appendChild(newP);
+        newDiv.appendChild(newP);
+        newDiv.insertBefore(newP, newDiv.firstChild)
     }
     prevSenderId = element.sender_id;
 
 
 }
 
-function chatFile(element, isSelf, is_read = 0, is_group = false) {
+function chatFile(element, date, isSelf, is_read = 0, is_group = false) {
     if (!isSelf && is_group) {
         if (is_group) {
             //顯示對方大頭貼跟暱稱
@@ -720,30 +801,61 @@ function chatFile(element, isSelf, is_read = 0, is_group = false) {
     let fileName = element.message.substring(0, index);
     fileName = fileName.replace(S3Url, "");
     const dataType = element.message.substring(index, element.message.length);
-    let chatMessage = document.querySelector(".chat-message");
+    const chatMessage = document.querySelector(".chat-message");
+
+
+
+
     if (dataType === "(video)") {  //檔案是影片時
         if (isSelf) {
+
+            newDiv = document.createElement("div");
+            newDiv.style.display = "flex";
+            newDiv.style.alignItems = "end";
+            newDiv.style.justifyContent = "right";
+            newDiv.style.marginBottom = "10px";
+            chatMessage.appendChild(newDiv);
+            const div = newDiv;
+
+            newP = document.createElement("p");
+            newP.innerHTML = date.substring(10, 16);
+            newP.style.marginRight = "10px";
+            newDiv.appendChild(newP);
 
             newDiv = document.createElement("div");
             newDiv.style.maxWidth = "200px";
             newDiv.style.position = "relative";
             newDiv.style.marginRight = "5px";
-            newDiv.style.marginLeft = "auto";
-            newDiv.style.marginBottom = "10px";
             newDiv.style.cursor = "pointer";
-            chatMessage.appendChild(newDiv)
+            div.appendChild(newDiv)
+
+
 
 
         } else {
-            let chatMessage = document.querySelector(".chat-message");
+
+            newDiv = document.createElement("div");
+            newDiv.style.display = "flex";
+            newDiv.style.alignItems = "end";
+            newDiv.style.justifyContent = "left";
+            newDiv.style.marginBottom = "10px";
+            chatMessage.appendChild(newDiv);
+            const div = newDiv;
+
+
             newDiv = document.createElement("div");
             newDiv.style.maxWidth = "200PX";
             newDiv.style.position = "relative";
-            newDiv.style.marginRight = "auto";
             newDiv.style.marginLeft = "5px";
-            newDiv.style.marginBottom = "10px";
             newDiv.style.cursor = "pointer";
-            chatMessage.appendChild(newDiv)
+            div.appendChild(newDiv)
+
+
+
+            newP = document.createElement("p");
+            newP.innerHTML = date.substring(10, 16);
+            newP.style.marginLeft = "10px";
+            div.appendChild(newP);
 
         }
         newImg = document.createElement("img");
@@ -766,68 +878,154 @@ function chatFile(element, isSelf, is_read = 0, is_group = false) {
         newDiv.appendChild(newImg)
 
     } else if (dataType === "(audio)") {
+        newDiv = document.createElement("div");
+        newDiv.style.display = "flex";
+        newDiv.style.marginBottom = "10px";
+        if (isSelf) {
+            newDiv.style.justifyContent = "right";
+        } else {
+            newDiv.style.justifyContent = "left";
+        }
+        newDiv.style.alignItems = "end";
+
+        chatMessage.appendChild(newDiv);
+
+
+        newP = document.createElement("p");
+        newP.innerHTML = date.substring(10, 16);
+        if (isSelf) {
+            newP.style.marginRight = "10px";
+        } else {
+            newP.style.marginLeft = "10px";
+        }
+
+        newDiv.appendChild(newP);
+
+
+
         let newAudio = document.createElement("audio");
         newAudio.controls = true;
         newAudio.style.display = "flex";
         newAudio.style.width = "250px";
-        newAudio.style.marginBottom = "10px";
-        if (isSelf) {
-            newAudio.style.marginLeft = "auto";
-        }
+
         newAudio.src = `${S3Url}${fileName}${dataType}`;
-        chatMessage.appendChild(newAudio);
+        newDiv.appendChild(newAudio);
+
+        if (!isSelf) {
+            newDiv.insertBefore(newAudio, newDiv.firstChild)
+        }
     } else if (dataType === "(image)") {
+        newDiv = document.createElement("div");
+        newDiv.style.display = "flex";
+        newDiv.style.marginBottom = "10px";
+        if (isSelf) {
+            newDiv.style.justifyContent = "right";
+        } else {
+            newDiv.style.justifyContent = "left";
+        }
+        newDiv.style.alignItems = "end";
+
+        chatMessage.appendChild(newDiv);
+
+
+        newP = document.createElement("p");
+        newP.innerHTML = date.substring(10, 16);
+        if (isSelf) {
+            newP.style.marginRight = "10px";
+        } else {
+            newP.style.marginLeft = "10px";
+        }
+        newDiv.appendChild(newP);
+
+
         newImg = document.createElement("img");
         newImg.src = `${S3Url}${fileName}${dataType}`;
-        newImg.style.maxWidth = "250px";
+        newImg.style.maxWidth = "200px";
         newImg.style.display = "block";
-        newImg.style.marginBottom = "10px";
-        if (isSelf) {
-
-            newImg.style.marginLeft = "auto";
-            newImg.style.marginRight = "5px";
-        }
         newImg.style.borderRadius = "10px";
         newImg.style.cursor = "pointer";
         newImg.addEventListener("click", () => {
             newImg.src = newImg.src;
             window.open(`${S3Url}${fileName}${dataType}`, "影片", "width=600,height=600,top=" + (screen.height - 600) / 2 + ",left=" + (screen.width - 600) / 2);
         })
-        chatMessage.appendChild(newImg);
+        newDiv.appendChild(newImg);
+        if (!isSelf) {
+            newDiv.insertBefore(newImg, newDiv.firstChild)
+        }
     } else if (dataType === "(application)") {
+        newDiv = document.createElement("div");
+        newDiv.style.display = "flex";
+        newDiv.style.marginBottom = "10px";
+        if (isSelf) {
+            newDiv.style.justifyContent = "right";
+        } else {
+            newDiv.style.justifyContent = "left";
+        }
+        newDiv.style.alignItems = "end";
+
+        chatMessage.appendChild(newDiv);
+
+
+        newP = document.createElement("p");
+        newP.innerHTML = date.substring(10, 16);
+        if (isSelf) {
+            newP.style.marginRight = "10px";
+        } else {
+            newP.style.marginLeft = "10px";
+        }
+        newDiv.appendChild(newP);
+
+
         newImg = document.createElement("img");
         newImg.src = "./images/word-doc.png";
         newImg.style.width = "100px";
         newImg.style.display = "block";
-        newImg.style.marginBottom = "10px";
-        if (isSelf) {
-
-            newImg.style.marginLeft = "auto";
-            newImg.style.marginRight = "5px";
-        }
         newImg.style.cursor = "pointer";
         newImg.addEventListener("click", () => {
             newImg.src = newImg.src;
             window.open(`${S3Url}${fileName}${dataType}`, "影片", "width=600,height=600,top=" + (screen.height - 600) / 2 + ",left=" + (screen.width - 600) / 2);
         })
-        chatMessage.appendChild(newImg);
+        newDiv.appendChild(newImg);
+        if (!isSelf) {
+            newDiv.insertBefore(newImg, newDiv.firstChild)
+        }
     } else if (dataType === "(text)") {
+        newDiv = document.createElement("div");
+        newDiv.style.display = "flex";
+        newDiv.style.marginBottom = "10px";
+        if (isSelf) {
+            newDiv.style.justifyContent = "right";
+        } else {
+            newDiv.style.justifyContent = "left";
+        }
+        newDiv.style.alignItems = "end";
+
+        chatMessage.appendChild(newDiv);
+
+
+        newP = document.createElement("p");
+        newP.innerHTML = date.substring(10, 16);
+        if (isSelf) {
+            newP.style.marginRight = "10px";
+        } else {
+            newP.style.marginLeft = "10px";
+        }
+        newDiv.appendChild(newP);
+
+
         newImg = document.createElement("img");
         newImg.src = "./images/txt.png";
         newImg.style.width = "100px";
         newImg.style.display = "block";
-        newImg.style.marginBottom = "10px";
-        if (isSelf) {
-
-            newImg.style.marginLeft = "auto";
-            newImg.style.marginRight = "5px";
-        }
         newImg.style.cursor = "pointer";
         newImg.addEventListener("click", () => {
             newImg.src = newImg.src;
             window.open(`${S3Url}${fileName}${dataType}`, "影片", "width=600,height=600,top=" + (screen.height - 600) / 2 + ",left=" + (screen.width - 600) / 2);
         })
-        chatMessage.appendChild(newImg);
+        newDiv.appendChild(newImg);
+        if (!isSelf) {
+            newDiv.insertBefore(newImg, newDiv.firstChild)
+        }
     }
 
 
@@ -909,20 +1107,27 @@ function chatPopup() {
 
 }
 
+
+
 async function sendMsgInSingle(fileName = "") {
     let package;
+    const now = new Date();
+
+
     if (fileName) {
         package = {
             "user_id": parseInt(selfId.innerHTML),
             "friend_id": parseInt(friendChatId.innerHTML),
-            "message": fileName
+            "message": fileName,
+            "time": now
         }
 
     } else {
         package = {
             "user_id": parseInt(selfId.innerHTML),
             "friend_id": parseInt(friendChatId.innerHTML),
-            "message": messageInput.value
+            "message": messageInput.value,
+            "time": now
         }
     }
     if (messageInput.value || fileName) {
@@ -998,6 +1203,7 @@ async function sendMsgInSingle(fileName = "") {
 }
 
 async function sendMsgInGroup(fileName = "") {
+    const now = new Date();
     let groupIsReadStatus = document.querySelector(".group-read-status");
     groupIsReadStatus.innerHTML = `0人已讀`;
     let selfNickname = document.querySelector(".profile-name-content").innerHTML;
@@ -1009,7 +1215,8 @@ async function sendMsgInGroup(fileName = "") {
             sender_id: parseInt(selfId.innerHTML),
             message: fileName,
             sender_headshot: selfHeadshot,
-            sender_nickname: selfNickname
+            sender_nickname: selfNickname,
+            time: now
         }
 
     } else {
@@ -1018,7 +1225,8 @@ async function sendMsgInGroup(fileName = "") {
             sender_id: parseInt(selfId.innerHTML),
             message: messageInput.value,
             sender_headshot: selfHeadshot,
-            sender_nickname: selfNickname
+            sender_nickname: selfNickname,
+            time: now
         }
     }
 

@@ -14,7 +14,7 @@ dotenv.config();
 
 
 
-router.use(cookieParser());
+router.use(cookieParser(process.env.COOKIE_SECRET));
 
 
 router.post("/api/get_message", async (req, res) => {
@@ -33,7 +33,7 @@ router.post("/api/get_message", async (req, res) => {
 })
 
 router.get("/api/get_latest_group_message", async (req, res) => {
-    const token = req.cookies.access_token;
+    const token = req.signedCookies.access_token;
     const userId = jwt.decode(token, secretKey).userId;
     const data = await Message.getGroupLatestMessage(userId);
     res.send({ status: "success", data: data })
@@ -43,19 +43,17 @@ router.get("/api/get_latest_group_message", async (req, res) => {
 
 
 
-router.get("/api/get_latest_message", (req, res) => {
-    const token = req.cookies.access_token;
+router.get("/api/get_latest_message", async (req, res) => {
+    const token = req.signedCookies.access_token;
     const userId = jwt.decode(token, secretKey).userId;
-    getLatestMsg(userId)
-        .then((result) => {
-            res.send(result);
-        })
+    const result = await Message.getLatestMessage(userId);
+    res.send(result);
+
 })
 
 
-
 router.post("/update_message_status", (req, res) => {
-    const token = req.cookies.access_token;
+    const token = req.signedCookies.access_token;
     const userId = jwt.decode(token, secretKey).userId;
     updateMessagegStatus(req.body.sender_id, userId)
         .then((result) => {
@@ -66,14 +64,14 @@ router.post("/update_message_status", (req, res) => {
 })
 
 router.post("/update_group_message_status", async (req, res) => {
-    const token = req.cookies.access_token;
+    const token = req.signedCookies.access_token;
     const userId = jwt.decode(token, secretKey).userId;
     await Message.updateGroupMsgStatus(req.body.groupId, userId);
     res.send({ status: "success" });
 })
 
 router.post("/get_chat_picture", async (req, res) => {
-    const token = req.cookies.access_token;
+    const token = req.signedCookies.access_token;
     const userId = jwt.decode(token, secretKey).userId;
     const data = await Message.getChatPictureAndVideo(userId, req.body.recipientId)
     res.send({ status: "success", data: data });
@@ -86,7 +84,7 @@ router.post("/get_group_picture", async (req, res) => {
 })
 
 router.post("/upload_file", async (req, res) => {
-    const token = req.cookies.access_token;
+    const token = req.signedCookies.access_token;
     const myId = jwt.decode(token, secretKey).userId;
     let file = req.body.file;
     let fileBuffer;
@@ -180,10 +178,7 @@ router.post("/upload_file", async (req, res) => {
 
 
 
-async function getLatestMsg(myId) {
-    const data = await Message.getLatestMessage(myId);
-    return data;
-}
+
 
 async function updateMessagegStatus(sender_id, recipient_id) {
     const isSuccess = await Message.updateMsgStatus(sender_id, recipient_id);

@@ -11,9 +11,12 @@ const updateRouter = require("./api/update_api");
 const adapter = require("webrtc-adapter");
 const app = express();
 const http = require('http').Server(app);
-
+const dotenv = require("dotenv");
 const port = 8080;
 const io = require("socket.io")(http);
+dotenv.config();
+
+
 
 let Message = require("./models/message").Message;
 Message = new Message();
@@ -22,8 +25,7 @@ Search = new Search();
 const secretKey = process.env.Jwt_Secrect_Key;
 
 
-
-app.use(cookieParser());
+app.use(cookieParser(process.env.COOKIE_SECRET, { signed: true }));
 app.use("/", memberRouter);
 app.use('/', signupRouter);
 app.use('/', searchRouter);
@@ -34,7 +36,9 @@ app.set('views', __dirname + '/templates');
 app.engine('html', require('ejs').renderFile);
 app.use(express.static(path.join(__dirname, 'static')));
 
-
+io.use((socket, next) => {
+    cookieParser(process.env.COOKIE_SECRET)(socket.request, {}, next);
+});
 
 io.on('connection', (socket) => {
 
@@ -46,10 +50,8 @@ io.on('connection', (socket) => {
     });
 
     socket.on("send-message-to-group", async (package) => {
-        const cookie = socket.request.headers.cookie;
-        const match = cookie.match(/access_token=([^;]+)/);
-        const token = match ? match[1] : null;
-        const selfId = jwt.decode(token, secretKey).userId;
+        const token = socket.request.signedCookies.access_token;
+        const selfId = jwt.verify(token, secretKey).userId;
         const MemberIdArr = await Search.getGroupMemberId(package.group_id);
         await Message.storeGroupMessage(package.sender_id, package.group_id, package.message);
         await Message.deleteIsReadStatus(package.group_id);
@@ -66,10 +68,8 @@ io.on('connection', (socket) => {
     })
 
     socket.on('group-read-message', async (package) => {
-        const cookie = socket.request.headers.cookie;
-        const match = cookie.match(/access_token=([^;]+)/);
-        const token = match ? match[1] : null;
-        const selfId = jwt.decode(token, secretKey).userId;
+        const token = socket.request.signedCookies.access_token;
+        const selfId = jwt.verify(token, secretKey).userId;
         const MemberIdArr = await Search.getGroupMemberId(package.group_id);
         const hadReadCount = await Message.getIsReadCount(package.group_id);
 
@@ -84,11 +84,8 @@ io.on('connection', (socket) => {
 
     //加入通話
     socket.on("join", (roomName, package) => {
-        const cookie = socket.request.headers.cookie;
-        const match = cookie.match(/access_token=([^;]+)/);
-        const token = match ? match[1] : null;
-        const senderId = jwt.decode(token, secretKey).userId;
-
+        const token = socket.request.signedCookies.access_token;
+        const senderId = jwt.verify(token, secretKey).userId;
         socket.join(roomName);
         let userId = roomName.substring(roomName.indexOf("and"));
         userId = userId.replace("and", "")
@@ -96,10 +93,8 @@ io.on('connection', (socket) => {
     })
 
     socket.on("join-group-call", async (groupId, peerId) => {
-        const cookie = socket.request.headers.cookie;
-        const match = cookie.match(/access_token=([^;]+)/);
-        const token = match ? match[1] : null;
-        const selfId = jwt.decode(token, secretKey).userId;
+        const token = socket.request.signedCookies.access_token;
+        const selfId = jwt.verify(token, secretKey).userId;
         const MemberIdArr = await Search.getGroupMemberId(groupId);
         socket.join(groupId);
         const host = socket.id;
@@ -112,10 +107,8 @@ io.on('connection', (socket) => {
     })
 
     socket.on("group-accept-call-member", async (groupId) => {
-        const cookie = socket.request.headers.cookie;
-        const match = cookie.match(/access_token=([^;]+)/);
-        const token = match ? match[1] : null;
-        const selfId = jwt.decode(token, secretKey).userId;
+        const token = socket.request.signedCookies.access_token;
+        const selfId = jwt.verify(token, secretKey).userId;
         const MemberIdArr = await Search.getGroupMemberId(groupId);
         MemberIdArr.forEach(element => {
             socket.to(`user${element.member_id}`).emit("group-accept-call-member", selfId);
@@ -131,14 +124,6 @@ io.on('connection', (socket) => {
         socket.broadcast.to(groupId).emit("group-ready", groupId, host);
     })
 
-    socket.on("group-offer", (offer, roomName, host) => {
-        socket.broadcast.to(roomName).emit("group-offer", offer, roomName, host);
-    })
-
-    socket.on("group-answer", (answer, roomName) => {
-        socket.broadcast.to(roomName).emit("group-answer", answer);
-    })
-
     socket.on("recipient-join-room", (roomName) => {
         console.log("recipient join the room");
         socket.join(roomName);
@@ -151,11 +136,8 @@ io.on('connection', (socket) => {
 
     socket.on("group-leave", () => {
         const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-        const cookie = socket.request.headers.cookie;
-        const match = cookie.match(/access_token=([^;]+)/);
-        const token = match ? match[1] : null;
-        const selfId = jwt.decode(token, secretKey).userId;
-        console.log(Array.from(socket.rooms))
+        const token = socket.request.signedCookies.access_token;
+        const selfId = jwt.verify(token, secretKey).userId;
         Array.from(socket.rooms).forEach(room => {
             if (uuidRegex.test(room)) {
                 socket.leave(room);
@@ -207,7 +189,11 @@ io.on('connection', (socket) => {
 
 
 app.get("/", (req, res) => {
-    res.render('homepage.html');
+    if (!req.signedCookies.access_token) {
+        res.render('homepage.html');
+    } else {
+        res.redirect('/member');
+    }
 })
 
 

@@ -6,23 +6,38 @@ const cookieParser = require('cookie-parser');
 const dotenv = require("dotenv");
 let Signup = require("../models/signup").Signup;
 let Login = require("../models/login").Login;
-let cookieToken;
 dotenv.config();
 
 
 
 const secretKey = process.env.Jwt_Secrect_Key;
 
-
+router.use(cookieParser(process.env.COOKIE_SECRET));
 router.use(bodyParser.json());
-router.use(cookieParser());
+
+console.log(process.env.COOKIE_SECRET)
+
 
 Signup = new Signup();
 Login = new Login();
 
 
 router.get("/member", (req, res) => {
-    res.render("member.html")
+    if (!req.signedCookies.access_token) {
+        res.clearCookie('access_token');
+        res.render("homepage.html")
+    } else {
+        res.render("member.html")
+    }
+})
+
+router.post("/signout", (req, res) => {
+    try {
+        res.clearCookie('access_token');
+        res.status(200).send({ status: "success", message: "登出成功" })
+    } catch (err) {
+        res.status(500).send({ status: "error", message: "內部伺服器發生錯誤" })
+    }
 })
 
 
@@ -38,8 +53,11 @@ router.post("/login", async (req, res) => {
             };
             const options = { expiresIn: '24h' };
             const token = jwt.sign(payload, secretKey, options);
-            res.cookie('access_token', token, { httpOnly: true, expires: new Date(Date.now() + 3600000 * 24 * 7) });
-            cookieToken = token;
+            try {
+                res.cookie('access_token', token, { signed: true, httpOnly: true, expires: new Date(Date.now() + 3600000 * 24 * 7) });
+            } catch (err) {
+                console.log(err)
+            }
             res.status(200).send({ status: "success", "message": "登入成功", "nickname": isLogin.nickname });
         } else {
             res.status(400).send({ status: "error", "message": "無此用戶" });
@@ -109,6 +127,9 @@ router.post("/signup", (req, res) => {
         res.status(500).send({ "status": "error", "message": "內部伺服器出現錯誤" });
     }
 })
+
+
+
 
 
 
