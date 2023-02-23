@@ -22,10 +22,11 @@ body {
 
 .left-content {
     width: 90px;
-    margin-top: 50px;
+    margin-top: 0px;
     position: fixed;
     background-color: white;
     height: 100%;
+    padding: 10px;
 }
 
 .pc-icon {
@@ -706,6 +707,7 @@ body::-webkit-scrollbar-thumb:hover {
 .profile-btn-container {
     cursor: pointer;
     margin-bottom: 20px;
+    margin-top: 80px;
 }
 
 .profile-btn-container p {

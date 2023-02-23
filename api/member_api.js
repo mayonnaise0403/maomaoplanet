@@ -43,6 +43,8 @@ router.get("/api/user_data", async (req, res) => {
     }
 })
 
+
+
 router.post("/update_nickname", (req, res) => {
     const token = req.signedCookies.access_token;
     const decoded = jwt.decode(token, secretKey);

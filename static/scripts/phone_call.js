@@ -1,4 +1,4 @@
-//通話功能///////////////////////////////////////////////////
+
 
 //  { urls: "stun:stun.services.mozilla.com" },
 
@@ -36,10 +36,10 @@ const selfCallTimerSeconds = document.querySelector(".self-call-seconds");
 const selfCallNickname = document.querySelector(".self-call-popup-nickname");
 const selfCallHeadshot = document.querySelector(".self-call-popup-headshot");
 const friendPopupHeadshot = document.querySelector(".friend-popup-headshot");
-let peerId;
+let peerId, localStream;
 const thePeers = {};
 
-const myPeer = new Peer({
+let myPeer = new Peer({
     host: "0.peerjs.com",
     port: 443,
     path: "/",
@@ -52,75 +52,77 @@ myPeer.on('open', (name) => {
 });
 
 
-console.log(myPeer)
 //與好友通話 sender
 friendPopupCall.addEventListener("click", () => {
     const isGroup = isNaN(friendId.innerHTML);
 
 
     if (isGroup) {
-        groupCallPopUp.style.display = "block";
-        friendPopup.style.display = "none";
-        groupCallAcceptBtn.style.display = "none";
-        fetch("/api/get_group_member", {
-            method: "POST",
-            body: JSON.stringify({
-                groupId: friendId.innerHTML
+        if (peerId) {
+            groupCallPopUp.style.display = "block";
+            friendPopup.style.display = "none";
+            groupCallAcceptBtn.style.display = "none";
+            fetch("/api/get_group_member", {
+                method: "POST",
+                body: JSON.stringify({
+                    groupId: friendId.innerHTML
+                })
+                , headers: {
+                    'Content-type': 'application/json; charset=UTF-8',
+                }
             })
-            , headers: {
-                'Content-type': 'application/json; charset=UTF-8',
-            }
-        })
-            .then((response) => {
-                return response.json();
-            })
-            .then((data) => {
-                data.data.forEach(element => {
-                    newDiv = document.createElement("div");
-                    newDiv.className = "group-call-member";
-                    groupCallMemberData.appendChild(newDiv);
-                    let groupCallMember = document.querySelectorAll(".group-call-member");
+                .then((response) => {
+                    return response.json();
+                })
+                .then((data) => {
+                    data.data.forEach(element => {
+                        newDiv = document.createElement("div");
+                        newDiv.className = "group-call-member";
+                        groupCallMemberData.appendChild(newDiv);
+                        let groupCallMember = document.querySelectorAll(".group-call-member");
 
 
-                    newImg = document.createElement("img");
-                    newImg.src = element.headshot;
-                    newImg.style.width = "100px";
-                    newImg.style.height = "100px";
-                    newImg.style.objectFit = "cover";
-                    newImg.style.borderRadius = "200px";
-                    newImg.style.border = "2px solid black";
-                    groupCallMember[groupCallMember.length - 1].appendChild(newImg);
+                        newImg = document.createElement("img");
+                        newImg.src = element.headshot;
+                        newImg.style.width = "100px";
+                        newImg.style.height = "100px";
+                        newImg.style.objectFit = "cover";
+                        newImg.style.borderRadius = "200px";
+                        newImg.style.border = "2px solid black";
+                        groupCallMember[groupCallMember.length - 1].appendChild(newImg);
 
 
-                    newP = document.createElement("p");
-                    newP.innerHTML = element.nickname;
-                    newP.style.textAlign = "center";
-                    newP.style.fontSize = "20px";
-                    newP.style.fontWeight = "bolder";
-                    newP.style.marginTop = "10px";
-                    newP.style.width = "100%";
-                    groupCallMember[groupCallMember.length - 1].appendChild(newP);
+                        newP = document.createElement("p");
+                        newP.innerHTML = element.nickname;
+                        newP.style.textAlign = "center";
+                        newP.style.fontSize = "20px";
+                        newP.style.fontWeight = "bolder";
+                        newP.style.marginTop = "10px";
+                        newP.style.width = "100%";
+                        groupCallMember[groupCallMember.length - 1].appendChild(newP);
 
 
-                    newImg = document.createElement("img");
-                    newImg.style.width = "40px";
-                    newImg.className = `loading${element.member_id}`;
-                    newImg.src = "./images/Ellipsis-1s-72px.gif";
-                    groupCallMember[groupCallMember.length - 1].appendChild(newImg);
+                        newImg = document.createElement("img");
+                        newImg.style.width = "40px";
+                        newImg.className = `loading${element.member_id}`;
+                        newImg.src = "./images/Ellipsis-1s-72px.gif";
+                        groupCallMember[groupCallMember.length - 1].appendChild(newImg);
+
+                    })
+                    const myLoading = document.querySelector(`.loading${selfId.innerHTML}`);
+                    myLoading.src = "./images/check (1).png";
+                    myLoading.style.width = "40px";
+                    groupId = friendId.innerHTML
+
+                    // if (!peerConnection) {
+                    //     peerConnection = new RTCPeerConnection(iceServers);
+                    // }
+
+                    socket.emit("join-group-call", groupId, peerId);
 
                 })
-                const myLoading = document.querySelector(`.loading${selfId.innerHTML}`);
-                myLoading.src = "./images/check (1).png";
-                myLoading.style.width = "40px";
-                groupId = friendId.innerHTML
+        }
 
-                // if (!peerConnection) {
-                //     peerConnection = new RTCPeerConnection(iceServers);
-                // }
-
-                socket.emit("join-group-call", groupId, peerId);
-
-            })
 
     } else {
         selfCallNickname.style.marginBottom = "0px";
@@ -144,11 +146,25 @@ friendPopupCall.addEventListener("click", () => {
     navigator.mediaDevices.getUserMedia({ audio: true })
         .then(stream => {
             userStream = stream;
-            if (isGroup) {
+            if (isGroup && peerId) {
                 myPeer.on("call", call => {
+                    for (const audioElement of document.querySelectorAll('audio')) {
+                        audioElement.srcObject = null;
+                    }
                     call.answer(stream);
-                    const audioElement = new Audio();
+
+                    call.removeAllListeners("stream");
                     call.on("stream", userAudioStream => {
+                        const audioElement = new Audio();
+                        audioElement.className = `audio-${call.peer}`;
+                        console.log("成員的stream")
+                        console.log(userAudioStream)
+
+                        console.log("成員的id")
+                        console.log(call.peer)
+
+                        connectToNewUser(call.peer, userAudioStream)
+
                         addAudioStream(audioElement, userAudioStream)
                     })
                 })
@@ -169,7 +185,7 @@ socket.on("group-accept-call-member", (acceptMemberId) => {
 })
 
 //群組對方接聽
-socket.on("invite-join-group-call", (groupId, senderId, peerId) => {
+socket.on("invite-join-group-call", (groupId, senderId, hostPeerId) => {
 
     groupCallPopUp.style.display = "block";
     friendPopup.style.display = "none";
@@ -214,6 +230,7 @@ socket.on("invite-join-group-call", (groupId, senderId, peerId) => {
                 newImg = document.createElement("img");
                 if (element.member_id == senderId) {
                     newImg.src = "./images/check (1).png";
+                    newImg.className = `loading${element.member_id}`;
                     newImg.style.width = "40px";
                 } else {
                     newImg.className = `loading${element.member_id}`;
@@ -227,6 +244,8 @@ socket.on("invite-join-group-call", (groupId, senderId, peerId) => {
         .then(() => {
             //接受通話
             groupCallAcceptBtn.addEventListener("click", function acceptGroupCall() {
+
+
                 groupCallAcceptBtn.style.display = "none";
                 socket.emit("accept-group-call", groupId);
                 const myLoading = document.querySelector(`.loading${selfId.innerHTML}`);
@@ -237,15 +256,25 @@ socket.on("invite-join-group-call", (groupId, senderId, peerId) => {
                 navigator.mediaDevices.getUserMedia({ audio: true })
                     .then((stream) => {
                         myPeer.on("call", call => {
-                            call.answer(stream);
+                            for (const audioElement of document.querySelectorAll('audio')) {
+                                audioElement.srcObject = null;
+                            }
 
+                            call.answer(stream);
+                            call.removeAllListeners("stream");
                             call.on("stream", userAudioStream => {
+                                const audioElement = new Audio();
+                                audioElement.className = `audio-${call.peer}`;
+
+                                console.log("streamstream", call.peer)
                                 addAudioStream(audioElement, userAudioStream)
                             })
                         })
                         userStream = stream;
-                        connectToNewUser(peerId, stream)
+                        connectToNewUser(hostPeerId, stream)
                         groupCallAcceptBtn.removeEventListener("click", acceptGroupCall);
+                        localStream = stream;
+
                     })
                     .catch(error => console.error(error));
 
@@ -255,9 +284,11 @@ socket.on("invite-join-group-call", (groupId, senderId, peerId) => {
 
 })
 
+
 function connectToNewUser(peerId, stream) {
     const call = myPeer.call(peerId, stream);
     const audioElement = new Audio();
+    audioElement.className = `audio-${peerId}`;
     call.on("stream", userAudioStream => {
         addAudioStream(audioElement, userAudioStream);
     })
@@ -278,18 +309,27 @@ function addAudioStream(audio, stream) {
 
 //掛掉電話
 groupCallRejectBtn.addEventListener("click", () => {
-    if (userStream.getTracks()) {
-        userStream.getTracks().forEach(track => track.stop());
+    if (userStream) {
+        if (userStream.getTracks()) {
+            userStream.getTracks().forEach(track => track.stop());
+            audioElement.srcObject = null;
+            userStream = null;
+        }
+    }
 
-        audioElement.srcObject = null;
-        userStream = null;
+    if (localStream) {
+        if (localStream.getTracks()) {
+            localStream.getTracks().forEach(track => track.stop());
+            audioElement.srcObject = null;
+            localStream = null;
+        }
     }
 
     while (groupCallMemberData.firstChild) {
         groupCallMemberData.removeChild(groupCallMemberData.firstChild);
     }
     groupCallPopUp.style.display = "none";
-    socket.emit("group-leave");
+
 
     for (const peerId in thePeers) {
         if (thePeers.hasOwnProperty(peerId)) {
@@ -297,16 +337,51 @@ groupCallRejectBtn.addEventListener("click", () => {
             if (call) {
                 console.log("關閉連接")
                 call.close();
+
             }
         }
     }
+    socket.emit("group-leave", peerId);
+
+    myPeer.destroy();
+    peerId = null;
+    myPeer = new Peer({
+        host: "0.peerjs.com",
+        port: 443,
+        path: "/",
+        pingInterval: 5000,
+    });
+
+    myPeer.on('open', (name) => {
+        peerId = name;
+        console.log(peerId)
+    });
+
+
+
 
 })
 
+socket.on("select-new-host", (peerId) => {
+    connectToNewUser(peerId, localStream);
+    console.log(thePeers)
+})
 
+socket.on("group-leave", (groupId, selfId, leavePeerId) => {
+    const connections = myPeer.connections[leavePeerId];
+    if (connections) {
+        console.log("herehere");
+        connections.forEach(connection => {
+            if (connection.open) {
+                console.log("hihihi");
+                connection.close();
+                socket.emit("select-new-host", groupId, peerId);
+                delete thePeers[leavePeerId];
 
-socket.on("group-leave", (selfId) => {
-
+            }
+        });
+    }
+    console.log(thePeers)
     console.log("someone leaving")
     const myStatus = document.querySelector(`.loading${selfId}`);
     myStatus.src = "./images/cancel (1).png";

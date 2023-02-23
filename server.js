@@ -116,6 +116,8 @@ io.on('connection', (socket) => {
 
     })
 
+
+
     socket.on("accept-group-call", (groupId) => {
         socket.join(groupId);
     })
@@ -134,18 +136,21 @@ io.on('connection', (socket) => {
         socket.broadcast.to(roomName).emit("ready");
     });
 
-    socket.on("group-leave", () => {
+    socket.on("group-leave", (peerId) => {
         const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
         const token = socket.request.signedCookies.access_token;
         const selfId = jwt.verify(token, secretKey).userId;
         Array.from(socket.rooms).forEach(room => {
             if (uuidRegex.test(room)) {
                 socket.leave(room);
-                socket.broadcast.to(room).emit("group-leave", selfId);
+                socket.broadcast.to(room).emit("group-leave", room, selfId, peerId);
             }
         })
     })
 
+    socket.on("select-new-host", (groupId, peerId) => {
+        socket.broadcast.to(groupId).emit("select-new-host", peerId)
+    })
 
     socket.on("candidate", (candidate, roomName) => {
         console.log("candidate")
