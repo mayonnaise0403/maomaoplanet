@@ -71,42 +71,42 @@ pictureBtn.addEventListener("click", () => {
     pictureList.style.display = "block";
 })
 
-addNewUserToGroupBtn.addEventListener("click", () => {
-    if (addNewUserContainer.style.display === "none") {
-        addNewUserContainer.style.display = "block";
-        fetch(`/api/add_user_to_group_friendlist?groupId=${friendChatId}`)
-            .then((response) => {
-                return response.json();
-            })
-            .then((data) => {
-                const friendList = document.querySelectorAll(".add-user-to-group-friendlist");
-                data.friend_list.forEach(element => {
-                    newDiv = document.createElement("div");
-                    newDiv.style.display = "flex";
-                    friendList[friendList.length - 1].appendChild(newDiv);
+// addNewUserToGroupBtn.addEventListener("click", () => {
+//     if (addNewUserContainer.style.display === "none") {
+//         addNewUserContainer.style.display = "block";
+//         fetch(`/api/add_user_to_group_friendlist?groupId=${friendChatId}`)
+//             .then((response) => {
+//                 return response.json();
+//             })
+//             .then((data) => {
+//                 const friendList = document.querySelectorAll(".add-user-to-group-friendlist");
+//                 data.friend_list.forEach(element => {
+//                     newDiv = document.createElement("div");
+//                     newDiv.style.display = "flex";
+//                     friendList[friendList.length - 1].appendChild(newDiv);
 
-                    newImg = document.createElement("img");
-                    newImg.src = element.headshot;
-                    newImg.style.width = "40px";
-                    newImg.style.borderRadius = "40px";
-                    newDiv.appendChild(newImg);
+//                     newImg = document.createElement("img");
+//                     newImg.src = element.headshot;
+//                     newImg.style.width = "40px";
+//                     newImg.style.borderRadius = "40px";
+//                     newDiv.appendChild(newImg);
 
-                    newP = document.createElement("p");
-                    newP.innerHTML = element.nickname;
-                    newDiv.appendChild(newP);
+//                     newP = document.createElement("p");
+//                     newP.innerHTML = element.nickname;
+//                     newDiv.appendChild(newP);
 
-                    newImg = document.createElement("img");
-                    newImg.src = "./images/add-button.png";
-                    newImg.style.width = "40px";
+//                     newImg = document.createElement("img");
+//                     newImg.src = "./images/add-button.png";
+//                     newImg.style.width = "40px";
 
-                    newDiv.appendChild(newImg);
-                })
+//                     newDiv.appendChild(newImg);
+//                 })
 
-            })
-    } else {
-        addNewUserContainer.style.display = "none"
-    }
-})
+//             })
+//     } else {
+//         addNewUserContainer.style.display = "none"
+//     }
+// })
 
 
 

@@ -937,4 +937,5 @@ body {
     border-radius: 10px;
     border: 2px solid black;
     z-index: 2002;
+    display: none;
 }
