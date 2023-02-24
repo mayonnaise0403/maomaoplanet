@@ -40,7 +40,7 @@ let peerId, localStream, groupMemberArr = [], groupHost, groupCallId;
 let groupCallSuccess = false;
 let groupRecipientCalled = false;
 let thePeers = {};
-
+let remoteStreamArr = [];
 
 let myPeer = new Peer({
     host: "0.peerjs.com",
@@ -50,6 +50,7 @@ let myPeer = new Peer({
 });
 
 myPeer.on('open', (name) => {
+    console.log(peerId)
     peerId = name;
 });
 
@@ -172,7 +173,8 @@ friendPopupCall.addEventListener("click", () => {
 
                             connectToNewUser(call.peer, userAudioStream)
 
-                            addAudioStream(audioElement, userAudioStream)
+                            addAudioStream(audioElement, userAudioStream);
+                            remoteStreamArr.push(audioElement);
                         })
                     })
                 }
@@ -321,6 +323,7 @@ function connectToNewUser(peerId, stream) {
 
 function addAudioStream(audio, stream) {
     audio.srcObject = stream;
+    document.body.appendChild(audio)
     audio.onloadedmetadata = () => {
         audio.play();
     };
@@ -333,6 +336,7 @@ groupCallRejectBtn.addEventListener("click", () => {
     groupRecipientCalled = false;
     groupCallPopUp.style.display = "none";
     if (groupCallSuccess) {
+        console.log("我掛電話囉~~")
         if (userStream) {
             if (userStream.getTracks()) {
                 userStream.getTracks().forEach(track => track.stop());
@@ -361,12 +365,62 @@ groupCallRejectBtn.addEventListener("click", () => {
             }
         }
 
+        remoteStreamArr.forEach(element => {
+            element.pause();
+            element.remove();
+        })
+
+
+        console.log(remoteStreamArr)
+        // remoteStreamArr.forEach((stream) => {
+        //     if (stream && typeof stream.getTracks === 'function') {
+        //         console.log("hi")
+        //         const tracks = stream.getTracks();
+        //         tracks.forEach((track) => {
+        //             track.stop();
+        //         });
+        //     }
+
+        // });
+        remoteStreamArr.forEach(element => {
+            const audios = document.getElementsByClassName(element.className);
+            for (let i = 0; i < audios.length; i++) {
+                if (audios[i].srcObject) {
+                    const tracks = audios[i].srcObject.getTracks();
+                    console.log("tracktrack")
+                    tracks.forEach((track) => track.stop());
+                }
+            }
+        })
+
+
+
+        // if (remoteStreamArr instanceof MediaStream) {
+        //     // stream 是 MediaStream 物件
+        //     const tracks = stream.getTracks();
+        //     // 關閉 tracks...
+        // } else {
+        //     // stream 不是 MediaStream 物件
+        //     console.error('stream 不是 MediaStream 物件');
+        // }
+
+
+
+        const audios = document.querySelectorAll("audio");
+        console.log(audios)
+        audios.forEach((audio) => {
+            audio.pause();
+        });
+
+
+
         if (Object.keys(thePeers).length !== 0) {
             socket.emit("group-leave", peerId);
         } else {
             socket.emit("host-leave", friendId, groupMemberArr)
         }
 
+        socket.emit("group-leave", peerId);
         myPeer.destroy();
         peerId = null;
         myPeer = new Peer({

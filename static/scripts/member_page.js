@@ -52,6 +52,7 @@ fetch("/api/get_friendlist")
                 return response.json();
             })
             .then((data) => {
+                console.log(data)
                 createChatList(data, chatListContainer);
             })
 
@@ -62,6 +63,7 @@ fetch("/api/get_friendlist")
                 return response.json();
             })
             .then((data) => {
+                console.log(data)
                 createGroupList(data, groupList);
             })
             .then(() => {
@@ -73,11 +75,13 @@ fetch("/api/get_friendlist")
                 return response.json();
             })
             .then((data) => {
+                console.log(data)
                 createGroupChatList(data.data);
             })
 
     })
     .catch((error) => {
+        console.log(error)
         window.location = "/error"
     });
 
