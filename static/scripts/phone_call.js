@@ -36,8 +36,11 @@ const selfCallTimerSeconds = document.querySelector(".self-call-seconds");
 const selfCallNickname = document.querySelector(".self-call-popup-nickname");
 const selfCallHeadshot = document.querySelector(".self-call-popup-headshot");
 const friendPopupHeadshot = document.querySelector(".friend-popup-headshot");
-let peerId, localStream;
-const thePeers = {};
+let peerId, localStream, groupMemberArr = [], groupHost, groupCallId;
+let groupCallSuccess = false;
+let groupRecipientCalled = false;
+let thePeers = {};
+
 
 let myPeer = new Peer({
     host: "0.peerjs.com",
@@ -48,130 +51,139 @@ let myPeer = new Peer({
 
 myPeer.on('open', (name) => {
     peerId = name;
-    console.log(peerId)
 });
 
 
 //與好友通話 sender
 friendPopupCall.addEventListener("click", () => {
-    const isGroup = isNaN(friendId.innerHTML);
-
-
-    if (isGroup) {
-        if (peerId) {
-            groupCallPopUp.style.display = "block";
-            friendPopup.style.display = "none";
-            groupCallAcceptBtn.style.display = "none";
-            fetch("/api/get_group_member", {
-                method: "POST",
-                body: JSON.stringify({
-                    groupId: friendId.innerHTML
-                })
-                , headers: {
-                    'Content-type': 'application/json; charset=UTF-8',
-                }
-            })
-                .then((response) => {
-                    return response.json();
-                })
-                .then((data) => {
-                    data.data.forEach(element => {
-                        newDiv = document.createElement("div");
-                        newDiv.className = "group-call-member";
-                        groupCallMemberData.appendChild(newDiv);
-                        let groupCallMember = document.querySelectorAll(".group-call-member");
-
-
-                        newImg = document.createElement("img");
-                        newImg.src = element.headshot;
-                        newImg.style.width = "100px";
-                        newImg.style.height = "100px";
-                        newImg.style.objectFit = "cover";
-                        newImg.style.borderRadius = "200px";
-                        newImg.style.border = "2px solid black";
-                        groupCallMember[groupCallMember.length - 1].appendChild(newImg);
-
-
-                        newP = document.createElement("p");
-                        newP.innerHTML = element.nickname;
-                        newP.style.textAlign = "center";
-                        newP.style.fontSize = "20px";
-                        newP.style.fontWeight = "bolder";
-                        newP.style.marginTop = "10px";
-                        newP.style.width = "100%";
-                        groupCallMember[groupCallMember.length - 1].appendChild(newP);
-
-
-                        newImg = document.createElement("img");
-                        newImg.style.width = "40px";
-                        newImg.className = `loading${element.member_id}`;
-                        newImg.src = "./images/Ellipsis-1s-72px.gif";
-                        groupCallMember[groupCallMember.length - 1].appendChild(newImg);
-
+    groupMemberArr = [];
+    const isGroup = isNaN(friendId);
+    if (!callSuccess && !groupCallSuccess && !groupRecipientCalled) {
+        if (isGroup) {
+            if (peerId) {
+                groupCallPopUp.style.display = "block";
+                friendPopup.style.display = "none";
+                groupCallAcceptBtn.style.display = "none";
+                fetch("/api/get_group_member", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        groupId: friendId
                     })
-                    const myLoading = document.querySelector(`.loading${selfId.innerHTML}`);
-                    myLoading.src = "./images/check (1).png";
-                    myLoading.style.width = "40px";
-                    groupId = friendId.innerHTML
-
-                    // if (!peerConnection) {
-                    //     peerConnection = new RTCPeerConnection(iceServers);
-                    // }
-
-                    socket.emit("join-group-call", groupId, peerId);
-
-                })
-        }
-
-
-    } else {
-        selfCallNickname.style.marginBottom = "0px";
-        friendPopup.style.display = "none";
-        selfCallTime.style.display = "none";
-        selfCallPopup.style.display = "block";
-        selfCallHeadshot.src = friendPopupHeadshot.src;
-        selfCallNickname.innerHTML = friendName.innerHTML;
-        selfCallLoader.style.display = "block";
-        const package = {
-            headshot: document.querySelector(".headshot").src,
-            nickname: document.querySelector(".profile-name-content").innerHTML,
-            userId: parseInt(selfId.innerHTML)
-        }
-        roomName = `${selfId.innerHTML}and${friendId.innerHTML}`;
-        socket.emit("join", roomName, package);
-    }
-
-    creator = true;
-    // 获取麦克风的媒体流
-    navigator.mediaDevices.getUserMedia({ audio: true })
-        .then(stream => {
-            userStream = stream;
-            if (isGroup && peerId) {
-                myPeer.on("call", call => {
-                    for (const audioElement of document.querySelectorAll('audio')) {
-                        audioElement.srcObject = null;
+                    , headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
                     }
-                    call.answer(stream);
-
-                    call.removeAllListeners("stream");
-                    call.on("stream", userAudioStream => {
-                        const audioElement = new Audio();
-                        audioElement.className = `audio-${call.peer}`;
-                        console.log("成員的stream")
-                        console.log(userAudioStream)
-
-                        console.log("成員的id")
-                        console.log(call.peer)
-
-                        connectToNewUser(call.peer, userAudioStream)
-
-                        addAudioStream(audioElement, userAudioStream)
-                    })
                 })
+                    .then((response) => {
+                        return response.json();
+                    })
+                    .then((data) => {
+                        data.data.forEach(element => {
+                            newDiv = document.createElement("div");
+                            newDiv.className = "group-call-member";
+                            groupCallMemberData.appendChild(newDiv);
+                            let groupCallMember = document.querySelectorAll(".group-call-member");
+
+
+                            newImg = document.createElement("img");
+                            newImg.src = element.headshot;
+                            newImg.style.width = "100px";
+                            newImg.style.height = "100px";
+                            newImg.style.objectFit = "cover";
+                            newImg.style.borderRadius = "200px";
+                            newImg.style.border = "2px solid black";
+                            groupCallMember[groupCallMember.length - 1].appendChild(newImg);
+
+
+                            newP = document.createElement("p");
+                            newP.innerHTML = element.nickname;
+                            newP.style.textAlign = "center";
+                            newP.style.fontSize = "20px";
+                            newP.style.fontWeight = "bolder";
+                            newP.style.marginTop = "10px";
+                            newP.style.width = "100%";
+                            groupCallMember[groupCallMember.length - 1].appendChild(newP);
+
+                            if (parseInt(element.member_id) !== parseInt(selfId)) {
+                                groupMemberArr.push(element.member_id);
+                            }
+                            newImg = document.createElement("img");
+                            newImg.style.width = "40px";
+                            newImg.className = `loading${element.member_id}`;
+                            newImg.src = "./images/Ellipsis-1s-72px.gif";
+                            groupCallMember[groupCallMember.length - 1].appendChild(newImg);
+
+                        })
+                        const myLoading = document.querySelector(`.loading${selfId}`);
+                        myLoading.src = "./images/check (1).png";
+                        myLoading.style.width = "40px";
+                        groupId = friendId
+
+                        // if (!peerConnection) {
+                        //     peerConnection = new RTCPeerConnection(iceServers);
+                        // }
+
+                        socket.emit("join-group-call", groupId, peerId);
+
+                    })
+                groupCallSuccess = true;
+                groupHost = true;
             }
 
-        })
-        .catch(error => console.error(error));
+
+
+        } else {
+            selfCallNickname.style.marginBottom = "0px";
+            friendPopup.style.display = "none";
+            selfCallTime.style.display = "none";
+            selfCallPopup.style.display = "block";
+            selfCallHeadshot.src = friendPopupHeadshot.src;
+            selfCallNickname.innerHTML = friendName.innerHTML;
+            selfCallLoader.style.display = "block";
+            const package = {
+                headshot: document.querySelector(".headshot").src,
+                nickname: document.querySelector(".profile-name-content").innerHTML,
+                userId: parseInt(selfId)
+            }
+            roomName = `${selfId}and${friendId}`;
+            socket.emit("join", roomName, package);
+        }
+
+        creator = true;
+        // 获取麦克风的媒体流
+        navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(stream => {
+                userStream = stream;
+                if (isGroup && peerId) {
+                    myPeer.on("call", call => {
+                        for (const audioElement of document.querySelectorAll('audio')) {
+                            audioElement.srcObject = null;
+                        }
+                        call.answer(stream);
+
+                        call.removeAllListeners("stream");
+                        call.on("stream", userAudioStream => {
+                            const audioElement = new Audio();
+                            audioElement.className = `audio-${call.peer}`;
+                            console.log("成員的stream")
+                            console.log(userAudioStream)
+
+                            console.log("成員的id")
+                            console.log(call.peer)
+
+                            connectToNewUser(call.peer, userAudioStream)
+
+                            addAudioStream(audioElement, userAudioStream)
+                        })
+                    })
+                }
+
+            })
+            .catch(error => console.error(error));
+    } else {
+        console.log("calling")
+    }
+
+
 
 })
 
@@ -186,101 +198,110 @@ socket.on("group-accept-call-member", (acceptMemberId) => {
 
 //群組對方接聽
 socket.on("invite-join-group-call", (groupId, senderId, hostPeerId) => {
-
-    groupCallPopUp.style.display = "block";
-    friendPopup.style.display = "none";
-    fetch("/api/get_group_member", {
-        method: "POST",
-        body: JSON.stringify({
-            groupId: groupId
-        })
-        , headers: {
-            'Content-type': 'application/json; charset=UTF-8',
-        }
-    })
-        .then((response) => {
-            return response.json();
-        })
-        .then((data) => {
-            data.data.forEach(element => {
-                newDiv = document.createElement("div");
-                newDiv.className = "group-call-member";
-                groupCallMemberData.appendChild(newDiv);
-                let groupCallMember = document.querySelectorAll(".group-call-member");
-
-                newImg = document.createElement("img");
-                newImg.src = element.headshot;
-                newImg.style.width = "100px";
-                newImg.style.height = "100px";
-                newImg.style.objectFit = "cover";
-                newImg.style.borderRadius = "200px";
-                newImg.style.border = "2px solid black";
-                groupCallMember[groupCallMember.length - 1].appendChild(newImg);
-
-
-                newP = document.createElement("p");
-                newP.innerHTML = element.nickname;
-                newP.style.textAlign = "center";
-                newP.style.fontSize = "20px";
-                newP.style.fontWeight = "bolder";
-                newP.style.marginTop = "10px";
-                newP.style.width = "100%";
-                groupCallMember[groupCallMember.length - 1].appendChild(newP);
-
-                newImg = document.createElement("img");
-                if (element.member_id == senderId) {
-                    newImg.src = "./images/check (1).png";
-                    newImg.className = `loading${element.member_id}`;
-                    newImg.style.width = "40px";
-                } else {
-                    newImg.className = `loading${element.member_id}`;
-                    newImg.src = "./images/Ellipsis-1s-72px.gif";
-                }
-                groupCallMember[groupCallMember.length - 1].appendChild(newImg);
-
+    groupMemberArr = [];
+    if (!callSuccess && !groupCallSuccess && !groupRecipientCalled) {
+        groupRecipientCalled = true;
+        groupCallId = groupId;
+        groupCallPopUp.style.display = "block";
+        friendPopup.style.display = "none";
+        fetch("/api/get_group_member", {
+            method: "POST",
+            body: JSON.stringify({
+                groupId: groupId
             })
-            groupCallAcceptBtn.style.display = "block";
+            , headers: {
+                'Content-type': 'application/json; charset=UTF-8',
+            }
         })
-        .then(() => {
-            //接受通話
-            groupCallAcceptBtn.addEventListener("click", function acceptGroupCall() {
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+                data.data.forEach(element => {
+                    newDiv = document.createElement("div");
+                    newDiv.className = "group-call-member";
+                    groupCallMemberData.appendChild(newDiv);
+                    let groupCallMember = document.querySelectorAll(".group-call-member");
+
+                    newImg = document.createElement("img");
+                    newImg.src = element.headshot;
+                    newImg.style.width = "100px";
+                    newImg.style.height = "100px";
+                    newImg.style.objectFit = "cover";
+                    newImg.style.borderRadius = "200px";
+                    newImg.style.border = "2px solid black";
+                    groupCallMember[groupCallMember.length - 1].appendChild(newImg);
 
 
-                groupCallAcceptBtn.style.display = "none";
-                socket.emit("accept-group-call", groupId);
-                const myLoading = document.querySelector(`.loading${selfId.innerHTML}`);
-                myLoading.src = "./images/check (1).png";
-                myLoading.style.width = "40px";
-                socket.emit("group-accept-call-member", groupId);
+                    newP = document.createElement("p");
+                    newP.innerHTML = element.nickname;
+                    newP.style.textAlign = "center";
+                    newP.style.fontSize = "20px";
+                    newP.style.fontWeight = "bolder";
+                    newP.style.marginTop = "10px";
+                    newP.style.width = "100%";
+                    groupCallMember[groupCallMember.length - 1].appendChild(newP);
 
-                navigator.mediaDevices.getUserMedia({ audio: true })
-                    .then((stream) => {
-                        myPeer.on("call", call => {
-                            for (const audioElement of document.querySelectorAll('audio')) {
-                                audioElement.srcObject = null;
-                            }
+                    newImg = document.createElement("img");
+                    if (parseInt(element.member_id) !== parseInt(selfId)) {
+                        groupMemberArr.push(element.member_id);
+                    }
 
-                            call.answer(stream);
-                            call.removeAllListeners("stream");
-                            call.on("stream", userAudioStream => {
-                                const audioElement = new Audio();
-                                audioElement.className = `audio-${call.peer}`;
+                    if (element.member_id == senderId) {
+                        newImg.src = "./images/check (1).png";
+                        newImg.className = `loading${element.member_id}`;
+                        newImg.style.width = "40px";
+                    } else {
+                        newImg.className = `loading${element.member_id}`;
+                        newImg.src = "./images/Ellipsis-1s-72px.gif";
+                    }
+                    groupCallMember[groupCallMember.length - 1].appendChild(newImg);
 
-                                console.log("streamstream", call.peer)
-                                addAudioStream(audioElement, userAudioStream)
+                })
+                groupCallAcceptBtn.style.display = "block";
+            })
+            .then(() => {
+                //接受通話
+                groupCallAcceptBtn.addEventListener("click", function acceptGroupCall() {
+                    groupCallSuccess = true;
+                    groupRecipientCalled = false;
+                    groupCallAcceptBtn.style.display = "none";
+                    socket.emit("accept-group-call", groupId);
+                    const myLoading = document.querySelector(`.loading${selfId}`);
+                    myLoading.src = "./images/check (1).png";
+                    myLoading.style.width = "40px";
+                    socket.emit("group-accept-call-member", groupId);
+
+                    navigator.mediaDevices.getUserMedia({ audio: true })
+                        .then((stream) => {
+                            myPeer.on("call", call => {
+                                for (const audioElement of document.querySelectorAll('audio')) {
+                                    audioElement.srcObject = null;
+                                }
+
+                                call.answer(stream);
+                                call.removeAllListeners("stream");
+                                call.on("stream", userAudioStream => {
+                                    const audioElement = new Audio();
+                                    audioElement.className = `audio-${call.peer}`;
+
+                                    console.log("streamstream", call.peer)
+                                    addAudioStream(audioElement, userAudioStream)
+                                })
                             })
+                            userStream = stream;
+                            connectToNewUser(hostPeerId, stream)
+                            groupCallAcceptBtn.removeEventListener("click", acceptGroupCall);
+                            localStream = stream;
+
                         })
-                        userStream = stream;
-                        connectToNewUser(hostPeerId, stream)
-                        groupCallAcceptBtn.removeEventListener("click", acceptGroupCall);
-                        localStream = stream;
-
-                    })
-                    .catch(error => console.error(error));
+                        .catch(error => console.error(error));
 
 
+                })
             })
-        })
+    }
+
 
 })
 
@@ -309,56 +330,91 @@ function addAudioStream(audio, stream) {
 
 //掛掉電話
 groupCallRejectBtn.addEventListener("click", () => {
-    if (userStream) {
-        if (userStream.getTracks()) {
-            userStream.getTracks().forEach(track => track.stop());
-            audioElement.srcObject = null;
-            userStream = null;
+    groupRecipientCalled = false;
+    groupCallPopUp.style.display = "none";
+    if (groupCallSuccess) {
+        if (userStream) {
+            if (userStream.getTracks()) {
+                userStream.getTracks().forEach(track => track.stop());
+                audioElement.srcObject = null;
+                userStream = null;
+            }
         }
-    }
 
-    if (localStream) {
-        if (localStream.getTracks()) {
-            localStream.getTracks().forEach(track => track.stop());
-            audioElement.srcObject = null;
-            localStream = null;
+        if (localStream) {
+            if (localStream.getTracks()) {
+                localStream.getTracks().forEach(track => track.stop());
+                audioElement.srcObject = null;
+                localStream = null;
+            }
         }
-    }
 
+
+        for (const peerId in thePeers) {
+            if (thePeers.hasOwnProperty(peerId)) {
+                const call = thePeers[peerId];
+                if (call) {
+                    console.log("關閉連接")
+                    call.close();
+
+                }
+            }
+        }
+
+        if (Object.keys(thePeers).length !== 0) {
+            socket.emit("group-leave", peerId);
+        } else {
+            socket.emit("host-leave", friendId, groupMemberArr)
+        }
+
+        myPeer.destroy();
+        peerId = null;
+        myPeer = new Peer({
+            host: "0.peerjs.com",
+            port: 443,
+            path: "/",
+            pingInterval: 5000,
+        });
+
+        myPeer.on('open', (name) => {
+            peerId = name;
+            console.log(peerId)
+        });
+        groupCallSuccess = false;
+        thePeers = {};
+        groupMemberArr = [];
+    } else {
+        socket.emit("group-hangup", groupMemberArr);
+        groupMemberArr = [];
+    }
     while (groupCallMemberData.firstChild) {
         groupCallMemberData.removeChild(groupCallMemberData.firstChild);
     }
-    groupCallPopUp.style.display = "none";
 
 
-    for (const peerId in thePeers) {
-        if (thePeers.hasOwnProperty(peerId)) {
-            const call = thePeers[peerId];
-            if (call) {
-                console.log("關閉連接")
-                call.close();
+})
 
-            }
+socket.on("host-leave", (groupId) => {
+
+    groupRecipientCalled = false;
+    console.log(groupCallId)
+    if (groupCallId === groupId) {
+        groupCallPopUp.style.display = "none";
+        while (groupCallMemberData.firstChild) {
+            groupCallMemberData.removeChild(groupCallMemberData.firstChild);
         }
     }
-    socket.emit("group-leave", peerId);
-
-    myPeer.destroy();
-    peerId = null;
-    myPeer = new Peer({
-        host: "0.peerjs.com",
-        port: 443,
-        path: "/",
-        pingInterval: 5000,
-    });
-
-    myPeer.on('open', (name) => {
-        peerId = name;
-        console.log(peerId)
-    });
 
 
+})
 
+socket.on("group-hangup", (selfId) => {
+    console.log(selfId)
+    const myStatus = document.querySelector(`.loading${selfId}`);
+    if (myStatus) {
+        myStatus.src = "./images/cancel (1).png";
+        myStatus.style.width = "40px";
+    }
 
 })
 
@@ -393,37 +449,40 @@ socket.on("group-leave", (groupId, selfId, leavePeerId) => {
 
 //reciver 對方接聽
 socket.on("invite-join-call", (roomName, package, senderId) => {
-    friendCallNickname.style.marginBottom = "0px";
-    friendCallTime.style.display = "none";
-    friendCallAcceptBtn.style.display = "block";
-    friendCallLoader.style.display = "block";
-    roomName = roomName;
-    friendCallHeadshot.src = package.headshot;
-    friendCallNickname.innerHTML = package.nickname;
-    friendCallPopup.style.display = "block";
-    friendCallAcceptBtn.addEventListener("click", () => {
-        friendCallNickname.style.marginBottom = "100px";
-        socket.emit("recipient-join-room", roomName);
-        creator = false;
+    if (!callSuccess && !groupCallSuccess && !groupRecipientCalled) {
+        friendCallNickname.style.marginBottom = "0px";
+        friendCallTime.style.display = "none";
+        friendCallAcceptBtn.style.display = "block";
+        friendCallLoader.style.display = "block";
+        roomName = roomName;
+        friendCallHeadshot.src = package.headshot;
+        friendCallNickname.innerHTML = package.nickname;
+        friendCallPopup.style.display = "block";
+        friendCallAcceptBtn.addEventListener("click", () => {
+            friendCallNickname.style.marginBottom = "100px";
+            socket.emit("recipient-join-room", roomName);
+            creator = false;
 
-        friendCallAcceptBtn.style.display = "none";
-        friendCallLoader.style.display = "none";
-        navigator.mediaDevices.getUserMedia({ audio: true })
-            .then((stream) => {
-                console.log("recipient", stream)
-                userStream = stream;
-                socket.emit("ready", roomName);
-            })
-            .catch(error => console.error(error));
-    })
+            friendCallAcceptBtn.style.display = "none";
+            friendCallLoader.style.display = "none";
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then((stream) => {
+                    console.log("recipient", stream)
+                    userStream = stream;
+                    socket.emit("ready", roomName);
+                })
+                .catch(error => console.error(error));
+        })
 
 
-    recipientHangupCall.addEventListener("click", () => {
-        if (!callSuccess) {
-            friendCallPopup.style.display = "none";
-            socket.emit("recipient-hangup-call", senderId)
-        }
-    })
+        recipientHangupCall.addEventListener("click", () => {
+            if (!callSuccess) {
+                friendCallPopup.style.display = "none";
+                socket.emit("recipient-hangup-call", senderId)
+            }
+        })
+    }
+
 
 
 
@@ -467,15 +526,6 @@ socket.on("ready", async () => {
             onIceCandidateFunction(event, roomName);
         };
         peerConnection.ontrack = onTrackFunction;
-        // peerConnection.addStream(userStream);
-        // peerConnection.getSenders().forEach(sender => {
-        //     peerConnection.removeTrack(sender);
-        // });
-
-
-        // userStream.getTracks().forEach((track) => {
-        //     peerConnection.addTrack(track, userStream);
-        // });
 
         let hasTrack = false;
         peerConnection.getSenders().forEach((sender) => {
@@ -515,8 +565,6 @@ socket.on("ready", async () => {
 
 
 socket.on("candidate", async (candidate) => {
-    // let icecandidate = new RTCIceCandidate(candidate);
-    // peerConnection.addIceCandidate(icecandidate);
     if (peerConnection.remoteDescription) {
         await peerConnection.addIceCandidate(candidate);
     } else {
@@ -566,21 +614,8 @@ socket.on("offer", async (offer, roomName) => {
             }
             onIceCandidateFunction(event, roomName);
         };
-        // peerConnection.onicecandidate = function (event) {
-        //     if (event.candidate) {
-        //         addIceCandidate(event.candidate, roomName);
-        //     }
-        // };
 
         peerConnection.ontrack = onTrackFunction;
-
-        // peerConnection.getSenders().forEach(sender => {
-        //     peerConnection.removeTrack(sender);
-        // });
-        // // peerConnection.addStream(userStream);
-        // userStream.getTracks().forEach((track) => {
-        //     peerConnection.addTrack(track, userStream);
-        // });
 
         let hasTrack = false;
         peerConnection.getSenders().forEach((sender) => {
@@ -673,9 +708,12 @@ async function onIceCandidateFunction(event, roomName) {
 
 
 socket.on("hangup-call", () => {
-    friendCallPopup.style.display = "none";
-    selfCallPopup.style.display = "none";
-    callSuccess = false;
+    if (!callSuccess && !groupCallSuccess && !groupRecipientCalled) {
+        friendCallPopup.style.display = "none";
+        selfCallPopup.style.display = "none";
+        callSuccess = false;
+    }
+
 })
 
 
@@ -791,7 +829,6 @@ selfCallHangup.addEventListener("click", () => {
 })
 
 socket.on("leave", () => {
-    console.log("leave")
     clearInterval(timer);
     console.log(timer)
     selfCallTime.style.display = "none";

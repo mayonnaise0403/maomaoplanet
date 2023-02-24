@@ -23,12 +23,33 @@ Login = new Login();
 
 
 router.get("/member", (req, res) => {
-    if (!req.signedCookies.access_token) {
-        res.clearCookie('access_token');
-        res.render("homepage.html")
-    } else {
-        res.render("member.html")
+    try {
+        if (!req.signedCookies.access_token) {
+            res.clearCookie('access_token');
+            res.render("homepage.html")
+        } else {
+            const token = req.signedCookies.access_token;
+            jwt.verify(token, secretKey, (err, decoded) => {
+                if (err && err.name === 'TokenExpiredError') {
+                    res.clearCookie('access_token');
+                    res.render("homepage.html")
+                } else if (err) {
+                    res.clearCookie('access_token');
+                    res.render("homepage.html")
+                } else {
+                    res.render("member.html")
+                }
+            });
+
+        }
+    } catch (err) {
+        res.render("error_page.html")
     }
+
+})
+
+router.get("/error", (req, res) => {
+    res.render("error_page.html")
 })
 
 router.post("/signout", (req, res) => {
@@ -70,28 +91,33 @@ router.post("/login", async (req, res) => {
 
 
 router.post("/send_email", (req, res) => {
-    let userEmail = req.body.email;
-    let time = new Date().getTime();
-    let code = time.toString().substring(time.toString().length - 4);
-    const transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 465,
-        auth: {
-            user: process.env.email,
-            pass: process.env.Email_Password
-        },
-    });
-    console.log(code)
-    transporter.sendMail({
-        from: process.env.email,
-        to: userEmail,
-        subject: "歡迎使用毛毛星球",
-        html: `驗證碼是:${code}`,
-    }).then(() => {
-        res.send({ "code": code });
-    }).catch(() => {
-        res.send({ "message": "寄出失敗" });
-    })
+    try {
+        let userEmail = req.body.email;
+        let time = new Date().getTime();
+        let code = time.toString().substring(time.toString().length - 4);
+        const transporter = nodemailer.createTransport({
+            host: "smtp.gmail.com",
+            port: 465,
+            auth: {
+                user: process.env.email,
+                pass: process.env.Email_Password
+            },
+        });
+        console.log(code)
+        transporter.sendMail({
+            from: process.env.email,
+            to: userEmail,
+            subject: "歡迎使用毛毛星球",
+            html: `驗證碼是:${code}`,
+        }).then(() => {
+            res.send({ "code": code });
+        }).catch(() => {
+            res.send({ "message": "寄出失敗" });
+        })
+    } catch (err) {
+        res.status(500).send({ status: "error", message: "內部伺服器出現錯誤" })
+    }
+
 
 })
 

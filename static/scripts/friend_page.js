@@ -37,7 +37,7 @@ function createGroupList(groupData, list) {
             friendPopupHeadshot.src = element.headshot;
             friendPopup.style.display = "block";
             friendName.innerHTML = element.group_name;
-            friendId.innerHTML = element.group_id;
+            friendId = element.group_id;
         })
         count++;
     })
@@ -81,7 +81,7 @@ function createFriendList(friendData, list) {
             friendPopupHeadshot.src = element.headshot;
             friendPopup.style.display = "block";
             friendName.innerHTML = element.nickname;
-            friendId.innerHTML = element.user_id;
+            friendId = element.user_id;
         })
         count++;
     })

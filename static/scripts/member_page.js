@@ -14,9 +14,6 @@ const popupChatBtn = document.querySelector(".friend-popup-chatbox");
 const chatContainer = document.querySelector(".chat-container");
 const chatBoxFriendName = document.querySelector(".chat-friend-name");
 const chatCloseBtn = document.querySelector(".chat-container-close-btn");
-const friendId = document.querySelector(".friend-user_id");
-const friendChatId = document.querySelector(".chat-friend-user_id");
-const selfId = document.querySelector(".self-id");
 const socket = io();
 const snedMessage = document.querySelector(".send-message");
 const messageInput = document.querySelector(".message-input");
@@ -31,9 +28,10 @@ const chatListContainer = document.querySelector(".chat-list-container");
 const emailRule = /^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z]+$/;
 const signOutBtn = document.querySelector(".sign-out-btn");
 const errorMessage = document.querySelector(".error-message");
+const chatMessage = document.querySelector(".chat-message");
 
 let newP, newHr, newDiv, newImg;
-
+let selfId, friendId, friendChatId;
 
 window.onbeforeunload = () => {
     socket.disconnect();
@@ -45,7 +43,7 @@ fetch("/api/get_friendlist")
     })
     .then((data) => {
         createFriendList(data, friendList);
-        selfId.innerHTML = data.self_id;
+        selfId = data.self_id;
         socket.emit("join-self-room", data.self_id);
     })
     .then(() => {
@@ -58,16 +56,18 @@ fetch("/api/get_friendlist")
             })
 
     })
-
-
-fetch("/api/get_grouplist")
-    .then((response) => {
-        return response.json();
-    })
-    .then((data) => {
-        createGroupList(data, groupList);
-    })
     .then(() => {
+        fetch("/api/get_grouplist")
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+                createGroupList(data, groupList);
+            })
+            .then(() => {
+
+            })
+
         fetch("/api/get_latest_group_message")
             .then((response) => {
                 return response.json();
@@ -75,21 +75,26 @@ fetch("/api/get_grouplist")
             .then((data) => {
                 createGroupChatList(data.data);
             })
+
     })
+    .catch((error) => {
+        window.location = "/error"
+    });
 
 
 
 
 
 socket.on("receive-group-message", (package) => {
-    if (chatContainer.style.display === "block" && friendChatId.innerHTML === package.group_id) {
-        displayMessage(package, false);
+    if (chatContainer.style.display === "block" && friendChatId === package.group_id) {
+        displayMessage(package, false, 0, true);
     }
 
 
     //立即更新對方聊天列
 
     let historyMsg = document.querySelector(`[data-attribute-name='${package.group_id}']`);
+
     if (hadGroupHistoryMsg && historyMsg) {
 
         const firstChildren = groupChatListContainer.children[0];
@@ -99,8 +104,8 @@ socket.on("receive-group-message", (package) => {
             fetch("/update_group_message_status", {
                 method: "POST",
                 body: JSON.stringify({
-                    groupId: friendChatId.innerHTML,
-                    isReadMemberId: parseInt(selfId.innerHTML)
+                    groupId: friendChatId,
+                    isReadMemberId: parseInt(selfId)
                 })
                 , headers: {
                     'Content-type': 'application/json; charset=UTF-8',
@@ -113,18 +118,21 @@ socket.on("receive-group-message", (package) => {
                     socket.emit('group-read-message', package);
                 })
         }
-        if (chatContainer.style.display === "block" && friendChatId.innerHTML === package.group_id) {
+        if (chatContainer.style.display === "block" && friendChatId === package.group_id) {
 
         } else {
-            //顯示未讀通知
-            newImg = document.createElement("img");
-            newImg.src = "./images/new-message.png";
-            newImg.className = "new-message-icon";
-            newImg.style.width = "50px";
-            newImg.style.position = "absolute";
-            newImg.style.right = "10px";
-            newImg.style.top = "10px";
-            historyMsgFather.appendChild(newImg);
+            if (!historyMsgFather.querySelector(".new-message-icon")) {
+                //顯示未讀通知
+                newImg = document.createElement("img");
+                newImg.src = "./images/new-message.png";
+                newImg.className = "new-message-icon";
+                newImg.style.width = "50px";
+                newImg.style.position = "absolute";
+                newImg.style.right = "10px";
+                newImg.style.top = "10px";
+                historyMsgFather.appendChild(newImg);
+            }
+
         }
 
 
@@ -200,8 +208,8 @@ socket.on("receive-message", (msg) => {
     //     displayMessage(msg, false);
     // }
     console.log(msg)
-    if (chatContainer.style.display === "block" && parseInt(friendChatId.innerHTML) === parseInt(msg.user_id)) {
-        let room = `user${friendChatId.innerHTML}`;
+    if (chatContainer.style.display === "block" && parseInt(friendChatId) === parseInt(msg.user_id)) {
+        let room = `user${friendChatId}`;
         socket.emit('read-message', room);
         displayMessage(msg, false);
     }
@@ -213,12 +221,13 @@ socket.on("receive-message", (msg) => {
         let historyMsgFather = historyMsg.parentNode.parentNode;
 
 
-        if (chatContainer.style.display === "block" && (clickedDiv.querySelector(`.user${msg.user_id}-message`))) {
+        if (chatContainer.style.display === "block" && friendChatId == msg.user_id) {
 
         } else {
             //顯示未讀通知
-            let isHaveUnReadMst = historyMsg.parentNode
-            if (!isHaveUnReadMst.querySelector(".new-message-icon")) {
+            let isHaveUnReadMsg = historyMsg.parentNode.parentNode;
+            console.log(isHaveUnReadMsg)
+            if (!isHaveUnReadMsg.querySelector(".new-message-icon")) {
                 newImg = document.createElement("img");
                 newImg.src = "./images/new-message.png";
                 newImg.className = "new-message-icon";
@@ -321,9 +330,7 @@ socket.on("receive-group-read-message", (hadReadCount) => {
 })
 
 
-signOutBtn.addEventListener("click", () => {
 
-})
 
 closePopup.addEventListener("click", () => {
     searchFriendPopup.style.display = "none";
@@ -336,6 +343,7 @@ addFriendBtn.addEventListener("click", () => {
     searchFriendPopImage.style.display = "block";
     searchFriendPopup.style.display = "block";
 })
+
 
 
 signOutBtn.addEventListener("click", () => {
@@ -357,6 +365,53 @@ signOutBtn.addEventListener("click", () => {
             }
         })
 })
+
+let isScrolling;
+const chatMsgDate = document.querySelector(".chat-message-datetime");
+chatMessage.addEventListener("scroll", () => {
+
+    let date = new Date();
+    date = date.toLocaleString();
+
+
+    chatMsgDate.style.visibility = "visible";
+    var firstVisible = chatMessage.firstElementChild;
+    var scrollTop = chatMessage.scrollTop;
+
+
+
+    if (firstVisible) {
+        while (firstVisible.offsetTop < scrollTop) {
+            firstVisible = firstVisible.nextElementSibling;
+        }
+
+        if (firstVisible.className != "read-message-status" && firstVisible.className != "chat-message-date" && firstVisible.className != "group-member-headshot-nickname") {
+            chatMsgDate.innerHTML = firstVisible.className;
+        }
+        if (date.substring(0, 9) === firstVisible.className) {
+            chatMsgDate.innerHTML = "今天";
+        }
+    }
+
+
+    if (timer !== null) {
+        clearTimeout(timer);
+    }
+
+    // 設定新的計時器
+    timer = setTimeout(function () {
+        // 停止滾動
+
+        isScrolling = false;
+        chatMsgDate.style.visibility = "hidden";
+
+
+    }, 1000);
+
+    isScrolling = true;
+})
+
+
 
 //點擊搜尋使用者
 popupAddFriendBtn.addEventListener("click", () => {
@@ -460,6 +515,7 @@ friendPopupClose.addEventListener("click", () => {
 chatCloseBtn.addEventListener("click", () => {
     stickerPopup.style.visibility = "hidden";
     chatContainer.style.display = "none";
+    chatMsgDate.style.visibility = "hidden";
     const parentDiv = document.querySelector(".chat-message");
     while (parentDiv.firstChild) {
         parentDiv.removeChild(parentDiv.firstChild);
@@ -497,7 +553,7 @@ popupChatBtn.addEventListener("click", () => {
 })
 
 snedMessage.addEventListener("click", async (e) => {
-    const isGroup = isNaN(friendChatId.innerHTML);
+    const isGroup = isNaN(friendChatId);
     if (!isGroup) {
         sendMsgInSingle();
     } else {
@@ -508,7 +564,7 @@ snedMessage.addEventListener("click", async (e) => {
 })
 
 messageInput.addEventListener("keyup", (e) => {
-    const isGroup = isNaN(friendChatId.innerHTML);
+    const isGroup = isNaN(friendChatId);
     if (e.keyCode === 13) {
         let englishWord = messageInput.value.match(/[A-Za-z]/g);
         let symbolRegex = messageInput.value.match(/[^\u4e00-\u9fa5\w]/g);
@@ -546,7 +602,7 @@ messageInput.addEventListener("keyup", (e) => {
 
 
 messageInput.addEventListener("compositionend", (e) => {
-    const isGroup = isNaN(friendChatId.innerHTML);
+    const isGroup = isNaN(friendChatId);
     messageInput.addEventListener("keyup", (e) => {
         if (e.keyCode === 13) {
             if (!isGroup) {
@@ -654,12 +710,20 @@ function createUserHtml(resultArr) {
 
 }
 
-let prevSenderId;
+
+
+let prevSenderId, prevDate;
 const S3Url = "https://maomaoimage.s3.ap-northeast-1.amazonaws.com/single_chat_file/"
 function displayMessage(element, isSelf, is_read = 0, is_group = false) {
     let date = new Date(element.time);
     date = date.toLocaleString();
-    console.log(date)
+
+
+
+
+    chatMsgDate.style.visibility = "visible";
+    chatMsgDate.innerHTML = `${date.substring(0, 9)}`;
+
     let message = document.querySelector(".chat-message");
 
     if (element.message.indexOf(S3Url) !== -1) {
@@ -668,10 +732,19 @@ function displayMessage(element, isSelf, is_read = 0, is_group = false) {
         return;
     }
 
+    if (date.substring(0, 9) !== prevDate) {
+        newP = document.createElement("p");
+        newP.className = "chat-message-date";
+        newP.innerHTML = date.substring(0, 9);
+        chatMessage.appendChild(newP)
+    }
+
     if (isSelf) {
         newDiv = document.createElement("div");
         newDiv.style.display = "flex";
         newDiv.style.justifyContent = "right";
+        newDiv.className = `${date.substring(0, 9)}`;
+        newDiv.style.marginBottom = "10px";
         newDiv.style.alignItems = "end";
         message.appendChild(newDiv);
 
@@ -713,14 +786,13 @@ function displayMessage(element, isSelf, is_read = 0, is_group = false) {
 
     } else {
         if (is_group) {
+
             //顯示對方大頭貼跟暱稱
             newDiv = document.createElement("div");
             newDiv.className = 'group-member-headshot-nickname';
             message.appendChild(newDiv);
             let groupMember = document.querySelectorAll(".group-member-headshot-nickname");
-
-
-            if (groupMember.length === 1 || prevSenderId !== element.sender_id) {
+            if (groupMember.length === 1 || parseInt(prevSenderId) != parseInt(element.sender_id) || message.lastElementChild.previousElementSibling.className === "chat-message-date") {
                 newImg = document.createElement("img");
                 newImg.src = element.sender_headshot;
                 newImg.className = "group-chat-member-headshot";
@@ -743,6 +815,7 @@ function displayMessage(element, isSelf, is_read = 0, is_group = false) {
 
         newDiv = document.createElement("div");
         newDiv.style.display = "flex";
+        newDiv.className = `${date.substring(0, 9)}`;
         newDiv.style.justifyContent = "left";
         newDiv.style.alignItems = "end";
         newDiv.style.marginBottom = "10px";
@@ -761,21 +834,31 @@ function displayMessage(element, isSelf, is_read = 0, is_group = false) {
         newDiv.insertBefore(newP, newDiv.firstChild)
     }
     prevSenderId = element.sender_id;
-
+    prevDate = date.substring(0, 9);
 
 }
 
 function chatFile(element, date, isSelf, is_read = 0, is_group = false) {
+
+    if (date.substring(0, 9) !== prevDate) {
+        newP = document.createElement("p");
+        newP.className = "chat-message-date"
+        newP.innerHTML = date.substring(0, 9);
+        chatMessage.appendChild(newP)
+    }
+
+
     if (!isSelf && is_group) {
         if (is_group) {
             //顯示對方大頭貼跟暱稱
+
             newDiv = document.createElement("div");
             newDiv.className = 'group-member-headshot-nickname';
             message.appendChild(newDiv);
             let groupMember = document.querySelectorAll(".group-member-headshot-nickname");
 
-
-            if (groupMember.length === 1 || prevSenderId !== element.sender_id) {
+            console.log()
+            if (groupMember.length === 1 || prevSenderId !== element.sender_id || message.lastElementChild.previousElementSibling.className === "chat-message-date") {
                 newImg = document.createElement("img");
                 newImg.src = element.sender_headshot;
                 newImg.className = "group-chat-member-headshot";
@@ -801,7 +884,7 @@ function chatFile(element, date, isSelf, is_read = 0, is_group = false) {
     let fileName = element.message.substring(0, index);
     fileName = fileName.replace(S3Url, "");
     const dataType = element.message.substring(index, element.message.length);
-    const chatMessage = document.querySelector(".chat-message");
+
 
 
 
@@ -811,6 +894,7 @@ function chatFile(element, date, isSelf, is_read = 0, is_group = false) {
 
             newDiv = document.createElement("div");
             newDiv.style.display = "flex";
+            newDiv.className = `${date.substring(0, 9)}`;
             newDiv.style.alignItems = "end";
             newDiv.style.justifyContent = "right";
             newDiv.style.marginBottom = "10px";
@@ -837,6 +921,7 @@ function chatFile(element, date, isSelf, is_read = 0, is_group = false) {
             newDiv = document.createElement("div");
             newDiv.style.display = "flex";
             newDiv.style.alignItems = "end";
+            newDiv.className = `${date.substring(0, 9)}`;
             newDiv.style.justifyContent = "left";
             newDiv.style.marginBottom = "10px";
             chatMessage.appendChild(newDiv);
@@ -880,6 +965,7 @@ function chatFile(element, date, isSelf, is_read = 0, is_group = false) {
     } else if (dataType === "(audio)") {
         newDiv = document.createElement("div");
         newDiv.style.display = "flex";
+        newDiv.className = `${date.substring(0, 9)}`;
         newDiv.style.marginBottom = "10px";
         if (isSelf) {
             newDiv.style.justifyContent = "right";
@@ -917,6 +1003,7 @@ function chatFile(element, date, isSelf, is_read = 0, is_group = false) {
     } else if (dataType === "(image)") {
         newDiv = document.createElement("div");
         newDiv.style.display = "flex";
+        newDiv.className = `${date.substring(0, 9)}`;
         newDiv.style.marginBottom = "10px";
         if (isSelf) {
             newDiv.style.justifyContent = "right";
@@ -955,6 +1042,7 @@ function chatFile(element, date, isSelf, is_read = 0, is_group = false) {
     } else if (dataType === "(application)") {
         newDiv = document.createElement("div");
         newDiv.style.display = "flex";
+        newDiv.className = `${date.substring(0, 9)}`;
         newDiv.style.marginBottom = "10px";
         if (isSelf) {
             newDiv.style.justifyContent = "right";
@@ -992,6 +1080,7 @@ function chatFile(element, date, isSelf, is_read = 0, is_group = false) {
     } else if (dataType === "(text)") {
         newDiv = document.createElement("div");
         newDiv.style.display = "flex";
+        newDiv.className = `${date.substring(0, 9)}`;
         newDiv.style.marginBottom = "10px";
         if (isSelf) {
             newDiv.style.justifyContent = "right";
@@ -1056,20 +1145,21 @@ function chatFile(element, date, isSelf, is_read = 0, is_group = false) {
 
 
     prevSenderId = element.sender_id;
+    prevDate = date.substring(0, 9);
 
 }
 
 function chatPopup() {
     chatContainer.style.display = "block";
     chatBoxFriendName.innerHTML = friendName.innerHTML;
-    friendChatId.innerHTML = friendId.innerHTML;
+    friendChatId = friendId;
     friendPopup.style.display = "none";
-    const isGroup = isNaN(friendChatId.innerHTML);
+    const isGroup = isNaN(friendChatId);
     fetch("/api/get_message", {
         method: "POST",
         body: JSON.stringify({
-            myId: selfId.innerHTML,
-            friendId: friendChatId.innerHTML,
+            myId: selfId,
+            friendId: friendChatId,
             isGroup: isGroup
         })
         , headers: {
@@ -1083,7 +1173,7 @@ function chatPopup() {
             if (isGroup) {
                 data.message.forEach(element => {
 
-                    if (element.sender_id === parseInt(selfId.innerHTML)) {
+                    if (element.sender_id === parseInt(selfId)) {
                         displayMessage(element, true, element.is_read, true);
                     } else {
                         displayMessage(element, false, element.is_read, true);
@@ -1094,7 +1184,7 @@ function chatPopup() {
                 groupIsReadStatus.innerHTML = `${data.message[0].read_count}人已讀`;
             } else {
                 data.message.forEach(element => {
-                    if (element.sender_id === parseInt(selfId.innerHTML)) {
+                    if (element.sender_id === parseInt(selfId)) {
                         displayMessage(element, true, element.is_read);
                     } else {
                         displayMessage(element, false, element.is_read);
@@ -1116,16 +1206,16 @@ async function sendMsgInSingle(fileName = "") {
 
     if (fileName) {
         package = {
-            "user_id": parseInt(selfId.innerHTML),
-            "friend_id": parseInt(friendChatId.innerHTML),
+            "user_id": parseInt(selfId),
+            "friend_id": parseInt(friendChatId),
             "message": fileName,
             "time": now
         }
 
     } else {
         package = {
-            "user_id": parseInt(selfId.innerHTML),
-            "friend_id": parseInt(friendChatId.innerHTML),
+            "user_id": parseInt(selfId),
+            "friend_id": parseInt(friendChatId),
             "message": messageInput.value,
             "time": now
         }
@@ -1211,8 +1301,8 @@ async function sendMsgInGroup(fileName = "") {
     let package;
     if (fileName) {
         package = {
-            group_id: friendChatId.innerHTML,
-            sender_id: parseInt(selfId.innerHTML),
+            group_id: friendChatId,
+            sender_id: parseInt(selfId),
             message: fileName,
             sender_headshot: selfHeadshot,
             sender_nickname: selfNickname,
@@ -1221,8 +1311,8 @@ async function sendMsgInGroup(fileName = "") {
 
     } else {
         package = {
-            group_id: friendChatId.innerHTML,
-            sender_id: parseInt(selfId.innerHTML),
+            group_id: friendChatId,
+            sender_id: parseInt(selfId),
             message: messageInput.value,
             sender_headshot: selfHeadshot,
             sender_nickname: selfNickname,

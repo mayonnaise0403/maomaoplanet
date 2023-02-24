@@ -14,12 +14,14 @@ const pictureBtn = document.querySelector(".picture-btn");
 const videoBtn = document.querySelector(".video-btn");
 const pictureList = document.querySelector(".picture-list");
 const videoList = document.querySelector(".video-list");
+const addNewUserToGroupBtn = document.querySelector(".add-new-user-btn");
+const addNewUserContainer = document.querySelector(".add-user-to-group-container");
 videoList.style.display = "none";
 
 
 stickerPopup.style.visibility = "hidden";
 chatPopupSettingContainer.style.visibility = "hidden";
-
+addNewUserContainer.style.display = "none"
 
 //點擊傳送貼圖
 stickerBtn.addEventListener("click", () => {
@@ -69,14 +71,53 @@ pictureBtn.addEventListener("click", () => {
     pictureList.style.display = "block";
 })
 
+addNewUserToGroupBtn.addEventListener("click", () => {
+    if (addNewUserContainer.style.display === "none") {
+        addNewUserContainer.style.display = "block";
+        fetch(`/api/add_user_to_group_friendlist?groupId=${friendChatId}`)
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+                const friendList = document.querySelectorAll(".add-user-to-group-friendlist");
+                data.friend_list.forEach(element => {
+                    newDiv = document.createElement("div");
+                    newDiv.style.display = "flex";
+                    friendList[friendList.length - 1].appendChild(newDiv);
+
+                    newImg = document.createElement("img");
+                    newImg.src = element.headshot;
+                    newImg.style.width = "40px";
+                    newImg.style.borderRadius = "40px";
+                    newDiv.appendChild(newImg);
+
+                    newP = document.createElement("p");
+                    newP.innerHTML = element.nickname;
+                    newDiv.appendChild(newP);
+
+                    newImg = document.createElement("img");
+                    newImg.src = "./images/add-button.png";
+                    newImg.style.width = "40px";
+
+                    newDiv.appendChild(newImg);
+                })
+
+            })
+    } else {
+        addNewUserContainer.style.display = "none"
+    }
+})
+
+
+
 chatPopupPictureAndVideo.addEventListener("click", () => {
     pictureVideoContainer.style.display = "block";
-    const isGroup = isNaN(friendChatId.innerHTML);
+    const isGroup = isNaN(friendChatId);
     if (isGroup) {
         fetch("/get_group_picture", {
             method: "POST",
             body: JSON.stringify({
-                groupId: friendChatId.innerHTML,
+                groupId: friendChatId,
             }),
             headers: {
                 'Content-type': 'application/json; charset=UTF-8',
@@ -132,7 +173,7 @@ chatPopupPictureAndVideo.addEventListener("click", () => {
         fetch("/get_chat_picture", {
             method: "POST",
             body: JSON.stringify({
-                recipientId: friendChatId.innerHTML,
+                recipientId: friendChatId,
             }),
             headers: {
                 'Content-type': 'application/json; charset=UTF-8',
@@ -250,7 +291,7 @@ uploadFileInput.addEventListener("change", () => {
                     fetch("/upload_file", {
                         method: "POST",
                         body: JSON.stringify({
-                            recipientId: friendChatId.innerHTML,
+                            recipientId: friendChatId,
                             file: file,
                             fileName: fileName,
                             videoPc: imageDataURL,
@@ -268,7 +309,7 @@ uploadFileInput.addEventListener("change", () => {
                         })
                         .then((data) => {
                             if (data.status === "success") {
-                                const isGroup = isNaN(friendChatId.innerHTML);
+                                const isGroup = isNaN(friendChatId);
                                 if (!isGroup) {
                                     sendMsgInSingle(data.message);
                                 } else {
@@ -289,7 +330,7 @@ uploadFileInput.addEventListener("change", () => {
                 fetch("/upload_file", {
                     method: "POST",
                     body: JSON.stringify({
-                        recipientId: friendChatId.innerHTML,
+                        recipientId: friendChatId,
                         file: file,
                         fileName: fileName,
                         type: `${type.split(';')[0].split('/')[1]}`,
@@ -307,7 +348,7 @@ uploadFileInput.addEventListener("change", () => {
                     })
                     .then((data) => {
                         if (data.status === "success") {
-                            const isGroup = isNaN(friendChatId.innerHTML);
+                            const isGroup = isNaN(friendChatId);
                             if (!isGroup) {
                                 sendMsgInSingle(data.message);
                             } else {

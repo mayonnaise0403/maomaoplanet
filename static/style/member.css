@@ -384,13 +384,12 @@ body::-webkit-scrollbar-thumb:hover {
 
 .chat-message {
     width: 90%;
-    padding-top: 20px;
-    height: 70%;
+    height: 67%;
     overflow: scroll;
     overflow-x: hidden;
     margin-left: 20px;
     margin-right: 20px;
-
+    padding: 10px;
 }
 
 .chat-message::-webkit-scrollbar {

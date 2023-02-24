@@ -136,6 +136,14 @@ io.on('connection', (socket) => {
         socket.broadcast.to(roomName).emit("ready");
     });
 
+    socket.on("group-hangup", async (groupMemberArr) => {
+        const token = socket.request.signedCookies.access_token;
+        const selfId = jwt.verify(token, secretKey).userId;
+        groupMemberArr.forEach(element => {
+            socket.to(`user${element}`).emit("group-hangup", selfId);
+        })
+    })
+
     socket.on("group-leave", (peerId) => {
         const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
         const token = socket.request.signedCookies.access_token;
@@ -145,6 +153,12 @@ io.on('connection', (socket) => {
                 socket.leave(room);
                 socket.broadcast.to(room).emit("group-leave", room, selfId, peerId);
             }
+        })
+    })
+
+    socket.on("host-leave", (groupId, groupMemberArr) => {
+        groupMemberArr.forEach(element => {
+            socket.to(`user${element}`).emit("host-leave", groupId);
         })
     })
 

@@ -74,6 +74,30 @@ class Search {
         })
     }
 
+    async addUserToGroupFriendlist(selfId, groupId) {
+        mysqlQuery = "SELECT \
+                    member.nickname,\
+                    member.user_id,\
+                    member.headshot\
+                    FROM member\
+                    INNER JOIN friend_list ON \
+                    friend_list.user_id = ? AND friend_list.user_friend_id = member.user_id\
+                    WHERE member.user_id NOT IN(\
+                    SELECT group_members.member_id\
+                    FROM group_members\
+                    WHERE group_members.group_id = ?\
+                    UNION\
+                    SELECT ?);"
+        values = [selfId, groupId, selfId];
+        try {
+            const queryResults = await pool.query(mysqlQuery, values);
+            result = queryResults[0];
+        } catch (error) {
+            console.log(error.message);
+        }
+        return result;
+    }
+
     async getFriendList(userId) {
         mysqlQuery = 'select member.nickname,\
                             member.user_id,\
