@@ -27,8 +27,7 @@ router.get("/member", (req, res) => {
         res.clearCookie('access_token');
         res.render("homepage.html")
     } else {
-        res.clearCookie('access_token');
-        res.render("homepage.html")
+        res.render("member.html")
     }
 
     // try {
