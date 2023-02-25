@@ -68,22 +68,22 @@ fetch("/api/get_friendlist")
             })
             .then(() => {
 
+                fetch("/api/get_latest_group_message")
+                    .then((response) => {
+                        return response.json();
+                    })
+                    .then((data) => {
+                        console.log(data)
+                        createGroupChatList(data.data);
+                    })
             })
 
-        fetch("/api/get_latest_group_message")
-            .then((response) => {
-                return response.json();
-            })
-            .then((data) => {
-                console.log(data)
-                createGroupChatList(data.data);
-            })
 
     })
-    .catch((error) => {
-        console.log(error)
-        window.location = "/error"
-    });
+// .catch((error) => {
+//     console.log(error)
+//     window.location = "/error"
+// });
 
 
 
