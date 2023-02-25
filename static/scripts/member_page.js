@@ -395,9 +395,7 @@ chatMessage.addEventListener("scroll", () => {
         if (firstVisible.className != "read-message-status" && firstVisible.className != "chat-message-date" && firstVisible.className != "group-member-headshot-nickname") {
             chatMsgDate.innerHTML = firstVisible.className;
         }
-        if (date.substring(0, 9) === firstVisible.className) {
-            chatMsgDate.innerHTML = "今天";
-        }
+
     }
 
 
@@ -722,25 +720,26 @@ function createUserHtml(resultArr) {
 let prevSenderId, prevDate;
 const S3Url = "https://maomaoimage.s3.ap-northeast-1.amazonaws.com/single_chat_file/"
 function displayMessage(element, isSelf, is_read = 0, is_group = false) {
-    let date = new Date(element.time);
-    const options = {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: 'numeric',
-        minute: 'numeric',
-        hour12: true,
-        timeZone: 'Asia/Taipei'
-    };
-    const formatter = new Intl.DateTimeFormat('zh-TW', options);
-    date = formatter.format(date);
+    console.log(element.time)
+    let date = element.time;
+    // const options = {
+    //     year: 'numeric',
+    //     month: '2-digit',
+    //     day: '2-digit',
+    //     hour: 'numeric',
+    //     minute: 'numeric',
+    //     hour12: true,
+    //     timeZone: 'Asia/Taipei'
+    // };
+    // const formatter = new Intl.DateTimeFormat('zh-TW', options);
+    // date = formatter.format(date);
 
 
-    console.log(date)
+    // console.log(date)
 
 
     chatMsgDate.style.visibility = "visible";
-    chatMsgDate.innerHTML = `${date.substring(0, 9)}`;
+    chatMsgDate.innerHTML = `${date.substring(0, 10).replace(/-/g, "/")}`;
 
     let message = document.querySelector(".chat-message");
 
@@ -750,10 +749,10 @@ function displayMessage(element, isSelf, is_read = 0, is_group = false) {
         return;
     }
 
-    if (date.substring(0, 9) !== prevDate) {
+    if (date.substring(0, 10).replace(/-/g, "/") !== prevDate) {
         newP = document.createElement("p");
         newP.className = "chat-message-date";
-        newP.innerHTML = date.substring(0, 9);
+        newP.innerHTML = date.substring(0, 10).replace(/-/g, "/")
         chatMessage.appendChild(newP)
     }
 
@@ -761,14 +760,14 @@ function displayMessage(element, isSelf, is_read = 0, is_group = false) {
         newDiv = document.createElement("div");
         newDiv.style.display = "flex";
         newDiv.style.justifyContent = "right";
-        newDiv.className = `${date.substring(0, 9)}`;
+        newDiv.className = `${date.substring(0, 10).replace(/-/g, "/")}`;
         newDiv.style.marginBottom = "10px";
         newDiv.style.alignItems = "end";
         message.appendChild(newDiv);
 
 
         newP = document.createElement("p");
-        newP.innerHTML = date.substring(10, 17);
+        newP.innerHTML = date.substring(11, 16);
         newDiv.appendChild(newP);
 
         newP = document.createElement("p");
@@ -833,7 +832,7 @@ function displayMessage(element, isSelf, is_read = 0, is_group = false) {
 
         newDiv = document.createElement("div");
         newDiv.style.display = "flex";
-        newDiv.className = `${date.substring(0, 9)}`;
+        newDiv.className = `${date.substring(0, 10).replace(/-/g, "/")}`;
         newDiv.style.justifyContent = "left";
         newDiv.style.alignItems = "end";
         newDiv.style.marginBottom = "10px";
@@ -841,7 +840,7 @@ function displayMessage(element, isSelf, is_read = 0, is_group = false) {
 
 
         newP = document.createElement("p");
-        newP.innerHTML = date.substring(10, 17);
+        newP.innerHTML = date.substring(11, 16);
         newP.style.marginLeft = "10px";
         newDiv.appendChild(newP);
 
@@ -852,16 +851,16 @@ function displayMessage(element, isSelf, is_read = 0, is_group = false) {
         newDiv.insertBefore(newP, newDiv.firstChild)
     }
     prevSenderId = element.sender_id;
-    prevDate = date.substring(0, 9);
+    prevDate = date.substring(0, 10).replace(/-/g, "/");
 
 }
 
 function chatFile(element, date, isSelf, is_read = 0, is_group = false) {
 
-    if (date.substring(0, 9) !== prevDate) {
+    if (date.substring(0, 10).replace(/-/g, "/") !== prevDate) {
         newP = document.createElement("p");
         newP.className = "chat-message-date"
-        newP.innerHTML = date.substring(0, 9);
+        newP.innerHTML = date.substring(0, 10).replace(/-/g, "/");
         chatMessage.appendChild(newP)
     }
 
@@ -912,7 +911,7 @@ function chatFile(element, date, isSelf, is_read = 0, is_group = false) {
 
             newDiv = document.createElement("div");
             newDiv.style.display = "flex";
-            newDiv.className = `${date.substring(0, 9)}`;
+            newDiv.className = `${date.substring(0, 10).replace(/-/g, "/")}`;
             newDiv.style.alignItems = "end";
             newDiv.style.justifyContent = "right";
             newDiv.style.marginBottom = "10px";
@@ -920,7 +919,7 @@ function chatFile(element, date, isSelf, is_read = 0, is_group = false) {
             const div = newDiv;
 
             newP = document.createElement("p");
-            newP.innerHTML = date.substring(10, 17);
+            newP.innerHTML = date.substring(11, 16);
             newP.style.marginRight = "10px";
             newDiv.appendChild(newP);
 
@@ -939,7 +938,7 @@ function chatFile(element, date, isSelf, is_read = 0, is_group = false) {
             newDiv = document.createElement("div");
             newDiv.style.display = "flex";
             newDiv.style.alignItems = "end";
-            newDiv.className = `${date.substring(0, 9)}`;
+            newDiv.className = `${date.substring(0, 10).replace(/-/g, "/")}`;
             newDiv.style.justifyContent = "left";
             newDiv.style.marginBottom = "10px";
             chatMessage.appendChild(newDiv);
@@ -956,7 +955,7 @@ function chatFile(element, date, isSelf, is_read = 0, is_group = false) {
 
 
             newP = document.createElement("p");
-            newP.innerHTML = date.substring(10, 17);
+            newP.innerHTML = date.substring(11, 16);
             newP.style.marginLeft = "10px";
             div.appendChild(newP);
 
@@ -983,7 +982,7 @@ function chatFile(element, date, isSelf, is_read = 0, is_group = false) {
     } else if (dataType === "(audio)") {
         newDiv = document.createElement("div");
         newDiv.style.display = "flex";
-        newDiv.className = `${date.substring(0, 9)}`;
+        newDiv.className = `${date.substring(0, 10).replace(/-/g, "/")}`;
         newDiv.style.marginBottom = "10px";
         if (isSelf) {
             newDiv.style.justifyContent = "right";
@@ -996,7 +995,7 @@ function chatFile(element, date, isSelf, is_read = 0, is_group = false) {
 
 
         newP = document.createElement("p");
-        newP.innerHTML = date.substring(10, 17);
+        newP.innerHTML = date.substring(11, 16);
         if (isSelf) {
             newP.style.marginRight = "10px";
         } else {
@@ -1021,7 +1020,7 @@ function chatFile(element, date, isSelf, is_read = 0, is_group = false) {
     } else if (dataType === "(image)") {
         newDiv = document.createElement("div");
         newDiv.style.display = "flex";
-        newDiv.className = `${date.substring(0, 9)}`;
+        newDiv.className = `${date.substring(0, 10).replace(/-/g, "/")}`;
         newDiv.style.marginBottom = "10px";
         if (isSelf) {
             newDiv.style.justifyContent = "right";
@@ -1034,7 +1033,7 @@ function chatFile(element, date, isSelf, is_read = 0, is_group = false) {
 
 
         newP = document.createElement("p");
-        newP.innerHTML = date.substring(10, 17);
+        newP.innerHTML = date.substring(11, 16);
         if (isSelf) {
             newP.style.marginRight = "10px";
         } else {
@@ -1060,7 +1059,7 @@ function chatFile(element, date, isSelf, is_read = 0, is_group = false) {
     } else if (dataType === "(application)") {
         newDiv = document.createElement("div");
         newDiv.style.display = "flex";
-        newDiv.className = `${date.substring(0, 9)}`;
+        newDiv.className = `${date.substring(0, 10).replace(/-/g, "/")}`;
         newDiv.style.marginBottom = "10px";
         if (isSelf) {
             newDiv.style.justifyContent = "right";
@@ -1073,7 +1072,7 @@ function chatFile(element, date, isSelf, is_read = 0, is_group = false) {
 
 
         newP = document.createElement("p");
-        newP.innerHTML = date.substring(10, 17);
+        newP.innerHTML = date.substring(11, 16);
         if (isSelf) {
             newP.style.marginRight = "10px";
         } else {
@@ -1098,7 +1097,7 @@ function chatFile(element, date, isSelf, is_read = 0, is_group = false) {
     } else if (dataType === "(text)") {
         newDiv = document.createElement("div");
         newDiv.style.display = "flex";
-        newDiv.className = `${date.substring(0, 9)}`;
+        newDiv.className = `${date.substring(0, 10).replace(/-/g, "/")}`;
         newDiv.style.marginBottom = "10px";
         if (isSelf) {
             newDiv.style.justifyContent = "right";
@@ -1111,7 +1110,7 @@ function chatFile(element, date, isSelf, is_read = 0, is_group = false) {
 
 
         newP = document.createElement("p");
-        newP.innerHTML = date.substring(10, 17);
+        newP.innerHTML = date.substring(11, 16);
         if (isSelf) {
             newP.style.marginRight = "10px";
         } else {
@@ -1163,7 +1162,7 @@ function chatFile(element, date, isSelf, is_read = 0, is_group = false) {
 
 
     prevSenderId = element.sender_id;
-    prevDate = date.substring(0, 9);
+    prevDate = date.substring(0, 10).replace(/-/g, "/");
 
 }
 
