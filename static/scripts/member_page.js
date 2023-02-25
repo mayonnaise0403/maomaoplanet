@@ -29,6 +29,9 @@ const emailRule = /^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-
 const signOutBtn = document.querySelector(".sign-out-btn");
 const errorMessage = document.querySelector(".error-message");
 const chatMessage = document.querySelector(".chat-message");
+const friendListEmpty = document.querySelector("#friend-list-empty");
+const groupListEmpty = document.querySelector("#group-list-empty");
+
 
 let newP, newHr, newDiv, newImg;
 let selfId, friendId, friendChatId;
@@ -373,7 +376,7 @@ signOutBtn.addEventListener("click", () => {
 let isScrolling;
 const chatMsgDate = document.querySelector(".chat-message-datetime");
 chatMessage.addEventListener("scroll", () => {
-
+    let timer;
     let date = new Date();
     date = date.toLocaleString();
 
@@ -720,18 +723,18 @@ let prevSenderId, prevDate;
 const S3Url = "https://maomaoimage.s3.ap-northeast-1.amazonaws.com/single_chat_file/"
 function displayMessage(element, isSelf, is_read = 0, is_group = false) {
     let date = new Date(element.time);
-
-    date = date.toLocaleString('zh-TW', {
+    const options = {
         year: 'numeric',
-        month: 'numeric',
-        day: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
         hour: 'numeric',
         minute: 'numeric',
-        second: 'numeric',
         hour12: true,
-        timeZone: 'Asia/Taipei',
-        timeZoneName: 'short'
-    });
+        timeZone: 'Asia/Taipei'
+    };
+    const formatter = new Intl.DateTimeFormat('zh-TW', options);
+    date = formatter.format(date);
+
 
     console.log(date)
 
@@ -765,7 +768,7 @@ function displayMessage(element, isSelf, is_read = 0, is_group = false) {
 
 
         newP = document.createElement("p");
-        newP.innerHTML = date.substring(10, 16);
+        newP.innerHTML = date.substring(10, 17);
         newDiv.appendChild(newP);
 
         newP = document.createElement("p");
@@ -838,7 +841,7 @@ function displayMessage(element, isSelf, is_read = 0, is_group = false) {
 
 
         newP = document.createElement("p");
-        newP.innerHTML = date.substring(10, 16);
+        newP.innerHTML = date.substring(10, 17);
         newP.style.marginLeft = "10px";
         newDiv.appendChild(newP);
 
@@ -917,7 +920,7 @@ function chatFile(element, date, isSelf, is_read = 0, is_group = false) {
             const div = newDiv;
 
             newP = document.createElement("p");
-            newP.innerHTML = date.substring(10, 16);
+            newP.innerHTML = date.substring(10, 17);
             newP.style.marginRight = "10px";
             newDiv.appendChild(newP);
 
@@ -953,7 +956,7 @@ function chatFile(element, date, isSelf, is_read = 0, is_group = false) {
 
 
             newP = document.createElement("p");
-            newP.innerHTML = date.substring(10, 16);
+            newP.innerHTML = date.substring(10, 17);
             newP.style.marginLeft = "10px";
             div.appendChild(newP);
 
@@ -993,7 +996,7 @@ function chatFile(element, date, isSelf, is_read = 0, is_group = false) {
 
 
         newP = document.createElement("p");
-        newP.innerHTML = date.substring(10, 16);
+        newP.innerHTML = date.substring(10, 17);
         if (isSelf) {
             newP.style.marginRight = "10px";
         } else {
@@ -1031,7 +1034,7 @@ function chatFile(element, date, isSelf, is_read = 0, is_group = false) {
 
 
         newP = document.createElement("p");
-        newP.innerHTML = date.substring(10, 16);
+        newP.innerHTML = date.substring(10, 17);
         if (isSelf) {
             newP.style.marginRight = "10px";
         } else {
@@ -1070,7 +1073,7 @@ function chatFile(element, date, isSelf, is_read = 0, is_group = false) {
 
 
         newP = document.createElement("p");
-        newP.innerHTML = date.substring(10, 16);
+        newP.innerHTML = date.substring(10, 17);
         if (isSelf) {
             newP.style.marginRight = "10px";
         } else {
@@ -1108,7 +1111,7 @@ function chatFile(element, date, isSelf, is_read = 0, is_group = false) {
 
 
         newP = document.createElement("p");
-        newP.innerHTML = date.substring(10, 16);
+        newP.innerHTML = date.substring(10, 17);
         if (isSelf) {
             newP.style.marginRight = "10px";
         } else {

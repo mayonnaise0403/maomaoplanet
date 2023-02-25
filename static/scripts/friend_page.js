@@ -1,5 +1,4 @@
-const friendListEmpty = document.querySelector("#friend-list-empty");
-const groupListEmpty = document.querySelector("#group-list-empty");
+
 
 
 
