@@ -530,6 +530,8 @@ chatCloseBtn.addEventListener("click", () => {
     if (chatMsgDate) {
         chatMsgDate.style.visibility = "hidden";
     }
+    prevSenderId = null;
+    prevDate = null;
 
     const parentDiv = document.querySelector(".chat-message");
     while (parentDiv.firstChild) {
