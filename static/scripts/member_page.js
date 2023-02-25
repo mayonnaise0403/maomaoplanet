@@ -720,9 +720,20 @@ let prevSenderId, prevDate;
 const S3Url = "https://maomaoimage.s3.ap-northeast-1.amazonaws.com/single_chat_file/"
 function displayMessage(element, isSelf, is_read = 0, is_group = false) {
     let date = new Date(element.time);
-    date = date.toLocaleString();
 
+    date = date.toLocaleString('zh-TW', {
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        second: 'numeric',
+        hour12: true,
+        timeZone: 'Asia/Taipei',
+        timeZoneName: 'short'
+    });
 
+    console.log(date)
 
 
     chatMsgDate.style.visibility = "visible";
