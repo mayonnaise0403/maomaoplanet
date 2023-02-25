@@ -380,10 +380,12 @@ chatMessage.addEventListener("scroll", () => {
     let date = new Date();
     date = date.toLocaleString();
 
+    if (chatMsgDate) {
+        chatMsgDate.style.visibility = "visible";
+        var firstVisible = chatMessage.firstElementChild;
+        var scrollTop = chatMessage.scrollTop;
+    }
 
-    chatMsgDate.style.visibility = "visible";
-    var firstVisible = chatMessage.firstElementChild;
-    var scrollTop = chatMessage.scrollTop;
 
 
 
@@ -391,9 +393,11 @@ chatMessage.addEventListener("scroll", () => {
         while (firstVisible.offsetTop < scrollTop) {
             firstVisible = firstVisible.nextElementSibling;
         }
+        if (chatMsgDate) {
+            if (firstVisible.className != "read-message-status" && firstVisible.className != "chat-message-date" && firstVisible.className != "group-member-headshot-nickname") {
+                chatMsgDate.innerHTML = firstVisible.className;
+            }
 
-        if (firstVisible.className != "read-message-status" && firstVisible.className != "chat-message-date" && firstVisible.className != "group-member-headshot-nickname") {
-            chatMsgDate.innerHTML = firstVisible.className;
         }
 
     }
@@ -408,7 +412,10 @@ chatMessage.addEventListener("scroll", () => {
         // 停止滾動
 
         isScrolling = false;
-        chatMsgDate.style.visibility = "hidden";
+        if (chatMsgDate) {
+            chatMsgDate.style.visibility = "hidden";
+        }
+
 
 
     }, 1000);
@@ -720,8 +727,19 @@ function createUserHtml(resultArr) {
 let prevSenderId, prevDate;
 const S3Url = "https://maomaoimage.s3.ap-northeast-1.amazonaws.com/single_chat_file/"
 function displayMessage(element, isSelf, is_read = 0, is_group = false) {
-    console.log(element.time)
     let date = element.time;
+    console.log(date)
+    if (typeof (date) === "object") {
+        date = date.toLocaleString('zh-TW', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+        });
+    }
     // const options = {
     //     year: 'numeric',
     //     month: '2-digit',
@@ -737,9 +755,11 @@ function displayMessage(element, isSelf, is_read = 0, is_group = false) {
 
     // console.log(date)
 
+    if (chatMsgDate) {
+        chatMsgDate.style.visibility = "visible";
+        chatMsgDate.innerHTML = `${date.substring(0, 10).replace(/-/g, "/")}`;
+    }
 
-    chatMsgDate.style.visibility = "visible";
-    chatMsgDate.innerHTML = `${date.substring(0, 10).replace(/-/g, "/")}`;
 
     let message = document.querySelector(".chat-message");
 
