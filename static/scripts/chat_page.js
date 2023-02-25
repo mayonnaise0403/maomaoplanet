@@ -252,7 +252,7 @@ groupMemberPopupAddFriend.addEventListener("click", () => {
 
 //陌生訊息裡面:是否要加好友按鈕
 isAddFriendOkBtn.addEventListener("click", () => {
-    let friend_id = document.querySelector(".chat-friend-user_id").innerHTML;
+
 
     fetch("/add_friend", {
         method: "POST",
