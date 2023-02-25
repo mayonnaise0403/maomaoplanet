@@ -257,7 +257,7 @@ isAddFriendOkBtn.addEventListener("click", () => {
     fetch("/add_friend", {
         method: "POST",
         body: JSON.stringify({
-            friend_id: parseInt(friend_id)
+            friend_id: parseInt(friendChatId)
         })
         , headers: {
             'Content-type': 'application/json; charset=UTF-8',
@@ -269,7 +269,7 @@ isAddFriendOkBtn.addEventListener("click", () => {
         .then((data) => {
             if (data.status === "success") {
                 isAddFriendPopup.style.display = "none";
-                let friendMsg = document.querySelector(`.user${friend_id}-message`).parentNode;
+                let friendMsg = document.querySelector(`.user${friendChatId}-message`).parentNode;
                 let strangerIcon = friendMsg.querySelector(".stranger-icon");
                 friendMsg.removeChild(strangerIcon);
                 addFriendStatusPopup.style.display = "block";
