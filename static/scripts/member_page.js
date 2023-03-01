@@ -529,6 +529,9 @@ chatCloseBtn.addEventListener("click", () => {
     stickerPopup.style.visibility = "hidden";
     changeGroupHeadshotPopup.style.display = "none";
     chatContainer.style.display = "none";
+    pictureVideoContainer.style.display = "none";
+    confirmLeaveGroupPopup.style.display = "none";
+    changeGroupNamePopup.style.display = "none";
     prevSenderId = null;
     prevDate = null;
 
