@@ -510,7 +510,7 @@ function createGroupChatList(data) {
             }
 
             chatContainer.style.display = "block"
-            chatBoxFriendName.innerHTML = element.group_name;
+            chatBoxFriendName.innerHTML = document.querySelector(`[data-attribute-name='${element.group_id}']`).parentNode.querySelectorAll("p")[0].innerHTML;
             friendChatId = element.group_id;
             const isGroup = isNaN(friendChatId);
 

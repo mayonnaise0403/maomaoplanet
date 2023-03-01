@@ -368,6 +368,7 @@ body::-webkit-scrollbar-thumb:hover {
     font-size: 30px;
     font-weight: bolder;
     margin-left: 10px;
+    margin-bottom: 10px;
 }
 
 .friend-user_id {
