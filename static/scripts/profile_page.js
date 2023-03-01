@@ -28,7 +28,7 @@ const loaderDarker = document.querySelector(".loader-darker");
 const loaderContainer = document.querySelector(".loader-container");
 
 
-let file, emailVerifyCode, verifyEmailHandler;;
+let file, HeadshotFileDatatype, emailVerifyCode, verifyEmailHandler, oldHeadshot;
 
 //初始值
 uploadImageBtn.style.display = "none";
@@ -178,6 +178,9 @@ uploadImageClose.addEventListener("click", () => {
     uploadImageBtn.style.display = "none";
     uploadFile.style.display = "none";
     uploadImageClose.style.display = "none";
+    if (oldHeadshot) {
+        headshot.src = oldHeadshot;
+    }
 })
 
 uploadImageBtn.addEventListener("click", () => {
@@ -188,43 +191,52 @@ uploadImageBtn.addEventListener("click", () => {
 
 //上傳圖片
 uploadFile.addEventListener("click", () => {
-    loaderDarker.style.display = "block";
-    loaderContainer.style.display = "block";
-    fetch("/upload_headshot", {
-        method: "POST",
-        body: JSON.stringify({
-            email: profileEmail.innerHTML,
-            image: file
-        })
-        , headers: {
-            'Content-type': 'application/json; charset=UTF-8',
-        },
+    if (HeadshotFileDatatype.includes("image")) {
+        loaderDarker.style.display = "block";
+        loaderContainer.style.display = "block";
+        fetch("/upload_headshot", {
+            method: "POST",
+            body: JSON.stringify({
+                email: profileEmail.innerHTML,
+                image: file
+            })
+            , headers: {
+                'Content-type': 'application/json; charset=UTF-8',
+            },
 
-    })
-        .then((response) => {
-            return response.json();
         })
-        .then((data) => {
-            if (data.status === "success") {
-                let Id = document.querySelector(".self-id");
-                headshotEditBtn.style.display = "block";
-                uploadImageBtn.style.display = "none";
-                uploadFile.style.display = "none";
-                uploadImageClose.style.display = "none";
-                loaderDarker.style.display = "none";
-                loaderContainer.style.display = "none";
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+                if (data.status === "success") {
+                    let Id = document.querySelector(".self-id");
+                    headshotEditBtn.style.display = "block";
+                    uploadImageBtn.style.display = "none";
+                    uploadFile.style.display = "none";
+                    uploadImageClose.style.display = "none";
+                    loaderDarker.style.display = "none";
+                    loaderContainer.style.display = "none";
 
-            } else {
+                } else {
 
-            }
-        })
+                }
+            })
+    } else {
+        errorMessage.style.display = "block";
+        errorMessage.innerHTML = "只能上傳圖片檔";
+        setTimeout(() => {
+            errorMessage.style.display = "none";
+        }, 2000)
+    }
+
 })
 
 //預覽大頭貼
 inputFile.addEventListener("change", e => {
-
+    oldHeadshot = headshot.src;
     file = inputFile.files[0];
-    console.log(file)
+    HeadshotFileDatatype = file.type;
     const reader = new FileReader();
 
     reader.addEventListener("load", () => {

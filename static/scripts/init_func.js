@@ -17,6 +17,7 @@ function createGroupList(groupData, list) {
         newImg = document.createElement("img");
         newImg.src = element.headshot;
         newImg.id = "group-headshot";
+        newImg.className = `group-headshot-${element.group_id}`;
         group[count].appendChild(newImg);
 
         newP = document.createElement("p");
@@ -29,7 +30,7 @@ function createGroupList(groupData, list) {
             // friendPopupHeadshot.onload = () => {
             //     friendPopupHeadshot.src = element.headshot;
             // }
-            friendPopupHeadshot.src = element.headshot;
+            friendPopupHeadshot.src = document.querySelector(`.group-headshot-${element.group_id}`).src;
             friendPopup.style.display = "block";
             friendName.innerHTML = element.group_name;
             friendId = element.group_id;
@@ -361,18 +362,281 @@ function createChatList(data, container) {
             }
 
         })
+        count++;
+    })
+}
+function createFriendList(friendData, list) {
+    let imgCount = 0;
+    let count = 0;
+    list.innerHTML = "";
+    if (friendData.friend_list.length === 0) {
+        friendListEmpty.style.display = "block";
+        friendListEmpty.style.display = "flex";
+    } else {
+        friendListEmpty.style.display = "none";
+    }
+    friendData.friend_list.forEach(element => {
+        newDiv = document.createElement("div");
+        newDiv.className = "friend";
+        list.appendChild(newDiv);
+        friend = document.querySelectorAll(".friend");
+
+
+        let newImg = document.createElement("img");
+        newImg.id = "friend-headshot";
+        newImg.src = element.headshot;
+        friend[count].appendChild(newImg);
+
+
+
+        newP = document.createElement("p");
+        newP.innerHTML = element.nickname;
+        friend[count].appendChild(newP);
+
+        friend[count].addEventListener("click", () => {
+            let friendPopupHeadshot = document.querySelector(".friend-popup-headshot");
+            // friendPopupHeadshot.src = "./images/Loading_icon.gif";
+            // friendPopupHeadshot.onload = () => {
+            //     friendPopupHeadshot.src = element.headshot;
+            // }
+            friendPopupHeadshot.src = element.headshot;
+            friendPopup.style.display = "block";
+            friendName.innerHTML = element.nickname;
+            friendId = element.user_id;
+        })
+        count++;
+    })
+}
+
+
+function createGroupChatList(data) {
+    let count = 0;
+    if (data.length === 0) {
+        groupChatEmpty.style.display = "block";
+        groupChatEmpty.style.display = "flex";
+    } else {
+        groupChatEmpty.style.display = "none";
+    }
+    data.forEach(element => {
+        hadGroupHistoryMsg = true;
+
+        let senderIsMe;
+        if (parseInt(selfId) === element.sender_id) {
+            senderIsMe = true;
+        } else {
+            senderIsMe = false;
+        }
+        newDiv = document.createElement("div");
+        newDiv.className = "chat-group-list";
+        groupChatListContainer.appendChild(newDiv);
+        let chatGroupList = document.querySelectorAll(".chat-group-list");
+
+        newImg = document.createElement("img");
+        newImg.src = element.group_headshot;
+        newImg.style.width = "100px";
+        newImg.style.height = "100px";
+        newImg.style.objectFit = "cover";
+        newImg.style.borderRadius = "50px";
+        chatGroupList[count].appendChild(newImg);
+
+        newDiv = document.createElement("div");
+        newDiv.className = "chat-group-list-right";
+        chatGroupList[count].appendChild(newDiv);
+        let rightGroupChatList = document.querySelectorAll(".chat-group-list-right");
+
+        newP = document.createElement("p");
+        newP.innerHTML = element.group_name;
+        newP.style.fontSize = "25px";
+        newP.style.fontWeight = "bolder";
+        newP.style.marginTop = "10px";
+        newP.style.marginLeft = "10px";
+        rightGroupChatList[count].appendChild(newP);
+
+        newP = document.createElement("p");
+        if (element.message.indexOf(S3Url) !== -1) {
+            if (element.message.match(/\(([^)]+)\)/)[1] === "video") {
+                newP.innerHTML = '傳送了一則影片';
+            } else if (element.message.match(/\(([^)]+)\)/)[1] === "audio") {
+                newP.innerHTML = '傳送了一則音檔';
+            } else if (element.message.match(/\(([^)]+)\)/)[1] === "image") {
+                newP.innerHTML = '傳送了一張照片';
+            } else if (element.message.match(/\(([^)]+)\)/)[1] === "application") {
+                newP.innerHTML = '傳送了一份檔案';
+            } else if (element.message.match(/\(([^)]+)\)/)[1] === "text") {
+                newP.innerHTML = '傳送了一份純文本檔案';
+            }
+        } else {
+            if (element.message.length > 20) {
+                newP.innerHTML = element.message.substring(0, 9);
+                newP.innerHTML += ".....";
+            } else {
+                newP.innerHTML = element.message;
+            }
+
+        }
+        newP.dataset.attributeName = `${element.group_id}`;
+        newP.className = "group-message";
+        newP.style.fontSize = "15px";
+        newP.style.marginTop = "20px";
+        newP.style.marginLeft = "10px";
+        newP.style.fontWeight = "bolder";
+        newP.style.color = "gray";
+        rightGroupChatList[count].appendChild(newP);
+
+
+        if (element.is_read === 0 && element.sender_id !== parseInt(selfId)) {
+            newImg = document.createElement("img");
+            newImg.src = "./images/new-message.png";
+            newImg.className = "new-message-icon";
+            newImg.style.width = "50px";
+            newImg.style.position = "absolute";
+            newImg.style.right = "5px";
+            newImg.style.top = "0px";
+            rightGroupChatList[count].appendChild(newImg);
+        }
+
+        chatGroupList[count].addEventListener("click", (event) => {
+            const clickedElement = event.target;
+            clickedDiv = clickedElement.closest("div");
+            if (clickedDiv.className === "chat-group-list-right") {
+                clickedDiv = clickedDiv.parentNode;
+            }
+
+            //移除新訊息的icon
+            let clickedDivNewMessageIcon = clickedDiv.querySelector('.new-message-icon');
+            if (clickedDivNewMessageIcon) {
+                clickedDivNewMessageIcon.parentNode.removeChild(clickedDivNewMessageIcon);
+            }
+
+            chatContainer.style.display = "block"
+            chatBoxFriendName.innerHTML = element.group_name;
+            friendChatId = element.group_id;
+            const isGroup = isNaN(friendChatId);
+
+            if (isGroup) {
+                groupMemberIcon.style.display = "block";
+                changeGroupHeadshotBtn.style.display = "block";
+            }
+            if (senderIsMe) {
+                fetch("/api/get_message", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        myId: selfId,
+                        friendId: friendChatId,
+                        isGroup: isGroup
+                    })
+                    , headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    }
+                })
+                    .then((response) => {
+                        return response.json();
+                    })
+                    .then((data) => {
+
+                        data.message.forEach(element => {
+                            if (parseInt(selfId) === element.sender_id) {
+                                displayMessage(element, true, element.read_count, true);
+                            } else {
+                                displayMessage(element, false, element.read_count, true);
+                            }
+                        })
+
+
+                        let groupIsReadStatus = document.querySelector(".group-read-status");
+                        groupIsReadStatus.innerHTML = `${data.message[0].read_count}人已讀`;
+                        const package = {
+                            group_id: friendChatId,
+                            self_id: parseInt(selfId)
+                        }
+                        messageData = data;
+                        //如果是自己傳的就不需要更新已讀狀態
+                        if (!(data.message[data.message.length - 1].sender_id === parseInt(selfId))) {
+
+                            fetch("/update_group_message_status", {
+                                method: "POST",
+                                body: JSON.stringify({
+                                    groupId: friendChatId,
+                                    isReadMemberId: parseInt(selfId)
+                                })
+                                , headers: {
+                                    'Content-type': 'application/json; charset=UTF-8',
+                                }
+                            })
+                                .then((response) => {
+                                    return response.json();
+                                })
+                                .then((data) => {
+                                    socket.emit('group-read-message', package);
+                                })
+                        }
+
+
+                    })
+            } else {
+                fetch("/api/get_message", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        myId: selfId,
+                        friendId: friendChatId,
+                        isGroup: isGroup
+                    })
+                    , headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                    }
+                })
+                    .then((response) => {
+                        return response.json();
+                    })
+                    .then((data) => {
+                        data.message.forEach(element => {
+                            if (parseInt(selfId) === element.sender_id) {
+                                displayMessage(element, true, element.is_read, true);
+                            } else {
+                                displayMessage(element, false, element.is_read, true);
+                            }
+
+                        })
+
+                        const package = {
+                            group_id: friendChatId,
+                            self_id: parseInt(selfId)
+                        }
+
+
+                        let groupIsReadStatus = document.querySelector(".group-read-status");
+                        groupIsReadStatus.innerHTML = `${data.message[0].read_count}人已讀`;
+                        if (!(data.message[data.message.length - 1].sender_id === parseInt(selfId))) {
+                            fetch("/update_group_message_status", {
+                                method: "POST",
+                                body: JSON.stringify({
+                                    groupId: friendChatId,
+                                    isReadMemberId: parseInt(selfId)
+                                })
+                                , headers: {
+                                    'Content-type': 'application/json; charset=UTF-8',
+                                }
+                            })
+                                .then((response) => {
+                                    return response.json();
+                                })
+                                .then((data) => {
+                                    socket.emit('group-read-message', package);
+                                })
+                        }
+
+
+                    })
+            }
+
+        })
 
 
         count++;
-
-
-
-
-
     })
-
-
 }
+
+
 
 function getAllFriendList(isAddMemberContainer) {
     fetch("/api/get_friendlist")

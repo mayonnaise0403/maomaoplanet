@@ -45,6 +45,20 @@ class Update {
         })
     }
 
+    async updateGroupHeadshot(groupId, headshot) {
+        mysqlQuery = 'UPDATE `group_members` SET headshot = ? WHERE group_id = ?';
+        values = [headshot, groupId];
+        try {
+            const queryResults = await pool.query(mysqlQuery, values);
+            isSuccess = true;
+        } catch (error) {
+            console.error("error:", error.message);
+            isSuccess = false;
+        }
+        return isSuccess;
+
+    }
+
     async createGroup(groupId, groupName, groupMemberIdArr) {
         try {
             mysqlQuery = 'INSERT INTO group_members(group_name, group_id, member_id,group_members.headshot) VALUES (?, ?, ?,?);';
@@ -62,6 +76,22 @@ class Update {
             console.error("error:", error.message);
         }
     }
+
+    async updateGroupMember(groupId, userId) {
+        try {
+            mysqlQuery = 'INSERT INTO group_members(group_name, group_id, member_id,headshot)\
+                        SELECT group_name, group_id , ? ,headshot FROM group_members\
+                        WHERE group_id = ? limit 1;'
+
+            values = [userId, groupId];
+            const results = await pool.query(mysqlQuery, values);
+        } catch (error) {
+            console.error("error:", error.message);
+        }
+
+    }
+
+
 
 
 

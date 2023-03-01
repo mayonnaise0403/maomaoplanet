@@ -130,57 +130,88 @@ friendPopupCall.addEventListener("click", () => {
                 groupHost = true;
             }
 
+            creator = true;
+            // 获取麦克风的媒体流
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(stream => {
+                    userStream = stream;
+                    if (isGroup && peerId) {
+                        myPeer.on("call", call => {
+                            for (const audioElement of document.querySelectorAll('audio')) {
+                                audioElement.srcObject = null;
+                            }
+                            call.answer(stream);
 
+                            call.removeAllListeners("stream");
+                            call.on("stream", userAudioStream => {
+                                const audioElement = new Audio();
+                                audioElement.className = `audio-${call.peer}`;
+                                console.log("成員的stream")
+                                console.log(userAudioStream)
+
+                                console.log("成員的id")
+                                console.log(call.peer)
+
+                                connectToNewUser(call.peer, userAudioStream)
+
+                                addAudioStream(audioElement, userAudioStream);
+                                remoteStreamArr.push(audioElement);
+                            })
+                        })
+                    }
+
+                })
+                .catch(error => console.error(error));
 
         } else {
-            selfCallNickname.style.marginBottom = "0px";
-            friendPopup.style.display = "none";
-            selfCallTime.style.display = "none";
-            selfCallPopup.style.display = "block";
-            selfCallHeadshot.src = friendPopupHeadshot.src;
-            selfCallNickname.innerHTML = friendName.innerHTML;
-            selfCallLoader.style.display = "block";
-            const package = {
-                headshot: document.querySelector(".headshot").src,
-                nickname: document.querySelector(".profile-name-content").innerHTML,
-                userId: parseInt(selfId)
-            }
-            roomName = `${selfId}and${friendId}`;
-            socket.emit("join", roomName, package);
+            fetch("check_friend_status", {
+                method: "POST",
+                body: JSON.stringify({
+                    friendId: friendId
+                })
+                , headers: {
+                    'Content-type': 'application/json; charset=UTF-8',
+                }
+            })
+                .then((response) => {
+                    return response.json();
+                })
+                .then((data) => {
+                    if (data.status === "success") {
+                        selfCallNickname.style.marginBottom = "0px";
+                        friendPopup.style.display = "none";
+                        selfCallTime.style.display = "none";
+                        selfCallPopup.style.display = "block";
+                        selfCallHeadshot.src = friendPopupHeadshot.src;
+                        selfCallNickname.innerHTML = friendName.innerHTML;
+                        selfCallLoader.style.display = "block";
+                        const package = {
+                            headshot: document.querySelector(".headshot").src,
+                            nickname: document.querySelector(".profile-name-content").innerHTML,
+                            userId: parseInt(selfId)
+                        }
+                        roomName = `${selfId}and${friendId}`;
+                        socket.emit("join", roomName, package);
+                        creator = true;
+                        // 获取麦克风的媒体流
+                        navigator.mediaDevices.getUserMedia({ audio: true })
+                            .then(stream => {
+                                userStream = stream;
+                            })
+                            .catch(error => console.error(error));
+
+                    } else {
+                        errorMessage.style.display = "block";
+                        errorMessage.innerHTML = "需要雙方都為好友才能撥打";
+                        setTimeout(() => {
+                            errorMessage.style.display = "none";
+                        }, 3000)
+                    }
+                })
+
         }
 
-        creator = true;
-        // 获取麦克风的媒体流
-        navigator.mediaDevices.getUserMedia({ audio: true })
-            .then(stream => {
-                userStream = stream;
-                if (isGroup && peerId) {
-                    myPeer.on("call", call => {
-                        for (const audioElement of document.querySelectorAll('audio')) {
-                            audioElement.srcObject = null;
-                        }
-                        call.answer(stream);
 
-                        call.removeAllListeners("stream");
-                        call.on("stream", userAudioStream => {
-                            const audioElement = new Audio();
-                            audioElement.className = `audio-${call.peer}`;
-                            console.log("成員的stream")
-                            console.log(userAudioStream)
-
-                            console.log("成員的id")
-                            console.log(call.peer)
-
-                            connectToNewUser(call.peer, userAudioStream)
-
-                            addAudioStream(audioElement, userAudioStream);
-                            remoteStreamArr.push(audioElement);
-                        })
-                    })
-                }
-
-            })
-            .catch(error => console.error(error));
     } else {
         console.log("calling")
     }
@@ -700,6 +731,8 @@ socket.on("offer", async (offer, roomName) => {
         //recipient掛掉電話
         const recipientHangupCall = document.querySelector(".friend-call-hangup-icon");
         recipientHangupCall.addEventListener("click", () => {
+            document.querySelector(".friend-call-image-icon").style.display = "none";
+            document.querySelector(".self-call-icon").style.display = "none";
             if (callSuccess) {
 
                 socket.emit("leave", roomName);
@@ -762,6 +795,8 @@ async function onIceCandidateFunction(event, roomName) {
 
 
 socket.on("hangup-call", () => {
+    document.querySelector(".friend-call-image-icon").style.display = "none";
+    document.querySelector(".self-call-icon").style.display = "none";
     if (!callSuccess && !groupCallSuccess && !groupRecipientCalled) {
         friendCallPopup.style.display = "none";
         selfCallPopup.style.display = "none";
@@ -849,6 +884,8 @@ function selfPhoneCallTimer() {
 
 //sender掛掉電話
 selfCallHangup.addEventListener("click", () => {
+    document.querySelector(".friend-call-image-icon").style.display = "none";
+    document.querySelector(".self-call-icon").style.display = "none";
     if (callSuccess) {
         console.log("掛掉")
         socket.emit("leave", roomName);
@@ -883,6 +920,8 @@ selfCallHangup.addEventListener("click", () => {
 })
 
 socket.on("leave", () => {
+    document.querySelector(".friend-call-image-icon").style.display = "none";
+    document.querySelector(".self-call-icon").style.display = "none";
     clearInterval(timer);
     console.log(timer)
     selfCallTime.style.display = "none";
@@ -912,12 +951,36 @@ socket.on("leave", () => {
 const groupCallPopUp = document.querySelector(".group-call-popup");
 const closeGroupCallPopup = document.querySelector(".group-call-popup-close");
 const groupCallIcon = document.querySelector(".group-call-icon");
+const closeSelfCallPopup = document.querySelector(".self-call-popup-close-btn");
+const closeFriendCallPopup = document.querySelector(".friend-call-popup-close");
 closeGroupCallPopup.addEventListener("click", () => {
     groupCallPopUp.style.display = "none";
     groupCallIcon.style.display = "block";
+})
+
+closeSelfCallPopup.addEventListener("click", () => {
+    selfCallPopup.style.display = "none";
+    document.querySelector(".self-call-icon").style.display = "block";
+})
+
+closeFriendCallPopup.addEventListener("click", () => {
+    console.log("click")
+    friendCallPopup.style.display = "none";
+    document.querySelector(".friend-call-image-icon").style.display = "block";
+})
+
+document.querySelector(".friend-call-image-icon").addEventListener("click", () => {
+    friendCallPopup.style.display = "block";
+    document.querySelector(".friend-call-image-icon").style.display = "none";
+})
+
+document.querySelector(".self-call-icon").addEventListener("click", () => {
+    selfCallPopup.style.display = "block";
+    document.querySelector(".self-call-icon").style.display = "none";
 })
 
 groupCallIcon.addEventListener("click", () => {
     groupCallPopUp.style.display = "block";
     groupCallIcon.style.display = "none";
 })
+

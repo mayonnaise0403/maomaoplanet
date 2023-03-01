@@ -373,55 +373,56 @@ signOutBtn.addEventListener("click", () => {
         })
 })
 
-let isScrolling;
-const chatMsgDate = document.querySelector(".chat-message-datetime");
-chatMessage.addEventListener("scroll", () => {
-    let timer;
-    let date = new Date();
-    date = date.toLocaleString();
+// let isScrolling;
+// const chatMsgDate = document.querySelector(".chat-message-datetime");
+// chatMessage.addEventListener("scroll", () => {
 
-    if (chatMsgDate) {
-        chatMsgDate.style.visibility = "visible";
-        var firstVisible = chatMessage.firstElementChild;
-        var scrollTop = chatMessage.scrollTop;
-    }
+//     let timer;
+//     let date = new Date();
+//     date = date.toLocaleString();
 
-
-
-
-    if (firstVisible) {
-        while (firstVisible.offsetTop < scrollTop) {
-            firstVisible = firstVisible.nextElementSibling;
-        }
-        if (chatMsgDate) {
-            if (firstVisible.className != "read-message-status" && firstVisible.className != "chat-message-date" && firstVisible.className != "group-member-headshot-nickname") {
-                chatMsgDate.innerHTML = firstVisible.className;
-            }
-
-        }
-
-    }
-
-
-    if (timer !== null) {
-        clearTimeout(timer);
-    }
-
-    // 設定新的計時器
-    timer = setTimeout(function () {
-        // 停止滾動
-
-        isScrolling = false;
-        if (chatMsgDate) {
-            chatMsgDate.style.visibility = "hidden";
-        }
+//     if (chatMsgDate) {
+//         chatMsgDate.style.visibility = "visible";
+//         var firstVisible = chatMessage.firstElementChild;
+//         var scrollTop = chatMessage.scrollTop;
+//     }
 
 
 
-    }, 1000);
 
-    isScrolling = true;
-})
+//     if (firstVisible) {
+//         while (firstVisible.offsetTop < scrollTop) {
+//             firstVisible = firstVisible.nextElementSibling;
+//         }
+//         if (chatMsgDate) {
+//             if (firstVisible.className != "read-message-status" && firstVisible.className != "chat-message-date" && firstVisible.className != "group-member-headshot-nickname" && firstVisible.className != "chat-message-datetime") {
+//                 chatMsgDate.innerHTML = firstVisible.className;
+//             }
+
+//         }
+
+//     }
+
+
+//     if (timer !== null) {
+//         clearTimeout(timer);
+//     }
+
+//     // 設定新的計時器
+//     timer = setTimeout(function () {
+//         // 停止滾動
+
+//         isScrolling = false;
+//         if (chatMsgDate) {
+//             chatMsgDate.style.visibility = "hidden";
+//         }
+
+
+
+//     }, 1000);
+
+//     isScrolling = true;
+// })
 
 
 
@@ -526,10 +527,8 @@ friendPopupClose.addEventListener("click", () => {
 //關閉聊天室窗
 chatCloseBtn.addEventListener("click", () => {
     stickerPopup.style.visibility = "hidden";
+    changeGroupHeadshotPopup.style.display = "none";
     chatContainer.style.display = "none";
-    if (chatMsgDate) {
-        chatMsgDate.style.visibility = "hidden";
-    }
     prevSenderId = null;
     prevDate = null;
 
@@ -542,7 +541,21 @@ chatCloseBtn.addEventListener("click", () => {
     groupIsReadStatus.innerHTML = "";
     isAddFriendPopup.style.display = "none";
     groupMemberIcon.style.display = "none";
+    changeGroupHeadshotBtn.style.display = "none";
     chatPopupSettingContainer.style.visibility = "hidden";
+
+
+
+    const addUserToGroupFriendList = document.querySelector(".add-user-to-group-friendlist");
+    addNewUserContainer.style.display = "none";
+    groupMemberPopup.style.display = "none";
+    console.log(addUserToGroupFriendList)
+    while (addUserToGroupFriendList.firstChild) {
+        addUserToGroupFriendList.firstChild.remove();
+    }
+    while (groupMemberList.firstChild) {
+        groupMemberList.firstChild.remove();
+    }
 })
 
 popupChatBtn.addEventListener("click", () => {
@@ -564,6 +577,7 @@ popupChatBtn.addEventListener("click", () => {
         groupIsReadStatus.innerHTML = "";
         isAddFriendPopup.style.display = "none";
         groupMemberIcon.style.display = "none";
+        changeGroupHeadshotBtn.style.display = "none";
     }
     chatPopup();
 
@@ -576,6 +590,7 @@ snedMessage.addEventListener("click", async (e) => {
     } else {
         sendMsgInGroup();
         groupMemberIcon.style.display = "block";
+        changeGroupHeadshotBtn.style.display = "block";
     }
 
 })
@@ -647,7 +662,6 @@ let prevSenderId, prevDate;
 const S3Url = "https://maomaoimage.s3.ap-northeast-1.amazonaws.com/single_chat_file/"
 function displayMessage(element, isSelf, is_read = 0, is_group = false) {
     let date = element.time;
-    console.log(date)
     if (typeof (date) === "object") {
         date = date.toLocaleString('zh-TW', {
             year: 'numeric',
@@ -658,25 +672,6 @@ function displayMessage(element, isSelf, is_read = 0, is_group = false) {
             second: '2-digit',
             hour12: false
         });
-    }
-    // const options = {
-    //     year: 'numeric',
-    //     month: '2-digit',
-    //     day: '2-digit',
-    //     hour: 'numeric',
-    //     minute: 'numeric',
-    //     hour12: true,
-    //     timeZone: 'Asia/Taipei'
-    // };
-    // const formatter = new Intl.DateTimeFormat('zh-TW', options);
-    // date = formatter.format(date);
-
-
-    // console.log(date)
-
-    if (chatMsgDate) {
-        chatMsgDate.style.visibility = "visible";
-        chatMsgDate.innerHTML = `${date.substring(0, 10).replace(/-/g, "/")}`;
     }
 
 
@@ -722,6 +717,7 @@ function displayMessage(element, isSelf, is_read = 0, is_group = false) {
         //已讀狀態的顯示
         if (!is_group) {
             groupMemberIcon.style.display = "none";
+            changeGroupHeadshotBtn.style.display = "none";
             newP = document.createElement("p");
             newP.className = "read-message-status";
             if (is_read === 1) {
@@ -737,6 +733,7 @@ function displayMessage(element, isSelf, is_read = 0, is_group = false) {
             message.appendChild(newP);
         } else {
             groupMemberIcon.style.display = "block";
+            changeGroupHeadshotBtn.style.display = "block";
 
         }
 
@@ -1080,6 +1077,7 @@ function chatFile(element, date, isSelf, is_read = 0, is_group = false) {
     if (isSelf) {
         if (!is_group) {
             groupMemberIcon.style.display = "none";
+            changeGroupHeadshotBtn.style.display = "none";
             newP = document.createElement("p");
             newP.className = "read-message-status";
             if (is_read === 1) {
@@ -1095,7 +1093,7 @@ function chatFile(element, date, isSelf, is_read = 0, is_group = false) {
             chatMessage.appendChild(newP);
         } else {
             groupMemberIcon.style.display = "block";
-
+            changeGroupHeadshotBtn.style.display = "block";
         }
     }
 
@@ -1136,6 +1134,7 @@ function chatPopup() {
                     }
                 })
                 groupMemberIcon.style.display = "block";
+                changeGroupHeadshotBtn.style.display = "block";
                 let groupIsReadStatus = document.querySelector(".group-read-status");
                 groupIsReadStatus.innerHTML = `${data.message[0].read_count}人已讀`;
             } else {
@@ -1356,48 +1355,6 @@ async function sendMsgInGroup(fileName = "") {
 }
 
 
-function createFriendList(friendData, list) {
-    let imgCount = 0;
-    let count = 0;
-    list.innerHTML = "";
-    if (friendData.friend_list.length === 0) {
-        friendListEmpty.style.display = "block";
-        friendListEmpty.style.display = "flex";
-    } else {
-        friendListEmpty.style.display = "none";
-    }
-    friendData.friend_list.forEach(element => {
-        newDiv = document.createElement("div");
-        newDiv.className = "friend";
-        list.appendChild(newDiv);
-        friend = document.querySelectorAll(".friend");
-
-
-        let newImg = document.createElement("img");
-        newImg.id = "friend-headshot";
-        newImg.src = element.headshot;
-        friend[count].appendChild(newImg);
-
-
-
-        newP = document.createElement("p");
-        newP.innerHTML = element.nickname;
-        friend[count].appendChild(newP);
-
-        friend[count].addEventListener("click", () => {
-            let friendPopupHeadshot = document.querySelector(".friend-popup-headshot");
-            // friendPopupHeadshot.src = "./images/Loading_icon.gif";
-            // friendPopupHeadshot.onload = () => {
-            //     friendPopupHeadshot.src = element.headshot;
-            // }
-            friendPopupHeadshot.src = element.headshot;
-            friendPopup.style.display = "block";
-            friendName.innerHTML = element.nickname;
-            friendId = element.user_id;
-        })
-        count++;
-    })
-}
 
 
 function removeSearchList() {

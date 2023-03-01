@@ -318,7 +318,7 @@ body::-webkit-scrollbar-thumb:hover {
 
 .chat-container-close-btn {
     display: block;
-    width: 50px;
+    width: 40px;
     float: right;
     margin-top: 10px;
     margin-right: 10px;
@@ -384,7 +384,7 @@ body::-webkit-scrollbar-thumb:hover {
 
 .chat-message {
     width: 90%;
-    height: 67%;
+    height: 70%;
     overflow: scroll;
     overflow-x: hidden;
     margin-left: 20px;
@@ -511,7 +511,6 @@ body::-webkit-scrollbar-thumb:hover {
     border-radius: 150px;
     height: 150px;
     object-fit: cover;
-    margin-top: 20px;
 }
 
 .friend-call-nickname {
@@ -673,7 +672,6 @@ body::-webkit-scrollbar-thumb:hover {
     border-radius: 150px;
     height: 150px;
     object-fit: cover;
-    margin-top: 60px;
 }
 
 .self-call-popup-nickname {

@@ -117,6 +117,55 @@ router.post("/update_email", (req, res) => {
 
 })
 
+router.post("/upload_group_headshot", async (req, res) => {
+    let image = req.body.image;
+    let groupId = req.body.groupId;
+    let imageBuffer = Buffer.from(
+        image.replace(/^data:image\/\w+;base64,/, ""),
+        "base64"
+    )
+    const type = image.split(';')[0].split('/')[1];
+    AWS.config.update({
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+        region: 'ap-northeast-1'
+    });
+    const s3 = new AWS.S3();
+    const params = {
+        Bucket: 'maomaoimage/group_headshot',
+        Key: groupId,
+        Body: imageBuffer,
+        ContentEncoding: 'base64',
+        ContentType: `image/${type}`
+    };
+    s3.upload(params, async (err, data) => {
+        if (err) {
+            res.send({
+                status: "error"
+            })
+        }
+        else {
+            //update database
+            const isSuccess = await Update.updateGroupHeadshot(groupId, `${process.env.S3}group_headshot/${groupId}`);
+            if (isSuccess) {
+                res.status(200).send({
+                    status: "success",
+                    image: `${process.env.S3}group_headshot/${groupId}`
+                })
+            } else {
+                res.status(500).send({
+                    status: "error"
+                })
+            }
+
+        }
+
+
+    })
+
+
+})
+
 router.post("/upload_headshot", (req, res) => {
     const token = req.signedCookies.access_token;
     const decoded = jwt.decode(token, secretKey);

@@ -886,6 +886,7 @@ body {
     padding: 2px;
     font-weight: bolder;
     margin-bottom: 2px;
+    visibility: hidden;
 }
 
 .chat-message-date {
@@ -894,8 +895,8 @@ body {
     width: 110px;
     border-radius: 20px;
     margin: auto;
-    margin-top: 50px;
-    margin-bottom: 50px;
+    margin-top: 30px;
+    margin-bottom: 30px;
     padding: 5px;
 }
 
@@ -938,4 +939,180 @@ body {
     border: 2px solid black;
     z-index: 2002;
     display: none;
+}
+
+.add-user-to-group-friendlist {
+    height: 300px;
+    overflow: scroll;
+    overflow-x: hidden;
+
+}
+
+.add-user-to-group-friendlist::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+    background-color: #eaeaea00;
+    border-radius: 10px;
+}
+
+.add-user-to-group-friendlist::-webkit-scrollbar-thumb {
+    background-color: rgb(194, 194, 194);
+    border-radius: 10px;
+}
+
+.add-user-to-group-friendlist::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(156, 156, 156);
+}
+
+.add-user-to-group-close {
+    width: 40px;
+    display: flex;
+    margin-left: auto;
+    margin-right: 20px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    cursor: pointer;
+}
+
+.add-user-to-group-close:hover {
+    transform: scale(1.1);
+}
+
+.add-friend-to-group-btn {
+    margin-left: auto;
+    cursor: pointer;
+}
+
+.add-friend-to-group-btn:hover {
+    transform: scale(1.1);
+}
+
+.change-group-headshot-btn {
+    width: 100px;
+    margin-top: 10px;
+    cursor: pointer;
+    display: none;
+    font-weight: bolder;
+    font-size: 15px;
+    text-align: center;
+    border-radius: 10px;
+    padding: 5px;
+}
+
+.change-group-headshot-btn:hover {
+    transform: scale(1.1);
+}
+
+.change-group-headshot-popup {
+    position: fixed;
+    width: 300px;
+    background-color: white;
+    top: 70px;
+    left: 50%;
+    transform: translate(-50%, 0);
+    border-radius: 10px;
+    border: 2px solid black;
+    display: none;
+    z-index: 2001;
+    display: none;
+}
+
+.change-group-headshot-popup-close {
+    width: 40px;
+    display: flex;
+    margin-left: auto;
+    margin-top: 10px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+.change-group-headshot-popup-close:hover {
+    transform: scale(1.1);
+}
+
+.select-group-headshot-btn {
+    text-align: center;
+    font-weight: bolder;
+    font-size: 20px;
+    background-color: rgb(74 151 245);
+    color: white;
+    width: 150px;
+    margin: auto;
+    border-radius: 10px;
+    padding: 5px;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+.select-group-headshot-btn:hover {
+    transform: scale(1.06);
+}
+
+.upload-group-headshot-btn {
+    text-align: center;
+    font-weight: bolder;
+    font-size: 20px;
+    background-color: rgb(74 151 245);
+    color: white;
+    width: 150px;
+    margin: auto;
+    border-radius: 10px;
+    padding: 5px;
+    cursor: pointer;
+}
+
+.upload-group-headshot-btn:hover {
+    transform: scale(1.06);
+}
+
+.not-change-group-headshot-btn {
+    width: 40px;
+    display: flex;
+    margin: auto;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+.not-change-group-headshot-btn:hover {
+    transform: scale(1.06);
+}
+
+.group-headshot-image {
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+    display: flex;
+    margin: auto;
+    margin-bottom: 20px;
+    border-radius: 200px;
+}
+
+.self-call-popup-close-btn {
+    width: 60px;
+    display: flex;
+    margin-left: auto;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+.self-call-popup-close-btn:hover {
+    transform: scale(1.1);
+}
+
+.friend-call-popup-close {
+    width: 60px;
+    display: flex;
+    margin-left: auto;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+.friend-call-popup-close:hover {
+    transform: scale(1.1);
 }

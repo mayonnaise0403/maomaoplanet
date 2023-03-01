@@ -24,6 +24,16 @@ router.post("/create_group", async (req, res) => {
 
 });
 
+router.post("/update_new_group_user", async (req, res) => {
+    try {
+        await Update.updateGroupMember(req.body.groupId, req.body.userId);
+        res.status(200).send({ status: "success" })
+    } catch (err) {
+        res.status(500).send({ status: "error", message: "伺服器內部發生錯誤" })
+    }
+
+})
+
 router.post("/get_group_member_data", (req, res) => {
 
 })

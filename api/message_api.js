@@ -27,9 +27,19 @@ router.post("/api/get_message", async (req, res) => {
         const data = await Message.getMessage(myId, friendId);
         res.send({ message: data })
     }
+})
 
-
-
+router.post("/check_friend_status", async (req, res) => {
+    const token = req.signedCookies.access_token;
+    const selfId = jwt.decode(token, secretKey).userId;
+    console.log(selfId);
+    console.log(req.body.friendId)
+    const isFriend = await Message.isFriend(selfId, req.body.friendId);
+    if (isFriend.length !== 0) {
+        res.send({ status: "success" })
+    } else {
+        res.send({ status: "error" })
+    }
 })
 
 router.get("/api/get_latest_group_message", async (req, res) => {

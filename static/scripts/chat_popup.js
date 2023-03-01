@@ -16,6 +16,8 @@ const pictureList = document.querySelector(".picture-list");
 const videoList = document.querySelector(".video-list");
 const addNewUserToGroupBtn = document.querySelector(".add-new-user-btn");
 const addNewUserContainer = document.querySelector(".add-user-to-group-container");
+const addUserToGroupCloseBtn = document.querySelector(".add-user-to-group-close");
+const addUserToGroupFriendList = document.querySelectorAll(".add-user-to-group-friendlist");
 videoList.style.display = "none";
 
 
@@ -24,20 +26,20 @@ chatPopupSettingContainer.style.visibility = "hidden";
 addNewUserContainer.style.display = "none"
 
 //點擊傳送貼圖
-stickerBtn.addEventListener("click", () => {
+stickerBtn.addEventListener("click", (e) => {
     if (stickerPopup.style.visibility === "hidden") {
         stickerPopup.style.visibility = "visible";
     } else {
         stickerPopup.style.visibility = "hidden";
     }
-
+    stopFunc(e);
 
 })
 stickerPopup.addEventListener("click", (event) => {
     if (event.target.tagName === 'P') {
         messageInput.value += event.target.innerHTML;
     }
-
+    stopFunc(event);
 })
 
 uploadFileBtn.addEventListener("mouseenter", () => {
@@ -53,13 +55,24 @@ uploadFileBtn.addEventListener("click", () => {
     uploadFileInput.click();
 })
 
-chatPopupHamburgerIcon.addEventListener("click", () => {
+chatPopupHamburgerIcon.addEventListener("click", (e) => {
     if (chatPopupSettingContainer.style.visibility === "hidden") {
         chatPopupSettingContainer.style.visibility = "visible";
     } else {
         chatPopupSettingContainer.style.visibility = "hidden";
     }
+    stopFunc(e);
 })
+
+
+document.addEventListener("click", function (e) {
+    chatPopupSettingContainer.style.visibility = "hidden";
+    stickerPopup.style.visibility = "hidden";
+})
+
+function stopFunc(e) {
+    e.stopPropagation ? e.stopPropagation() : e.cancelBubble = true;
+}
 
 videoBtn.addEventListener("click", () => {
     videoList.style.display = "block";
@@ -71,42 +84,92 @@ pictureBtn.addEventListener("click", () => {
     pictureList.style.display = "block";
 })
 
-// addNewUserToGroupBtn.addEventListener("click", () => {
-//     if (addNewUserContainer.style.display === "none") {
-//         addNewUserContainer.style.display = "block";
-//         fetch(`/api/add_user_to_group_friendlist?groupId=${friendChatId}`)
-//             .then((response) => {
-//                 return response.json();
-//             })
-//             .then((data) => {
-//                 const friendList = document.querySelectorAll(".add-user-to-group-friendlist");
-//                 data.friend_list.forEach(element => {
-//                     newDiv = document.createElement("div");
-//                     newDiv.style.display = "flex";
-//                     friendList[friendList.length - 1].appendChild(newDiv);
+addUserToGroupCloseBtn.addEventListener("click", () => {
+    const addUserToGroupFriendList = document.querySelector(".add-user-to-group-friendlist");
+    addNewUserContainer.style.display = "none";
+    groupMemberPopup.style.display = "none";
+    console.log(addUserToGroupFriendList)
+    while (addUserToGroupFriendList.firstChild) {
+        addUserToGroupFriendList.firstChild.remove();
+    }
+    while (groupMemberList.firstChild) {
+        groupMemberList.firstChild.remove();
+    }
+})
 
-//                     newImg = document.createElement("img");
-//                     newImg.src = element.headshot;
-//                     newImg.style.width = "40px";
-//                     newImg.style.borderRadius = "40px";
-//                     newDiv.appendChild(newImg);
+addNewUserToGroupBtn.addEventListener("click", () => {
+    if (addNewUserContainer.style.display === "none") {
+        addNewUserContainer.style.display = "block";
+        fetch(`/api/add_user_to_group_friendlist?groupId=${friendChatId}`)
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
 
-//                     newP = document.createElement("p");
-//                     newP.innerHTML = element.nickname;
-//                     newDiv.appendChild(newP);
+                data.friend_list.forEach(element => {
+                    newDiv = document.createElement("div");
+                    newDiv.style.display = "flex";
+                    newDiv.style.alignItems = "center";
+                    newDiv.style.margin = "20px";
+                    newDiv.style.justifyContent = "left";
+                    addUserToGroupFriendList[addUserToGroupFriendList.length - 1].appendChild(newDiv);
 
-//                     newImg = document.createElement("img");
-//                     newImg.src = "./images/add-button.png";
-//                     newImg.style.width = "40px";
+                    newImg = document.createElement("img");
+                    newImg.src = element.headshot;
+                    newImg.style.width = "40px";
+                    newImg.style.height = "40px";
+                    newImg.style.objectFit = "cover";
+                    newImg.style.borderRadius = "40px";
+                    newDiv.appendChild(newImg);
 
-//                     newDiv.appendChild(newImg);
-//                 })
+                    newP = document.createElement("p");
+                    newP.innerHTML = element.nickname;
+                    newP.style.marginLeft = "10px";
+                    newP.style.fontWeight = "bolder";
+                    newDiv.appendChild(newP);
 
-//             })
-//     } else {
-//         addNewUserContainer.style.display = "none"
-//     }
-// })
+                    newImg = document.createElement("img");
+                    newImg.className = "add-friend-to-group-btn"
+                    newImg.src = "./images/add-button.png";
+                    newImg.style.width = "40px";
+
+                    newDiv.appendChild(newImg);
+
+                    newImg.addEventListener("click", (e) => {
+                        console.log(element.user_id)
+                        e.target.parentNode.style.display = "none";
+                        fetch("/update_new_group_user", {
+                            method: "POST",
+                            body: JSON.stringify({
+                                userId: element.user_id,
+                                groupId: friendChatId
+                            }),
+                            headers: {
+                                'Content-type': 'application/json; charset=UTF-8',
+                            },
+                        })
+                            .then((response) => {
+                                return response.json();
+                            })
+                            .then((data) => {
+                                if (data.status === "success") {
+                                    errorMessage.style.display = "block";
+                                    errorMessage.innerHTML = "✅新增成功";
+                                    setTimeout(() => {
+                                        errorMessage.style.display = "none";
+                                    }, 2000)
+                                } else {
+
+                                }
+                            })
+                    })
+                })
+
+            })
+    } else {
+        addNewUserContainer.style.display = "none"
+    }
+})
 
 
 
@@ -230,12 +293,6 @@ chatPopupPictureAndVideo.addEventListener("click", () => {
                 })
             })
     }
-
-
-
-
-
-
 })
 
 closePcVideoContainer.addEventListener("click", () => {
@@ -252,8 +309,7 @@ closePcVideoContainer.addEventListener("click", () => {
 
 
 uploadFileInput.addEventListener("change", () => {
-    fileUploadLoading.style.display = "block";
-    fileUploadLoading.style.display = "flex";
+
 
     const time = new Date().getTime();
     let file = uploadFileInput.files[0];
@@ -263,38 +319,97 @@ uploadFileInput.addEventListener("change", () => {
         fileName = fileName.slice(0, index);
         const type = file.type;
         const fileSize = file.size;
-        const reader = new FileReader();
-        console.log(bytesToSize(fileSize))
-        if (type.substring(0, type.indexOf("/")) === "video") {
+        const size = bytesToSize(fileSize);
+        let isSizeOk;
+        if (size.includes("MB")) {
+            if (parseInt(size.replace("MB", "")) > 5) {
+                isSizeOk = false;
+            } else {
+                isSizeOk = true;
+            }
+        } else if (size.includes("GB")) {
+            isSizeOk = false;
+        } else if (size.includes("TB")) {
+            isSizeOk = false;
+        } else {
+            isSizeOk = true;
+        }
+        console.log(size)
+        console.log(isSizeOk)
+        if (isSizeOk) {
+            fileUploadLoading.style.display = "block";
+            fileUploadLoading.style.display = "flex";
+            const reader = new FileReader();
+            console.log(bytesToSize(fileSize))
+            if (type.substring(0, type.indexOf("/")) === "video") {
 
 
-            const video = document.createElement("video");
-            video.src = URL.createObjectURL(file);
+                const video = document.createElement("video");
+                video.src = URL.createObjectURL(file);
 
-            video.addEventListener("loadeddata", () => {
-                video.pause();
-                video.currentTime = 1;
-            });
-            video.addEventListener("seeked", () => {
-                const canvas = document.createElement("canvas");
-                const ctx = canvas.getContext("2d");
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                const imageDataURL = canvas.toDataURL("image/png");
+                video.addEventListener("loadeddata", () => {
+                    video.pause();
+                    video.currentTime = 1;
+                });
+                video.addEventListener("seeked", () => {
+                    const canvas = document.createElement("canvas");
+                    const ctx = canvas.getContext("2d");
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    const imageDataURL = canvas.toDataURL("image/png");
 
+                    reader.readAsDataURL(file);
+                    reader.addEventListener("load", () => {
+                        file = reader.result;
+
+
+                        fetch("/upload_file", {
+                            method: "POST",
+                            body: JSON.stringify({
+                                recipientId: friendChatId,
+                                file: file,
+                                fileName: fileName,
+                                videoPc: imageDataURL,
+                                type: `${type.split(';')[0].split('/')[1]}`,
+                                dataType: type.substring(0, type.indexOf("/")),
+                                totalTypeData: type,
+                                time: time
+                            }),
+                            headers: {
+                                'Content-type': 'application/json; charset=UTF-8',
+                            },
+                        })
+                            .then((response) => {
+                                return response.json();
+                            })
+                            .then((data) => {
+                                if (data.status === "success") {
+                                    const isGroup = isNaN(friendChatId);
+                                    if (!isGroup) {
+                                        sendMsgInSingle(data.message);
+                                    } else {
+                                        sendMsgInGroup(data.message);
+                                        groupMemberIcon.style.display = "block";
+                                        changeGroupHeadshotBtn.style.display = "block";
+                                    }
+
+                                    fileUploadLoading.style.display = "none";
+                                }
+                            })
+                    });
+                });
+            } else {
                 reader.readAsDataURL(file);
                 reader.addEventListener("load", () => {
                     file = reader.result;
-
-
+                    file = file.split(",")[1];
                     fetch("/upload_file", {
                         method: "POST",
                         body: JSON.stringify({
                             recipientId: friendChatId,
                             file: file,
                             fileName: fileName,
-                            videoPc: imageDataURL,
                             type: `${type.split(';')[0].split('/')[1]}`,
                             dataType: type.substring(0, type.indexOf("/")),
                             totalTypeData: type,
@@ -303,6 +418,7 @@ uploadFileInput.addEventListener("change", () => {
                         headers: {
                             'Content-type': 'application/json; charset=UTF-8',
                         },
+
                     })
                         .then((response) => {
                             return response.json();
@@ -315,57 +431,27 @@ uploadFileInput.addEventListener("change", () => {
                                 } else {
                                     sendMsgInGroup(data.message);
                                     groupMemberIcon.style.display = "block";
+                                    changeGroupHeadshotBtn.style.display = "block";
                                 }
 
                                 fileUploadLoading.style.display = "none";
+
+
+
                             }
                         })
+
                 });
-            });
+
+            }
         } else {
-            reader.readAsDataURL(file);
-            reader.addEventListener("load", () => {
-                file = reader.result;
-                file = file.split(",")[1];
-                fetch("/upload_file", {
-                    method: "POST",
-                    body: JSON.stringify({
-                        recipientId: friendChatId,
-                        file: file,
-                        fileName: fileName,
-                        type: `${type.split(';')[0].split('/')[1]}`,
-                        dataType: type.substring(0, type.indexOf("/")),
-                        totalTypeData: type,
-                        time: time
-                    }),
-                    headers: {
-                        'Content-type': 'application/json; charset=UTF-8',
-                    },
-
-                })
-                    .then((response) => {
-                        return response.json();
-                    })
-                    .then((data) => {
-                        if (data.status === "success") {
-                            const isGroup = isNaN(friendChatId);
-                            if (!isGroup) {
-                                sendMsgInSingle(data.message);
-                            } else {
-                                sendMsgInGroup(data.message);
-                                groupMemberIcon.style.display = "block";
-                            }
-
-                            fileUploadLoading.style.display = "none";
-
-
-
-                        }
-                    })
-
-            });
-
+            errorMessage.style.display = "block";
+            errorMessage.innerHTML = "檔案不可超過5mb";
+            setTimeout(() => {
+                errorMessage.style.display = "none";
+            }, 3000)
         }
+
     }
 
 

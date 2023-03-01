@@ -241,6 +241,27 @@ class Message {
         return result;
     }
 
+    async isFriend(selfId, friendId) {
+        mysqlQuery = 'SELECT *\
+                    FROM friend_list f1\
+                    WHERE user_id = ?\
+                    AND user_friend_id = ?\
+                    AND EXISTS(\
+                    SELECT *\
+                    FROM friend_list f2\
+                    WHERE f1.user_id = f2.user_friend_id\
+                    AND f1.user_friend_id = f2.user_id);';
+        values = [selfId, friendId];
+        try {
+            const queryResults = await pool.query(mysqlQuery, values);
+            result = queryResults[0];
+
+        } catch (error) {
+            console.log(error.message);
+        }
+        return result;
+    }
+
 
 
 }

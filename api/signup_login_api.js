@@ -23,35 +23,35 @@ Login = new Login();
 
 
 router.get("/member", (req, res) => {
-    if (!req.signedCookies.access_token) {
-        res.clearCookie('access_token');
-        res.render("homepage.html")
-    } else {
-        res.render("member.html")
-    }
-
-    // try {
-    //     if (!req.signedCookies.access_token) {
-    //         res.clearCookie('access_token');
-    //         res.render("homepage.html")
-    //     } else {
-    //         const token = req.signedCookies.access_token;
-    //         jwt.verify(token, secretKey, (err, decoded) => {
-    //             if (err && err.name === 'TokenExpiredError') {
-    //                 res.clearCookie('access_token');
-    //                 res.render("homepage.html")
-    //             } else if (err) {
-    //                 res.clearCookie('access_token');
-    //                 res.render("homepage.html")
-    //             } else {
-    //                 res.render("member.html")
-    //             }
-    //         });
-
-    //     }
-    // } catch (err) {
-    //     res.render("error_page.html")
+    // if (!req.signedCookies.access_token) {
+    //     res.clearCookie('access_token');
+    //     res.render("homepage.html")
+    // } else {
+    //     res.render("member.html")
     // }
+
+    try {
+        if (!req.signedCookies.access_token) {
+            res.clearCookie('access_token');
+            res.render("homepage.html")
+        } else {
+            const token = req.signedCookies.access_token;
+            jwt.verify(token, secretKey, (err, decoded) => {
+                if (err && err.name === 'TokenExpiredError') {
+                    res.clearCookie('access_token');
+                    res.render("homepage.html")
+                } else if (err) {
+                    res.clearCookie('access_token');
+                    res.render("homepage.html")
+                } else {
+                    res.render("member.html")
+                }
+            });
+
+        }
+    } catch (err) {
+        res.render("error_page.html")
+    }
 
 })
 
