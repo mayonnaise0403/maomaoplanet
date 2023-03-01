@@ -392,6 +392,8 @@ uploadFileInput.addEventListener("change", () => {
                                         sendMsgInGroup(data.message);
                                         groupMemberIcon.style.display = "block";
                                         changeGroupHeadshotBtn.style.display = "block";
+                                        changeGroupNameBtn.style.display = "block";
+                                        leaveGroupBtn.style.display = "block";
                                     }
 
                                     fileUploadLoading.style.display = "none";
@@ -432,6 +434,8 @@ uploadFileInput.addEventListener("change", () => {
                                     sendMsgInGroup(data.message);
                                     groupMemberIcon.style.display = "block";
                                     changeGroupHeadshotBtn.style.display = "block";
+                                    changeGroupNameBtn.style.display = "block";
+                                    leaveGroupBtn.style.display = "block";
                                 }
 
                                 fileUploadLoading.style.display = "none";

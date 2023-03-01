@@ -59,6 +59,32 @@ class Update {
 
     }
 
+    async updateGroupName(groupId, groupName) {
+        mysqlQuery = 'UPDATE `group_members` SET group_name = ? WHERE group_id = ?';
+        values = [groupName, groupId];
+        try {
+            const queryResults = await pool.query(mysqlQuery, values);
+            isSuccess = true;
+        } catch (error) {
+            console.error("error:", error.message);
+            isSuccess = false;
+        }
+        return isSuccess;
+    }
+
+    async leaveGroup(groupId, userId) {
+        mysqlQuery = 'DELETE FROM `group_members` WHERE group_id = ? AND member_id = ?';
+        values = [groupId, userId];
+        try {
+            const queryResults = await pool.query(mysqlQuery, values);
+            isSuccess = true;
+        } catch (error) {
+            console.error("error:", error.message);
+            isSuccess = false;
+        }
+        return isSuccess;
+    }
+
     async createGroup(groupId, groupName, groupMemberIdArr) {
         try {
             mysqlQuery = 'INSERT INTO group_members(group_name, group_id, member_id,group_members.headshot) VALUES (?, ?, ?,?);';

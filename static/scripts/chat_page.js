@@ -13,6 +13,8 @@ const groupNameInput = document.querySelector(".group-name-input");
 const groupChatListContainer = document.querySelector(".group-chat-list-container");
 const groupMemberIcon = document.querySelector(".group-member-icon");
 const changeGroupHeadshotBtn = document.querySelector(".change-group-headshot-btn");
+const changeGroupNameBtn = document.querySelector(".change-group-name-btn");
+const leaveGroupBtn = document.querySelector(".leave-the-group-btn");
 const changeGroupHeadshotPopup = document.querySelector(".change-group-headshot-popup");
 const groupMemberPopup = document.querySelector(".group-member-popup");
 const grouopMemberPopupCloseBtn = document.querySelector(".group-member-popup-close");
@@ -28,6 +30,8 @@ const recipientHangupCall = document.querySelector(".friend-call-hangup-icon");
 const singleChatEmpty = document.querySelector("#single-chat-empty");
 const groupChatEmpty = document.querySelector("#group-chat-empty");
 const chatheadshot = document.querySelector(".chat-headshot-picture");
+const changeGroupNamePopup = document.querySelector(".change-group-name-popup");
+const closeChangeGroupNamePopup = document.querySelector(".close-change-group-name-popup");
 
 
 
@@ -106,6 +110,8 @@ createGroupBtn.addEventListener("click", () => {
                     chatContainer.style.display = "block";
                     groupMemberIcon.style.display = "block";
                     changeGroupHeadshotBtn.style.display = "block";
+                    changeGroupNameBtn.style.display = "block";
+                    leaveGroupBtn.style.display = "block";
                     addGroupPopup.style.display = "none";
                     chatBoxFriendName.innerHTML = data.groupName;
                     friendChatId = data.groupId;
@@ -138,6 +144,11 @@ const selectGroupHeadshotBtn = document.querySelector(".select-group-headshot-bt
 const notChangeGroupHeadshot = document.querySelector(".not-change-group-headshot-btn");
 const closeGroupChangeHeadshotPopup = document.querySelector(".change-group-headshot-popup-close");
 const uploadGroupHeadshotBtn = document.querySelector(".upload-group-headshot-btn");
+const confirmChangeGroupName = document.querySelector(".confirm-change-group-name-btn");
+const changeGroupNameInput = document.querySelector(".change-group-name-input");
+const confirmLeaveGroupPopup = document.querySelector(".confirm-leave-group-popup");
+const confirmLeaveGroup = document.querySelector(".confirm-leave-group-btn");
+const confirmNotLeaveGroup = document.querySelector(".confirm-not-leave-group-btn");
 let previewGroupHeadshot, groupHeadshotFile, groupHeadshotDatatype;
 
 //關閉群組大頭貼popup
@@ -156,6 +167,90 @@ changeGroupHeadshotBtn.addEventListener("click", () => {
     groupHeadshotImage.src = groupHeadshotSrc.src;
 
     changeGroupHeadshotPopup.style.display = "block";
+})
+
+//更換群組姓名
+changeGroupNameBtn.addEventListener("click", () => {
+    changeGroupNamePopup.style.display = "block";
+})
+
+closeChangeGroupNamePopup.addEventListener("click", () => {
+    changeGroupNamePopup.style.display = "none";
+})
+
+confirmChangeGroupName.addEventListener("click", () => {
+    if (changeGroupNameInput.value) {
+        fetch("/update_group_name", {
+            method: "POST",
+            body: JSON.stringify({
+                groupId: friendChatId,
+                groupName: changeGroupNameInput.value
+            })
+            , headers: {
+                'Content-type': 'application/json; charset=UTF-8',
+            },
+
+        })
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+                if (data.status === "success") {
+                    changeGroupNamePopup.style.display = "none";
+                    errorMessage.style.display = "block";
+                    errorMessage.innerHTML = "✅更新成功";
+                    document.querySelector(".chat-friend-name").innerHTML = data.newGroupName;
+                    document.querySelector(`[data-attribute-name='${friendChatId}']`).parentNode.querySelectorAll("p")[0].innerHTML = data.newGroupName;
+                    document.querySelector(`.group-name-${friendChatId}`).innerHTML = data.newGroupName;
+                    changeGroupNameInput.value = "";
+                    setTimeout(() => {
+                        errorMessage.style.display = "none";
+                    }, 2000)
+                } else {
+
+                }
+            })
+    }
+})
+
+//退出群組
+leaveGroupBtn.addEventListener("click", () => {
+    confirmLeaveGroupPopup.style.display = "block";
+})
+
+confirmNotLeaveGroup.addEventListener("click", () => {
+    confirmLeaveGroupPopup.style.display = "none";
+})
+
+confirmLeaveGroup.addEventListener("click", () => {
+    fetch("/leave_group", {
+        method: "POST",
+        body: JSON.stringify({
+            groupId: friendChatId
+        })
+        , headers: {
+            'Content-type': 'application/json; charset=UTF-8',
+        },
+
+    })
+        .then((response) => {
+            return response.json();
+        })
+        .then((data) => {
+            if (data.status === "success") {
+                confirmLeaveGroupPopup.style.display = "none";
+                errorMessage.style.display = "block";
+                errorMessage.innerHTML = "成員們會想你的~";
+                setTimeout(() => {
+                    errorMessage.style.display = "none";
+                }, 2000)
+                chatContainer.style.display = "none";
+                document.querySelector(`[data-attribute-name='${friendChatId}']`).parentNode.parentNode.remove();
+                document.querySelector(`.group-headshot-${friendChatId}`).parentNode.remove();
+            } else {
+
+            }
+        })
 })
 
 selectGroupHeadshotBtn.addEventListener("click", () => {
@@ -487,6 +582,8 @@ function createLatestGroupChatList(element) {
         if (isGroup) {
             groupMemberIcon.style.display = "block";
             changeGroupHeadshotBtn.style.display = "block";
+            changeGroupNameBtn.style.display = "block";
+            leaveGroupBtn.style.display = "block";
         }
         if (senderIsMe) {
             fetch("/api/get_message", {

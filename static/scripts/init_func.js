@@ -22,6 +22,7 @@ function createGroupList(groupData, list) {
 
         newP = document.createElement("p");
         newP.innerHTML = element.group_name;
+        newP.className = `group-name-${element.group_id}`;
         group[count].appendChild(newP);
 
         group[count].addEventListener("click", () => {
@@ -32,7 +33,7 @@ function createGroupList(groupData, list) {
             // }
             friendPopupHeadshot.src = document.querySelector(`.group-headshot-${element.group_id}`).src;
             friendPopup.style.display = "block";
-            friendName.innerHTML = element.group_name;
+            friendName.innerHTML = document.querySelector(`.group-name-${element.group_id}`).innerHTML;
             friendId = element.group_id;
         })
         count++;
@@ -516,6 +517,8 @@ function createGroupChatList(data) {
             if (isGroup) {
                 groupMemberIcon.style.display = "block";
                 changeGroupHeadshotBtn.style.display = "block";
+                changeGroupNameBtn.style.display = "block";
+                leaveGroupBtn.style.display = "block";
             }
             if (senderIsMe) {
                 fetch("/api/get_message", {

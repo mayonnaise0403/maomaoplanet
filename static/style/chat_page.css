@@ -1116,3 +1116,124 @@ body {
 .friend-call-popup-close:hover {
     transform: scale(1.1);
 }
+
+.change-group-name-btn {
+    width: 100px;
+    margin-top: 10px;
+    cursor: pointer;
+    font-weight: bolder;
+    font-size: 15px;
+    text-align: center;
+    border-radius: 10px;
+    padding: 5px;
+}
+
+.change-group-name-btn:hover {
+    transform: scale(1.1);
+}
+
+.leave-the-group-btn {
+    width: 100px;
+    margin-top: 10px;
+    cursor: pointer;
+    font-weight: bolder;
+    font-size: 15px;
+    text-align: center;
+    border-radius: 10px;
+    padding: 5px;
+}
+
+.leave-the-group-btn:hover {
+    transform: scale(1.1);
+}
+
+.change-group-name-popup {
+    position: fixed;
+    width: 300px;
+    background-color: white;
+    top: 70px;
+    left: 50%;
+    transform: translate(-50%, 0);
+    border-radius: 10px;
+    border: 2px solid black;
+    display: none;
+    z-index: 2001;
+}
+
+.confirm-leave-group-popup {
+    position: fixed;
+    width: 300px;
+    background-color: white;
+    top: 70px;
+    left: 50%;
+    transform: translate(-50%, 0);
+    border-radius: 10px;
+    border: 2px solid black;
+    display: none;
+    z-index: 2001;
+}
+
+.close-change-group-name-popup {
+    display: flex;
+    width: 40px;
+    margin-left: auto;
+    margin-top: 10px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+.close-change-group-name-popup:hover {
+    transform: scale(1.1);
+}
+
+
+.change-group-name-input {
+    display: flex;
+    margin: auto;
+    outline: none;
+    padding-left: 10px;
+    font-size: 20px;
+    padding: 5px;
+}
+
+.confirm-change-group-name-btn {
+    text-align: center;
+    background-color: rgb(119 181 252);
+    color: white;
+    width: 100px;
+    font-size: 15px;
+    font-weight: bolder;
+    margin: auto;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.confirm-change-group-name-btn:hover {
+    transform: scale(1.1);
+}
+
+.confirm-leave-group-btn {
+    background-color: #84c2ec;
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.confirm-leave-group-btn:hover {
+    transform: scale(1.1);
+}
+
+.confirm-not-leave-group-btn {
+    background-color: #84c2ec;
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.confirm-not-leave-group-btn:hover {
+    transform: scale(1.1);
+}

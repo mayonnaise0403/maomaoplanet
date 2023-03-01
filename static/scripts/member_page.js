@@ -543,6 +543,8 @@ chatCloseBtn.addEventListener("click", () => {
     groupMemberIcon.style.display = "none";
     changeGroupHeadshotBtn.style.display = "none";
     chatPopupSettingContainer.style.visibility = "hidden";
+    changeGroupNameBtn.style.display = "none";
+    leaveGroupBtn.style.display = "none";
 
 
 
@@ -578,6 +580,8 @@ popupChatBtn.addEventListener("click", () => {
         isAddFriendPopup.style.display = "none";
         groupMemberIcon.style.display = "none";
         changeGroupHeadshotBtn.style.display = "none";
+        changeGroupNameBtn.style.display = "none";
+        leaveGroupBtn.style.display = "none";
     }
     chatPopup();
 
@@ -591,6 +595,8 @@ snedMessage.addEventListener("click", async (e) => {
         sendMsgInGroup();
         groupMemberIcon.style.display = "block";
         changeGroupHeadshotBtn.style.display = "block";
+        changeGroupNameBtn.style.display = "block";
+        leaveGroupBtn.style.display = "block";
     }
 
 })
@@ -718,6 +724,8 @@ function displayMessage(element, isSelf, is_read = 0, is_group = false) {
         if (!is_group) {
             groupMemberIcon.style.display = "none";
             changeGroupHeadshotBtn.style.display = "none";
+            changeGroupNameBtn.style.display = "none";
+            leaveGroupBtn.style.display = "none";
             newP = document.createElement("p");
             newP.className = "read-message-status";
             if (is_read === 1) {
@@ -734,6 +742,8 @@ function displayMessage(element, isSelf, is_read = 0, is_group = false) {
         } else {
             groupMemberIcon.style.display = "block";
             changeGroupHeadshotBtn.style.display = "block";
+            changeGroupNameBtn.style.display = "block";
+            leaveGroupBtn.style.display = "block";
 
         }
 
@@ -1078,6 +1088,8 @@ function chatFile(element, date, isSelf, is_read = 0, is_group = false) {
         if (!is_group) {
             groupMemberIcon.style.display = "none";
             changeGroupHeadshotBtn.style.display = "none";
+            changeGroupNameBtn.style.display = "none";
+            leaveGroupBtn.style.display = "none";
             newP = document.createElement("p");
             newP.className = "read-message-status";
             if (is_read === 1) {
@@ -1094,6 +1106,8 @@ function chatFile(element, date, isSelf, is_read = 0, is_group = false) {
         } else {
             groupMemberIcon.style.display = "block";
             changeGroupHeadshotBtn.style.display = "block";
+            changeGroupNameBtn.style.display = "block";
+            leaveGroupBtn.style.display = "block";
         }
     }
 
@@ -1135,6 +1149,8 @@ function chatPopup() {
                 })
                 groupMemberIcon.style.display = "block";
                 changeGroupHeadshotBtn.style.display = "block";
+                changeGroupNameBtn.style.display = "block";
+                leaveGroupBtn.style.display = "block";
                 let groupIsReadStatus = document.querySelector(".group-read-status");
                 groupIsReadStatus.innerHTML = `${data.message[0].read_count}人已讀`;
             } else {

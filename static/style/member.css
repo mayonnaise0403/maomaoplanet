@@ -744,7 +744,6 @@ body::-webkit-scrollbar-thumb:hover {
 }
 
 .error-message {
-    width: 400px;
     position: fixed;
     top: 20px;
     left: 50%;

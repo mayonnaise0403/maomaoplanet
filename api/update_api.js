@@ -34,6 +34,34 @@ router.post("/update_new_group_user", async (req, res) => {
 
 })
 
+router.post("/update_group_name", async (req, res) => {
+    try {
+        const isSuccess = await Update.updateGroupName(req.body.groupId, req.body.groupName);
+        if (isSuccess) {
+            res.status(200).send({ status: "success", newGroupName: req.body.groupName })
+        } else {
+
+        } res.status(500).send({ status: "error" })
+    } catch (err) {
+
+    }
+})
+
+router.post("/leave_group", async (req, res) => {
+    try {
+        const token = req.signedCookies.access_token;
+        const selfId = jwt.decode(token, secretKey).userId;
+        const isSuccess = await Update.leaveGroup(req.body.groupId, selfId);
+        if (isSuccess) {
+            res.status(200).send({ status: "success" })
+        } else {
+
+        } res.status(500).send({ status: "error" })
+    } catch (err) {
+
+    }
+})
+
 router.post("/get_group_member_data", (req, res) => {
 
 })
