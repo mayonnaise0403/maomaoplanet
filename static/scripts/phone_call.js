@@ -353,53 +353,79 @@ friendPopupCall.addEventListener("click", () => {
                 .catch(error => console.error(error));
 
         } else {
-            fetch("check_friend_status", {
-                method: "POST",
-                body: JSON.stringify({
-                    friendId: friendId
-                })
-                , headers: {
-                    'Content-type': 'application/json; charset=UTF-8',
-                }
-            })
-                .then((response) => {
-                    return response.json();
-                })
-                .then((data) => {
-                    if (data.status === "success") {
-                        selfCallNickname.style.marginBottom = "0px";
-                        friendPopup.style.display = "none";
-                        selfCallTime.style.display = "none";
-                        selfCallPopup.style.display = "block";
-                        selfCallHeadshot.src = friendPopupHeadshot.src;
-                        selfCallNickname.innerHTML = friendName.innerHTML;
-                        selfCallLoader.style.display = "block";
-                        const package = {
-                            headshot: document.querySelector(".headshot").src,
-                            nickname: document.querySelector(".profile-name-content").innerHTML,
-                            userId: parseInt(selfId)
-                        }
-                        roomName = `${selfId}and${friendId}`;
-                        socket.emit("join", roomName, package);
-                        creator = true;
-                        // 获取麦克风的媒体流
-                        navigator.mediaDevices.getUserMedia({ audio: true })
-                            .then(stream => {
-                                userStream = stream;
-                            })
-                            .catch(error => console.error(error));
-
-                    } else {
-                        errorMessage.style.display = "block";
-                        errorMessage.innerHTML = "需要雙方都為好友才能撥打";
-                        setTimeout(() => {
-                            errorMessage.style.display = "none";
-                        }, 3000)
+            if (peerId) {
+                fetch("check_friend_status", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        friendId: friendId
+                    })
+                    , headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
                     }
                 })
+                    .then((response) => {
+                        return response.json();
+                    })
+                    .then((data) => {
+                        if (data.status === "success") {
+                            selfCallNickname.style.marginBottom = "0px";
+                            friendPopup.style.display = "none";
+                            selfCallTime.style.display = "none";
+                            selfCallPopup.style.display = "block";
+                            selfCallHeadshot.src = friendPopupHeadshot.src;
+                            selfCallNickname.innerHTML = friendName.innerHTML;
+                            selfCallLoader.style.display = "block";
+                            const package = {
+                                headshot: document.querySelector(".headshot").src,
+                                nickname: document.querySelector(".profile-name-content").innerHTML,
+                                userId: parseInt(selfId)
+                            }
+                            roomName = `${selfId}and${friendId}`;
+                            socket.emit("join", roomName, package, peerId);
+                            creator = true;
+                            // 获取麦克风的媒体流
+                            navigator.mediaDevices.getUserMedia({ audio: true })
+                                .then(stream => {
+                                    userStream = stream;
 
+                                    myPeer.on("call", call => {
+                                        for (const audioElement of document.querySelectorAll('audio')) {
+                                            audioElement.srcObject = null;
+                                        }
+                                        call.answer(stream);
+
+                                        call.removeAllListeners("stream");
+                                        call.on("stream", userAudioStream => {
+                                            const audioElement = new Audio();
+                                            audioElement.className = `audio-${call.peer}`;
+                                            console.log("成員的stream")
+                                            console.log(userAudioStream)
+
+                                            console.log("成員的id")
+                                            console.log(call.peer)
+
+                                            connectToNewUser(call.peer, userAudioStream)
+
+                                            addAudioStream(audioElement, userAudioStream);
+                                            remoteStreamArr.push(audioElement);
+                                        })
+                                    })
+
+
+                                })
+                                .catch(error => console.error(error));
+
+                        } else {
+                            errorMessage.style.display = "block";
+                            errorMessage.innerHTML = "需要雙方都為好友才能撥打";
+                            setTimeout(() => {
+                                errorMessage.style.display = "none";
+                            }, 3000)
+                        }
+                    })
+
+            }
         }
-
 
     } else {
         console.log("calling")
@@ -722,7 +748,7 @@ socket.on("group-leave", (groupId, selfId, leavePeerId) => {
 
 
 //reciver 對方接聽
-socket.on("invite-join-call", (roomName, package, senderId) => {
+socket.on("invite-join-call", (roomName, package, senderId, peerId) => {
     if (!callSuccess && !groupCallSuccess && !groupRecipientCalled) {
         friendCallNickname.style.marginBottom = "0px";
         friendCallTime.style.display = "none";
@@ -732,7 +758,7 @@ socket.on("invite-join-call", (roomName, package, senderId) => {
         friendCallHeadshot.src = package.headshot;
         friendCallNickname.innerHTML = package.nickname;
         friendCallPopup.style.display = "block";
-        friendCallAcceptBtn.addEventListener("click", () => {
+        friendCallAcceptBtn.addEventListener("click", function acceptSingleCall() {
             friendCallNickname.style.marginBottom = "100px";
             socket.emit("recipient-join-room", roomName);
             creator = false;
@@ -741,11 +767,28 @@ socket.on("invite-join-call", (roomName, package, senderId) => {
             friendCallLoader.style.display = "none";
             navigator.mediaDevices.getUserMedia({ audio: true })
                 .then((stream) => {
-                    console.log("recipient", stream)
+                    myPeer.on("call", call => {
+                        for (const audioElement of document.querySelectorAll('audio')) {
+                            audioElement.srcObject = null;
+                        }
+
+                        call.answer(stream);
+                        call.removeAllListeners("stream");
+                        call.on("stream", userAudioStream => {
+                            const audioElement = new Audio();
+                            audioElement.className = `audio-${call.peer}`;
+
+                            console.log("streamstream", call.peer)
+                            addAudioStream(audioElement, userAudioStream)
+                        })
+                    })
                     userStream = stream;
+                    connectToNewUser(peerId, stream)
+                    groupCallAcceptBtn.removeEventListener("click", acceptSingleCall);
+                    localStream = stream;
                     socket.emit("ready", roomName);
                 })
-                .catch(error => console.error(error));
+                .catch(error => console.log(error));
         })
 
 
@@ -784,75 +827,76 @@ socket.on("ready", async () => {
 
         clearInterval(timer);
         timer = setInterval(selfPhoneCallTimer, 1000);
-        if (!peerConnection) {
-            peerConnection = new RTCPeerConnection(iceServers);
-        }
-        await waitForStableState(peerConnection);
-        console.log(peerConnection.signalingState);//用來確保 RTCPeerConnection 物件狀態的合法性
-        peerConnection.oniceconnectionstatechange = onIceConnectionStateFunction;
-        console.log("hello")
-        peerConnection.onicecandidate = (event) => {
-            if (!event.candidate) {
-                console.log("All ice candidates have been sent.");
-                return;
-            }
-            console.log("here")
-            onIceCandidateFunction(event, roomName);
-        };
-        peerConnection.ontrack = onTrackFunction;
+        socket.emit("offer", roomName);
+        // if (!peerConnection) {
+        //     peerConnection = new RTCPeerConnection(iceServers);
+        // }
+        // await waitForStableState(peerConnection);
+        // console.log(peerConnection.signalingState);//用來確保 RTCPeerConnection 物件狀態的合法性
+        // peerConnection.oniceconnectionstatechange = onIceConnectionStateFunction;
+        // console.log("hello")
+        // peerConnection.onicecandidate = (event) => {
+        //     if (!event.candidate) {
+        //         console.log("All ice candidates have been sent.");
+        //         return;
+        //     }
+        //     console.log("here")
+        //     onIceCandidateFunction(event, roomName);
+        // };
+        // peerConnection.ontrack = onTrackFunction;
 
-        let hasTrack = false;
-        peerConnection.getSenders().forEach((sender) => {
-            let track = sender.track;
-            if (track.kind === track.kind) {
-                hasTrack = true;
-            }
-        });
+        // let hasTrack = false;
+        // peerConnection.getSenders().forEach((sender) => {
+        //     let track = sender.track;
+        //     if (track.kind === track.kind) {
+        //         hasTrack = true;
+        //     }
+        // });
 
-        if (!hasTrack) {
-            userStream.getTracks().forEach((track) => {
-                peerConnection.addTrack(track, userStream);
-            });
-        }
+        // if (!hasTrack) {
+        //     userStream.getTracks().forEach((track) => {
+        //         peerConnection.addTrack(track, userStream);
+        //     });
+        // }
 
 
-        // 创建 offer
-        peerConnection.createOffer()
-            .then(offer => {
-                peerConnection.setLocalDescription(offer)
-                    .then(() => {
-                        // 傳送 RTCSessionDescription 回 sender
-                        socket.emit("offer", offer, roomName);
-                    })
-                    .catch(error => {
-                        console.error(error);
+        // // 创建 offer
+        // peerConnection.createOffer()
+        //     .then(offer => {
+        //         peerConnection.setLocalDescription(offer)
+        //             .then(() => {
+        //                 // 傳送 RTCSessionDescription 回 sender
+        //                 socket.emit("offer", offer, roomName);
+        //             })
+        //             .catch(error => {
+        //                 console.error(error);
 
-                    });
-            })
-            .catch(error => {
-                console.error(error);
-            });
+        //             });
+        //     })
+        //     .catch(error => {
+        //         console.error(error);
+        //     });
 
     }
 
 })
 
 
-socket.on("candidate", async (candidate) => {
-    if (peerConnection.remoteDescription) {
-        await peerConnection.addIceCandidate(candidate);
-    } else {
-        peerConnection.addEventListener("icecandidate", async (event) => {
-            if (event.candidate) {
-                console.log(event.candidate)
-                await peerConnection.addIceCandidate(event.candidate);
-            }
-        })
-    }
-})
+// socket.on("candidate", async (candidate) => {
+//     if (peerConnection.remoteDescription) {
+//         await peerConnection.addIceCandidate(candidate);
+//     } else {
+//         peerConnection.addEventListener("icecandidate", async (event) => {
+//             if (event.candidate) {
+//                 console.log(event.candidate)
+//                 await peerConnection.addIceCandidate(event.candidate);
+//             }
+//         })
+//     }
+// })
 
 //reciver
-socket.on("offer", async (offer, roomName) => {
+socket.on("offer", async (roomName) => {
 
     if (!creator) {
         seconds = 0;
@@ -869,51 +913,51 @@ socket.on("offer", async (offer, roomName) => {
         //撥打電話的計時器
         timer = setInterval(phoneCallTimer, 1000);
         callSuccess = true;
-        if (!peerConnection) {
-            peerConnection = new RTCPeerConnection(iceServers);
-        }
+        // if (!peerConnection) {
+        //     peerConnection = new RTCPeerConnection(iceServers);
+        // }
 
-        await waitForStableState(peerConnection);
+        // await waitForStableState(peerConnection);
 
-        console.log(peerConnection.signalingState);//用來確保 RTCPeerConnection 物件狀態的合法性
-        peerConnection.setRemoteDescription(offer);
-        console.log(offer)
-
-
-        peerConnection.oniceconnectionstatechange = onIceConnectionStateFunction;
-        peerConnection.onicecandidate = (event) => {
-            if (!event.candidate) {
-                console.log("All ice candidates have been sent.");
-                return;
-            }
-            onIceCandidateFunction(event, roomName);
-        };
-
-        peerConnection.ontrack = onTrackFunction;
-
-        let hasTrack = false;
-        peerConnection.getSenders().forEach((sender) => {
-            let track = sender.track;
-            if (track.kind === track.kind) {
-                hasTrack = true;
-            }
-        });
-
-        if (!hasTrack) {
-            userStream.getTracks().forEach((track) => {
-                peerConnection.addTrack(track, userStream);
-            });
-        }
+        // console.log(peerConnection.signalingState);//用來確保 RTCPeerConnection 物件狀態的合法性
+        // peerConnection.setRemoteDescription(offer);
+        // console.log(offer)
 
 
+        // peerConnection.oniceconnectionstatechange = onIceConnectionStateFunction;
+        // peerConnection.onicecandidate = (event) => {
+        //     if (!event.candidate) {
+        //         console.log("All ice candidates have been sent.");
+        //         return;
+        //     }
+        //     onIceCandidateFunction(event, roomName);
+        // };
+
+        // peerConnection.ontrack = onTrackFunction;
+
+        // let hasTrack = false;
+        // peerConnection.getSenders().forEach((sender) => {
+        //     let track = sender.track;
+        //     if (track.kind === track.kind) {
+        //         hasTrack = true;
+        //     }
+        // });
+
+        // if (!hasTrack) {
+        //     userStream.getTracks().forEach((track) => {
+        //         peerConnection.addTrack(track, userStream);
+        //     });
+        // }
 
 
-        peerConnection.createAnswer()
-            .then(answer => {
-                peerConnection.setLocalDescription(answer);
-                socket.emit("answer", answer, roomName);
-            })
-            .catch(error => console.error(error));
+
+
+        // peerConnection.createAnswer()
+        //     .then(answer => {
+        //         peerConnection.setLocalDescription(answer);
+        //         socket.emit("answer", answer, roomName);
+        //     })
+        //     .catch(error => console.error(error));
 
 
 
@@ -924,20 +968,20 @@ socket.on("offer", async (offer, roomName) => {
             document.querySelector(".self-call-icon").style.display = "none";
             if (callSuccess) {
 
-                socket.emit("leave", roomName);
-                if (userStream.getTracks()) {
-                    userStream.getTracks().forEach(track => track.stop());
+                socket.emit("leave", roomName, peerId);
+                // if (userStream.getTracks()) {
+                //     userStream.getTracks().forEach(track => track.stop());
 
-                    audioElement.srcObject = null;
-                }
-                if (peerConnection) {
-                    console.log("hey")
-                    peerConnection.ontrack = null;
-                    peerConnection.onicecandidate = null;
-                    peerConnection.close();
-                    peerConnection = null;
-                    peerConnection = new RTCPeerConnection(iceServers);
-                }
+                //     audioElement.srcObject = null;
+                // }
+                // if (peerConnection) {
+                //     console.log("hey")
+                //     peerConnection.ontrack = null;
+                //     peerConnection.onicecandidate = null;
+                //     peerConnection.close();
+                //     peerConnection = null;
+                //     peerConnection = new RTCPeerConnection(iceServers);
+                // }
                 seconds = 0;
                 minutes = 0;
                 hours = 0;
@@ -945,6 +989,75 @@ socket.on("offer", async (offer, roomName) => {
                 friendCallTime.style.display = "none";
                 friendCallPopup.style.display = "none";
                 callSuccess = false;
+                if (userStream) {
+                    if (userStream.getTracks()) {
+                        userStream.getTracks().forEach(track => track.stop());
+                        audioElement.srcObject = null;
+                        userStream = null;
+                    }
+                }
+
+                if (localStream) {
+                    if (localStream.getTracks()) {
+                        localStream.getTracks().forEach(track => track.stop());
+                        audioElement.srcObject = null;
+                        localStream = null;
+                    }
+                }
+
+
+                for (const peerId in thePeers) {
+                    if (thePeers.hasOwnProperty(peerId)) {
+                        const call = thePeers[peerId];
+                        if (call) {
+                            console.log("關閉連接")
+                            call.close();
+
+                        }
+                    }
+                }
+
+                remoteStreamArr.forEach(element => {
+                    element.pause();
+                    element.remove();
+                })
+
+
+                console.log(remoteStreamArr)
+
+                remoteStreamArr.forEach(element => {
+                    const audios = document.getElementsByClassName(element.className);
+                    for (let i = 0; i < audios.length; i++) {
+                        if (audios[i].srcObject) {
+                            const tracks = audios[i].srcObject.getTracks();
+                            console.log("tracktrack")
+                            tracks.forEach((track) => track.stop());
+                        }
+                    }
+                })
+                const audios = document.querySelectorAll("audio");
+                console.log(audios)
+                audios.forEach((audio) => {
+                    audio.pause();
+                });
+
+                myPeer.destroy();
+                peerId = null;
+                myPeer = new Peer({
+                    host: "0.peerjs.com",
+                    port: 443,
+                    path: "/",
+                    pingInterval: 5000,
+                });
+
+                myPeer.on('open', (name) => {
+                    peerId = name;
+                    console.log(peerId)
+                });
+                groupCallSuccess = false;
+                thePeers = {};
+                groupMemberArr = [];
+
 
             } else {
                 friendCallPopup.style.display = "none";
@@ -954,33 +1067,33 @@ socket.on("offer", async (offer, roomName) => {
     }
 })
 
-socket.on("answer", async (answer) => {
-    console.log("answer")
-    console.log(answer)
-    peerConnection.setRemoteDescription(answer);
-})
+// socket.on("answer", async (answer) => {
+//     console.log("answer")
+//     console.log(answer)
+//     peerConnection.setRemoteDescription(answer);
+// })
 
 
-async function addIceCandidate(candidate, roomName) {
-    try {
-        await peerConnection.addIceCandidate(candidate);
+// async function addIceCandidate(candidate, roomName) {
+//     try {
+//         await peerConnection.addIceCandidate(candidate);
 
-        console.log("Ice candidate added successfully");
-    } catch (error) {
-        console.error("Error adding ice candidate: " + error);
-    }
-}
+//         console.log("Ice candidate added successfully");
+//     } catch (error) {
+//         console.error("Error adding ice candidate: " + error);
+//     }
+// }
 
-async function onIceCandidateFunction(event, roomName) {
-    try {
-        if (event.candidate) {
-            socket.emit("candidate", event.candidate, roomName)
-        }
-    } catch (error) {
-        console.log("onIceCandidate Error : ");
-        console.error(error);
-    }
-}
+// async function onIceCandidateFunction(event, roomName) {
+//     try {
+//         if (event.candidate) {
+//             socket.emit("candidate", event.candidate, roomName)
+//         }
+//     } catch (error) {
+//         console.log("onIceCandidate Error : ");
+//         console.error(error);
+//     }
+// }
 
 
 socket.on("hangup-call", () => {
@@ -1003,40 +1116,40 @@ recipientHangupCall.addEventListener("click", () => {
 
 
 
-async function waitForStableState(peerConnection) {
-    console.log("連線狀態 :::::", peerConnection.signalingState)
-    while (peerConnection.signalingState !== "stable") {
-        console.log("連線狀態 :::::", peerConnection.signalingState)
-        await new Promise(resolve => peerConnection.oniceconnectionstatechange = resolve);
-    }
-    console.log("連線狀態 :::::", peerConnection.signalingState)
-}
+// async function waitForStableState(peerConnection) {
+//     console.log("連線狀態 :::::", peerConnection.signalingState)
+//     while (peerConnection.signalingState !== "stable") {
+//         console.log("連線狀態 :::::", peerConnection.signalingState)
+//         await new Promise(resolve => peerConnection.oniceconnectionstatechange = resolve);
+//     }
+//     console.log("連線狀態 :::::", peerConnection.signalingState)
+// }
 
 
 
 
-function onTrackFunction(event) {
-    try {
-        if (event.track.kind === "audio") {
-            audioElement.srcObject = event.streams[0];
-            audioElement.onloadedmetadata = (e) => {
-                audioElement.play();
-            };
-        } else {
-            console.log("unsuccess")
-        }
-    } catch (error) {
-        console.error(error);
-    }
+// function onTrackFunction(event) {
+//     try {
+//         if (event.track.kind === "audio") {
+//             audioElement.srcObject = event.streams[0];
+//             audioElement.onloadedmetadata = (e) => {
+//                 audioElement.play();
+//             };
+//         } else {
+//             console.log("unsuccess")
+//         }
+//     } catch (error) {
+//         console.error(error);
+//     }
 
-}
+// }
 
-function onIceConnectionStateFunction(event) {
-    console.log("Ice connection state: " + peerConnection.iceConnectionState);
-    if (peerConnection.iceConnectionState === "failed") {
-        console.error("ICE connection failed");
-    }
-}
+// function onIceConnectionStateFunction(event) {
+//     console.log("Ice connection state: " + peerConnection.iceConnectionState);
+//     if (peerConnection.iceConnectionState === "failed") {
+//         console.error("ICE connection failed");
+//     }
+// }
 
 function phoneCallTimer() {
 
@@ -1079,19 +1192,19 @@ selfCallHangup.addEventListener("click", () => {
         console.log("掛掉")
         socket.emit("leave", roomName);
 
-        if (userStream.getTracks()) {
-            userStream.getTracks().forEach(track => track.stop());
+        // if (userStream.getTracks()) {
+        //     userStream.getTracks().forEach(track => track.stop());
 
-            audioElement.srcObject = null;
-        }
-        if (peerConnection) {
-            console.log("hey")
-            peerConnection.ontrack = null;
-            peerConnection.onicecandidate = null;
-            peerConnection.close();
-            peerConnection = null;
-            peerConnection = new RTCPeerConnection(iceServers);
-        }
+        //     audioElement.srcObject = null;
+        // }
+        // if (peerConnection) {
+        //     console.log("hey")
+        //     peerConnection.ontrack = null;
+        //     peerConnection.onicecandidate = null;
+        //     peerConnection.close();
+        //     peerConnection = null;
+        //     peerConnection = new RTCPeerConnection(iceServers);
+        // }
         seconds = 0;
         minutes = 0;
         hours = 0;
@@ -1100,6 +1213,97 @@ selfCallHangup.addEventListener("click", () => {
 
         selfCallTime.style.display = "none";
         selfCallPopup.style.display = "none";
+        socket.emit("leave", roomName, peerId);
+        // if (userStream.getTracks()) {
+        //     userStream.getTracks().forEach(track => track.stop());
+
+        //     audioElement.srcObject = null;
+        // }
+        // if (peerConnection) {
+        //     console.log("hey")
+        //     peerConnection.ontrack = null;
+        //     peerConnection.onicecandidate = null;
+        //     peerConnection.close();
+        //     peerConnection = null;
+        //     peerConnection = new RTCPeerConnection(iceServers);
+        // }
+        seconds = 0;
+        minutes = 0;
+        hours = 0;
+        clearInterval(timer);
+        friendCallTime.style.display = "none";
+        friendCallPopup.style.display = "none";
+        callSuccess = false;
+        if (userStream) {
+            if (userStream.getTracks()) {
+                userStream.getTracks().forEach(track => track.stop());
+                audioElement.srcObject = null;
+                userStream = null;
+            }
+        }
+
+        if (localStream) {
+            if (localStream.getTracks()) {
+                localStream.getTracks().forEach(track => track.stop());
+                audioElement.srcObject = null;
+                localStream = null;
+            }
+        }
+
+
+        for (const peerId in thePeers) {
+            if (thePeers.hasOwnProperty(peerId)) {
+                const call = thePeers[peerId];
+                if (call) {
+                    console.log("關閉連接")
+                    call.close();
+
+                }
+            }
+        }
+
+        remoteStreamArr.forEach(element => {
+            element.pause();
+            element.remove();
+        })
+
+
+        console.log(remoteStreamArr)
+
+        remoteStreamArr.forEach(element => {
+            const audios = document.getElementsByClassName(element.className);
+            for (let i = 0; i < audios.length; i++) {
+                if (audios[i].srcObject) {
+                    const tracks = audios[i].srcObject.getTracks();
+                    console.log("tracktrack")
+                    tracks.forEach((track) => track.stop());
+                }
+            }
+        })
+        const audios = document.querySelectorAll("audio");
+        console.log(audios)
+        audios.forEach((audio) => {
+            audio.pause();
+        });
+
+        myPeer.destroy();
+        peerId = null;
+        myPeer = new Peer({
+            host: "0.peerjs.com",
+            port: 443,
+            path: "/",
+            pingInterval: 5000,
+        });
+
+        myPeer.on('open', (name) => {
+            peerId = name;
+            console.log(peerId)
+        });
+        groupCallSuccess = false;
+        thePeers = {};
+        groupMemberArr = [];
+
+
     } else {
         selfCallPopup.style.display = "none";
         socket.emit("hangup-call", roomName);
@@ -1108,28 +1312,47 @@ selfCallHangup.addEventListener("click", () => {
 
 })
 
-socket.on("leave", () => {
+socket.on("leave", (peerId) => {
     document.querySelector(".friend-call-image-icon").style.display = "none";
     document.querySelector(".self-call-icon").style.display = "none";
     clearInterval(timer);
     console.log(timer)
     selfCallTime.style.display = "none";
     friendCallTime.style.display = "none";
-
+    const audios = document.querySelectorAll("audio");
+    console.log(audios)
+    audios.forEach((audio) => {
+        audio.pause();
+    });
     callSuccess = false;
-    if (userStream.getTracks()) {
-        userStream.getTracks().forEach(track => track.stop());
+    // if (userStream.getTracks()) {
+    //     userStream.getTracks().forEach(track => track.stop());
 
-        audioElement.srcObject = null;
+    //     audioElement.srcObject = null;
+    // }
+    // if (peerConnection) {
+    //     console.log("hey")
+    //     peerConnection.ontrack = null;
+    //     peerConnection.onicecandidate = null;
+    //     peerConnection.close();
+    //     peerConnection = null;
+    //     peerConnection = new RTCPeerConnection(iceServers);
+    // }
+    const connections = myPeer.connections[peerId];
+    if (connections) {
+        console.log("herehere");
+        connections.forEach(connection => {
+            if (connection.open) {
+                console.log("hihihi");
+                connection.close();
+                delete thePeers[peerId];
+
+            }
+        });
     }
-    if (peerConnection) {
-        console.log("hey")
-        peerConnection.ontrack = null;
-        peerConnection.onicecandidate = null;
-        peerConnection.close();
-        peerConnection = null;
-        peerConnection = new RTCPeerConnection(iceServers);
-    }
+    console.log(thePeers)
+    console.log("someone leaving")
+
     seconds = 0;
     minutes = 0;
     hours = 0;

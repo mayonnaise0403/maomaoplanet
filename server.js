@@ -83,13 +83,13 @@ io.on('connection', (socket) => {
     })
 
     //加入通話
-    socket.on("join", (roomName, package) => {
+    socket.on("join", (roomName, package, peerId) => {
         const token = socket.request.signedCookies.access_token;
         const senderId = jwt.verify(token, secretKey).userId;
         socket.join(roomName);
         let userId = roomName.substring(roomName.indexOf("and"));
         userId = userId.replace("and", "")
-        socket.to(`user${userId}`).emit("invite-join-call", roomName, package, senderId)
+        socket.to(`user${userId}`).emit("invite-join-call", roomName, package, senderId, peerId)
     })
 
     socket.on("join-group-call", async (groupId, peerId) => {
@@ -171,9 +171,9 @@ io.on('connection', (socket) => {
         socket.broadcast.to(roomName).emit("candidate", candidate)
     })
 
-    socket.on("offer", (offer, roomName) => {
+    socket.on("offer", (roomName) => {
         console.log("offer")
-        socket.broadcast.to(roomName).emit("offer", offer, roomName);
+        socket.broadcast.to(roomName).emit("offer", roomName);
     });
 
     socket.on("answer", (answer, roomName) => {
@@ -198,10 +198,10 @@ io.on('connection', (socket) => {
     })
 
 
-    socket.on("leave", (roomName) => {
+    socket.on("leave", (roomName, peerId) => {
         console.log(roomName)
         socket.leave(roomName);
-        socket.broadcast.to(roomName).emit("leave");
+        socket.broadcast.to(roomName).emit("leave", peerId);
     })
 
 });
