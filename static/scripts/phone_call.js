@@ -56,166 +56,192 @@ myPeer.on('open', (name) => {
 });
 
 
-phoneCallIcon.addEventListener("click", () => {
-    groupMemberArr = [];
-    const isGroup = isNaN(friendChatId);
-    if (!callSuccess && !groupCallSuccess && !groupRecipientCalled) {
-        if (isGroup) {
-            if (peerId) {
-                groupCallPopUp.style.display = "block";
-                friendPopup.style.display = "none";
-                groupCallAcceptBtn.style.display = "none";
-                fetch("/api/get_group_member", {
-                    method: "POST",
-                    body: JSON.stringify({
-                        groupId: friendChatId
-                    })
-                    , headers: {
-                        'Content-type': 'application/json; charset=UTF-8',
-                    }
-                })
-                    .then((response) => {
-                        return response.json();
-                    })
-                    .then((data) => {
-                        data.data.forEach(element => {
-                            newDiv = document.createElement("div");
-                            newDiv.className = "group-call-member";
-                            groupCallMemberData.appendChild(newDiv);
-                            let groupCallMember = document.querySelectorAll(".group-call-member");
+// phoneCallIcon.addEventListener("click", () => {
+//     groupMemberArr = [];
+//     const isGroup = isNaN(friendChatId);
+//     if (!callSuccess && !groupCallSuccess && !groupRecipientCalled) {
+//         if (isGroup) {
+//             if (peerId) {
+//                 groupCallPopUp.style.display = "block";
+//                 friendPopup.style.display = "none";
+//                 groupCallAcceptBtn.style.display = "none";
+//                 fetch("/api/get_group_member", {
+//                     method: "POST",
+//                     body: JSON.stringify({
+//                         groupId: friendChatId
+//                     })
+//                     , headers: {
+//                         'Content-type': 'application/json; charset=UTF-8',
+//                     }
+//                 })
+//                     .then((response) => {
+//                         return response.json();
+//                     })
+//                     .then((data) => {
+//                         data.data.forEach(element => {
+//                             newDiv = document.createElement("div");
+//                             newDiv.className = "group-call-member";
+//                             groupCallMemberData.appendChild(newDiv);
+//                             let groupCallMember = document.querySelectorAll(".group-call-member");
 
 
-                            newImg = document.createElement("img");
-                            newImg.src = element.headshot;
-                            newImg.style.width = "100px";
-                            newImg.style.height = "100px";
-                            newImg.style.objectFit = "cover";
-                            newImg.style.borderRadius = "200px";
-                            newImg.style.border = "2px solid black";
-                            groupCallMember[groupCallMember.length - 1].appendChild(newImg);
+//                             newImg = document.createElement("img");
+//                             newImg.src = element.headshot;
+//                             newImg.style.width = "100px";
+//                             newImg.style.height = "100px";
+//                             newImg.style.objectFit = "cover";
+//                             newImg.style.borderRadius = "200px";
+//                             newImg.style.border = "2px solid black";
+//                             groupCallMember[groupCallMember.length - 1].appendChild(newImg);
 
 
-                            newP = document.createElement("p");
-                            newP.innerHTML = element.nickname;
-                            newP.style.textAlign = "center";
-                            newP.style.fontSize = "20px";
-                            newP.style.fontWeight = "bolder";
-                            newP.style.marginTop = "10px";
-                            newP.style.width = "100%";
-                            groupCallMember[groupCallMember.length - 1].appendChild(newP);
+//                             newP = document.createElement("p");
+//                             newP.innerHTML = element.nickname;
+//                             newP.style.textAlign = "center";
+//                             newP.style.fontSize = "20px";
+//                             newP.style.fontWeight = "bolder";
+//                             newP.style.marginTop = "10px";
+//                             newP.style.width = "100%";
+//                             groupCallMember[groupCallMember.length - 1].appendChild(newP);
 
-                            if (parseInt(element.member_id) !== parseInt(selfId)) {
-                                groupMemberArr.push(element.member_id);
-                            }
-                            newImg = document.createElement("img");
-                            newImg.style.width = "40px";
-                            newImg.className = `loading${element.member_id}`;
-                            newImg.src = "./images/Ellipsis-1s-72px.gif";
-                            groupCallMember[groupCallMember.length - 1].appendChild(newImg);
+//                             if (parseInt(element.member_id) !== parseInt(selfId)) {
+//                                 groupMemberArr.push(element.member_id);
+//                             }
+//                             newImg = document.createElement("img");
+//                             newImg.style.width = "40px";
+//                             newImg.className = `loading${element.member_id}`;
+//                             newImg.src = "./images/Ellipsis-1s-72px.gif";
+//                             groupCallMember[groupCallMember.length - 1].appendChild(newImg);
 
-                        })
-                        const myLoading = document.querySelector(`.loading${selfId}`);
-                        myLoading.src = "./images/check (1).png";
-                        myLoading.style.width = "40px";
-                        groupId = friendChatId
+//                         })
+//                         const myLoading = document.querySelector(`.loading${selfId}`);
+//                         myLoading.src = "./images/check (1).png";
+//                         myLoading.style.width = "40px";
+//                         groupId = friendChatId
 
-                        // if (!peerConnection) {
-                        //     peerConnection = new RTCPeerConnection(iceServers);
-                        // }
+//                         // if (!peerConnection) {
+//                         //     peerConnection = new RTCPeerConnection(iceServers);
+//                         // }
 
-                        socket.emit("join-group-call", groupId, peerId);
+//                         socket.emit("join-group-call", groupId, peerId);
 
-                    })
-                groupCallSuccess = true;
-                groupHost = true;
-            }
+//                     })
+//                 groupCallSuccess = true;
+//                 groupHost = true;
+//             }
 
-            creator = true;
-            // 获取麦克风的媒体流
-            navigator.mediaDevices.getUserMedia({ audio: true })
-                .then(stream => {
-                    userStream = stream;
-                    if (isGroup && peerId) {
-                        myPeer.on("call", call => {
-                            for (const audioElement of document.querySelectorAll('audio')) {
-                                audioElement.srcObject = null;
-                            }
-                            call.answer(stream);
+//             creator = true;
+//             // 获取麦克风的媒体流
+//             navigator.mediaDevices.getUserMedia({ audio: true })
+//                 .then(stream => {
+//                     userStream = stream;
+//                     if (isGroup && peerId) {
+//                         myPeer.on("call", call => {
+//                             for (const audioElement of document.querySelectorAll('audio')) {
+//                                 audioElement.srcObject = null;
+//                             }
+//                             call.answer(stream);
 
-                            call.removeAllListeners("stream");
-                            call.on("stream", userAudioStream => {
-                                const audioElement = new Audio();
-                                audioElement.className = `audio-${call.peer}`;
-                                console.log("成員的stream")
-                                console.log(userAudioStream)
+//                             call.removeAllListeners("stream");
+//                             call.on("stream", userAudioStream => {
+//                                 const audioElement = new Audio();
+//                                 audioElement.className = `audio-${call.peer}`;
+//                                 console.log("成員的stream")
+//                                 console.log(userAudioStream)
 
-                                console.log("成員的id")
-                                console.log(call.peer)
+//                                 console.log("成員的id")
+//                                 console.log(call.peer)
 
-                                connectToNewUser(call.peer, userAudioStream)
+//                                 connectToNewUser(call.peer, userAudioStream)
 
-                                addAudioStream(audioElement, userAudioStream);
-                                remoteStreamArr.push(audioElement);
-                            })
-                        })
-                    }
+//                                 addAudioStream(audioElement, userAudioStream);
+//                                 remoteStreamArr.push(audioElement);
+//                             })
+//                         })
+//                     }
 
-                })
-                .catch(error => console.error(error));
+//                 })
+//                 .catch(error => console.error(error));
 
-        } else {
-            fetch("check_friend_status", {
-                method: "POST",
-                body: JSON.stringify({
-                    friendId: friendChatId
-                })
-                , headers: {
-                    'Content-type': 'application/json; charset=UTF-8',
-                }
-            })
-                .then((response) => {
-                    return response.json();
-                })
-                .then((data) => {
-                    if (data.status === "success") {
-                        selfCallNickname.style.marginBottom = "0px";
-                        friendPopup.style.display = "none";
-                        selfCallTime.style.display = "none";
-                        selfCallPopup.style.display = "block";
-                        selfCallHeadshot.src = document.querySelector(`.user${friendChatId}-message`).parentNode.parentNode.querySelector("img").src;
-                        selfCallNickname.innerHTML = chatBoxFriendName.innerHTML;
-                        selfCallLoader.style.display = "block";
-                        const package = {
-                            headshot: document.querySelector(".headshot").src,
-                            nickname: document.querySelector(".profile-name-content").innerHTML,
-                            userId: parseInt(selfId)
-                        }
-                        roomName = `${selfId}and${friendChatId}`;
-                        socket.emit("join", roomName, package);
-                        creator = true;
-                        // 获取麦克风的媒体流
-                        navigator.mediaDevices.getUserMedia({ audio: true })
-                            .then(stream => {
-                                userStream = stream;
-                            })
-                            .catch(error => console.error(error));
+//         } else {
+//             fetch("check_friend_status", {
+//                 method: "POST",
+//                 body: JSON.stringify({
+//                     friendId: friendChatId
+//                 })
+//                 , headers: {
+//                     'Content-type': 'application/json; charset=UTF-8',
+//                 }
+//             })
+//                 .then((response) => {
+//                     return response.json();
+//                 })
+//                 .then((data) => {
+//                     if (data.status === "success") {
+//                         selfCallNickname.style.marginBottom = "0px";
+//                         friendPopup.style.display = "none";
+//                         selfCallTime.style.display = "none";
+//                         selfCallPopup.style.display = "block";
+//                         selfCallHeadshot.src = document.querySelector(`.user${friendChatId}-message`).parentNode.parentNode.querySelector("img").src;
+//                         selfCallNickname.innerHTML = chatBoxFriendName.innerHTML;
+//                         selfCallLoader.style.display = "block";
+//                         const package = {
+//                             headshot: document.querySelector(".headshot").src,
+//                             nickname: document.querySelector(".profile-name-content").innerHTML,
+//                             userId: parseInt(selfId)
+//                         }
+//                         roomName = `${selfId}and${friendChatId}`;
+//                         socket.emit("join", roomName, package);
+//                         creator = true;
+//                         // 获取麦克风的媒体流
+//                         navigator.mediaDevices.getUserMedia({ audio: true })
+//                             .then(stream => {
+//                                 userStream = stream;
 
-                    } else {
-                        errorMessage.style.display = "block";
-                        errorMessage.innerHTML = "需要雙方都為好友才能撥打";
-                        setTimeout(() => {
-                            errorMessage.style.display = "none";
-                        }, 3000)
-                    }
-                })
+//                                 myPeer.on("call", call => {
+//                                     for (const audioElement of document.querySelectorAll('audio')) {
+//                                         audioElement.srcObject = null;
+//                                     }
+//                                     call.answer(stream);
 
-        }
+//                                     call.removeAllListeners("stream");
+//                                     call.on("stream", userAudioStream => {
+//                                         const audioElement = new Audio();
+//                                         audioElement.className = `audio-${call.peer}`;
+//                                         console.log("成員的stream")
+//                                         console.log(userAudioStream)
+
+//                                         console.log("成員的id")
+//                                         console.log(call.peer)
+
+//                                         connectToNewUser(call.peer, userAudioStream)
+
+//                                         addAudioStream(audioElement, userAudioStream);
+//                                         remoteStreamArr.push(audioElement);
+//                                     })
+//                                 })
 
 
-    } else {
-        console.log("calling")
-    }
-})
+//                             })
+//                             .catch(error => console.error(error));
+
+
+//                     } else {
+//                         errorMessage.style.display = "block";
+//                         errorMessage.innerHTML = "需要雙方都為好友才能撥打";
+//                         setTimeout(() => {
+//                             errorMessage.style.display = "none";
+//                         }, 3000)
+//                     }
+//                 })
+
+//         }
+
+
+//     } else {
+//         console.log("calling")
+//     }
+// })
 
 
 //與好友通話 sender
