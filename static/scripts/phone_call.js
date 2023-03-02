@@ -1315,6 +1315,8 @@ selfCallHangup.addEventListener("click", () => {
 socket.on("leave", (peerId) => {
     document.querySelector(".friend-call-image-icon").style.display = "none";
     document.querySelector(".self-call-icon").style.display = "none";
+    selfCallPopup.style.display = "none";
+    friendCallPopup.style.display = "none";
     clearInterval(timer);
     console.log(timer)
     selfCallTime.style.display = "none";
@@ -1356,8 +1358,7 @@ socket.on("leave", (peerId) => {
     seconds = 0;
     minutes = 0;
     hours = 0;
-    selfCallPopup.style.display = "none";
-    friendCallPopup.style.display = "none";
+
 })
 
 const groupCallPopUp = document.querySelector(".group-call-popup");
