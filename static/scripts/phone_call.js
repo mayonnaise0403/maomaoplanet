@@ -1190,7 +1190,7 @@ selfCallHangup.addEventListener("click", () => {
     document.querySelector(".self-call-icon").style.display = "none";
     if (callSuccess) {
         console.log("掛掉")
-        socket.emit("leave", roomName);
+        socket.emit("leave", roomName, peerId);
 
         // if (userStream.getTracks()) {
         //     userStream.getTracks().forEach(track => track.stop());
