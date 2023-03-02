@@ -21,16 +21,15 @@ body {
     width: 500px;
     background-color: white;
     margin: auto;
-    margin-top: 100px;
     border-radius: 15px;
-
+    margin-top: 150px;
 }
 
 #signup-container {
     width: 500px;
     background-color: white;
     margin: auto;
-    margin-top: 100px;
+    margin-top: 150px;
     border-radius: 15px;
 }
 
