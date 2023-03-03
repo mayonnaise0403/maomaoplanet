@@ -87,6 +87,7 @@ io.on('connection', (socket) => {
         const token = socket.request.signedCookies.access_token;
         const senderId = jwt.verify(token, secretKey).userId;
         socket.join(roomName);
+        console.log("i join roomname:", roomName)
         let userId = roomName.substring(roomName.indexOf("and"));
         userId = userId.replace("and", "")
         socket.to(`user${userId}`).emit("invite-join-call", roomName, package, senderId, peerId)
@@ -98,8 +99,6 @@ io.on('connection', (socket) => {
         const MemberIdArr = await Search.getGroupMemberId(groupId);
         socket.join(groupId);
         const host = socket.id;
-        console.log("host")
-        console.log(host)
         MemberIdArr.forEach(element => {
             socket.to(`user${element.member_id}`).emit("invite-join-group-call", groupId, selfId, peerId);
         })
@@ -113,9 +112,7 @@ io.on('connection', (socket) => {
         MemberIdArr.forEach(element => {
             socket.to(`user${element.member_id}`).emit("group-accept-call-member", selfId);
         })
-
     })
-
 
 
     socket.on("accept-group-call", (groupId) => {
@@ -127,7 +124,6 @@ io.on('connection', (socket) => {
     })
 
     socket.on("recipient-join-room", (roomName) => {
-        console.log("recipient join the room");
         socket.join(roomName);
     })
 
@@ -166,20 +162,19 @@ io.on('connection', (socket) => {
         socket.broadcast.to(groupId).emit("select-new-host", peerId)
     })
 
-    socket.on("candidate", (candidate, roomName) => {
-        console.log("candidate")
-        socket.broadcast.to(roomName).emit("candidate", candidate)
-    })
+    // socket.on("candidate", (candidate, roomName) => {
+    //     console.log("candidate")
+    //     socket.broadcast.to(roomName).emit("candidate", candidate)
+    // })
 
     socket.on("offer", (roomName) => {
-        console.log("offer")
         socket.broadcast.to(roomName).emit("offer", roomName);
     });
 
-    socket.on("answer", (answer, roomName) => {
-        console.log("answer")
-        socket.broadcast.to(roomName).emit("answer", answer);
-    })
+    // socket.on("answer", (answer, roomName) => {
+    //     console.log("answer")
+    //     socket.broadcast.to(roomName).emit("answer", answer);
+    // })
 
 
     socket.on("join-self-room", async (room) => {
