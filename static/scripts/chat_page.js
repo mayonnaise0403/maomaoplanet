@@ -257,9 +257,11 @@ selectGroupHeadshotBtn.addEventListener("click", () => {
     groupHeadshotUploadInput.click();
 })
 
+let imageURL;
 //預覽群組頭貼
 groupHeadshotUploadInput.addEventListener("change", () => {
     groupHeadshotFile = groupHeadshotUploadInput.files[0];
+    imageURL = URL.createObjectURL(groupHeadshotFile);
     previewGroupHeadshot = groupHeadshotImage.src;
     groupHeadshotDatatype = groupHeadshotFile.type;
     const reader = new FileReader();
@@ -300,8 +302,9 @@ uploadGroupHeadshotBtn.addEventListener("click", () => {
                     setTimeout(() => {
                         errorMessage.style.display = "none";
                     }, 2000)
-                    document.querySelector(`[data-attribute-name='${friendChatId}']`).parentNode.parentNode.querySelector("img").src = data.image;
-                    document.querySelector(`.group-headshot-${friendChatId}`).src = data.image;
+                    document.querySelector(`[data-attribute-name='${friendChatId}']`).parentNode.parentNode.querySelector("img").src = imageURL;
+                    document.querySelector(`.group-headshot-${friendChatId}`).src = imageURL;
+
 
                 } else {
 

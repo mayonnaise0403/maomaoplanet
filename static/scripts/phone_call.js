@@ -85,7 +85,6 @@ phoneCallIcon.addEventListener("click", () => {
                             groupCallMemberData.appendChild(newDiv);
                             let groupCallMember = document.querySelectorAll(".group-call-member");
 
-
                             newImg = document.createElement("img");
                             newImg.src = element.headshot;
                             newImg.style.width = "100px";
@@ -94,7 +93,6 @@ phoneCallIcon.addEventListener("click", () => {
                             newImg.style.borderRadius = "200px";
                             newImg.style.border = "2px solid black";
                             groupCallMember[groupCallMember.length - 1].appendChild(newImg);
-
 
                             newP = document.createElement("p");
                             newP.innerHTML = element.nickname;
