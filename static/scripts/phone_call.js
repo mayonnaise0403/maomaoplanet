@@ -147,9 +147,10 @@ phoneCallIcon.addEventListener("click", () => {
                             for (const audioElement of document.querySelectorAll('audio')) {
                                 audioElement.srcObject = null;
                             }
-                            call.answer(stream);
+
 
                             call.removeAllListeners("stream");
+                            call.answer(stream);
                             call.on("stream", userAudioStream => {
                                 const audioElement = new Audio();
                                 audioElement.className = `audio-${call.peer}`;
@@ -216,12 +217,12 @@ phoneCallIcon.addEventListener("click", () => {
                                         call.on("stream", userAudioStream => {
                                             const audioElement = new Audio();
                                             audioElement.className = `audio-${call.peer}`;
-                                            connectToNewUser(call.peer, userAudioStream)
-
                                             addAudioStream(audioElement, userAudioStream);
                                             remoteStreamArr.push(audioElement);
                                         })
+                                        connectToNewUser(call.peer, stream)
                                     })
+
 
 
                                 })
@@ -244,7 +245,27 @@ phoneCallIcon.addEventListener("click", () => {
     }
 
 })
+function connectToNewUser(peerId, stream) {
+    const call = myPeer.call(peerId, stream);
+    const audioElement = new Audio();
+    audioElement.className = `audio-${peerId}`;
+    call.on("stream", userAudioStream => {
+        addAudioStream(audioElement, userAudioStream);
+    })
+    call.on('close', () => {
+        audioElement.remove()
+    })
+    thePeers[peerId] = call
+}
 
+function addAudioStream(audio, stream) {
+    audio.srcObject = stream;
+    document.body.appendChild(audio)
+    audio.onloadedmetadata = () => {
+        audio.play();
+    };
+
+}
 
 //與好友通話 sender
 friendPopupCall.addEventListener("click", () => {
