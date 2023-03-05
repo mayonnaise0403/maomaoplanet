@@ -543,19 +543,26 @@ socket.on("invite-join-group-call", (groupId, senderId, hostPeerId) => {
                                 for (const audioElement of document.querySelectorAll('audio')) {
                                     audioElement.srcObject = null;
                                 }
-                                // call.answer(stream);
-                                call.removeAllListeners("stream");
+
+                                // call.removeAllListeners("stream");
+                                call.answer(stream);
                                 call.on("stream", userAudioStream => {
                                     const audioElement = new Audio();
                                     audioElement.className = `audio-${call.peer}`;
                                     addAudioStream(audioElement, userAudioStream);
+                                    console.log("成員的id")
+                                    console.log(call.peer)
+                                    // 將自己的音軌 muted
+                                    userAudioStream.getAudioTracks()[0].enabled = false;
 
                                 })
+
                             })
                             userStream = stream;
                             connectToNewUser(hostPeerId, stream)
                             groupCallAcceptBtn.removeEventListener("click", acceptGroupCall);
                             localStream = stream;
+
                         })
                         .catch(error => console.error(error));
                 })
