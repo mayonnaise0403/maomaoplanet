@@ -43,7 +43,7 @@ router.post("/update_group_name", async (req, res) => {
 
         } res.status(500).send({ status: "error" })
     } catch (err) {
-
+        res.status(500).send({ status: "error", message: "伺服器內部發生錯誤" })
     }
 })
 
@@ -62,9 +62,7 @@ router.post("/leave_group", async (req, res) => {
     }
 })
 
-router.post("/get_group_member_data", (req, res) => {
 
-})
 
 
 module.exports = router;

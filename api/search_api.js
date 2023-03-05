@@ -8,11 +8,11 @@ const secretKey = process.env.Jwt_Secrect_Key;
 
 
 router.post("/add_friend", async (req, res) => {
-    const token = req.signedCookies.access_token;
-    const decoded = jwt.decode(token, secretKey);
-    const email = req.body.email;
-    const friend_id = req.body.friend_id;
     try {
+        const token = req.signedCookies.access_token;
+        const decoded = jwt.decode(token, secretKey);
+        const email = req.body.email;
+        const friend_id = req.body.friend_id;
         if (email) {
             findfriendId(email)
                 .then(async (result) => {
@@ -51,42 +51,60 @@ router.get("/api/search_user", async (req, res) => {  //要扣除自己
             }
         }
     } catch (err) {
-        res.status(500).send({ status: "error", message: "內部伺服器發生錯誤，請稍後再試" })
+        res.status(500).send({ status: "error", message: "內部伺服器出現錯誤" });
     }
 })
 
 router.get("/api/add_user_to_group_friendlist", async (req, res) => {
-    const token = req.signedCookies.access_token;
-    const selfId = jwt.decode(token, secretKey).userId;
-    const groupId = req.query.groupId;
-    const result = await Search.addUserToGroupFriendlist(selfId, groupId);
-    res.status(200).send({ status: "success", friend_list: result })
+    try {
+        const token = req.signedCookies.access_token;
+        const selfId = jwt.decode(token, secretKey).userId;
+        const groupId = req.query.groupId;
+        const result = await Search.addUserToGroupFriendlist(selfId, groupId);
+        res.status(200).send({ status: "success", friend_list: result });
+    } catch (err) {
+        res.status(500).send({ status: "error", message: "內部伺服器出現錯誤" });
+    }
+
 
 })
 
 
 router.get("/api/get_friendlist", async (req, res) => {
-
-    const token = req.signedCookies.access_token;
-    const selfId = jwt.decode(token, secretKey).userId;
-    const friendData = await Search.getFriendList(selfId);
-    res.send({ status: "success", "self_id": selfId, "friend_list": friendData });
+    try {
+        const token = req.signedCookies.access_token;
+        const selfId = jwt.decode(token, secretKey).userId;
+        const friendData = await Search.getFriendList(selfId);
+        res.send({ status: "success", "self_id": selfId, "friend_list": friendData });
+    } catch (err) {
+        res.status(500).send({ status: "error", message: "內部伺服器發生錯誤" });
+    }
 
 
 })
 
 router.get("/api/get_grouplist", async (req, res) => {
-    const token = req.signedCookies.access_token;
-    const selfId = jwt.decode(token, secretKey).userId;
-    const groupData = await Search.getGroupList(selfId);
-    res.send({ status: "success", "group_list": groupData })
+    try {
+        const token = req.signedCookies.access_token;
+        const selfId = jwt.decode(token, secretKey).userId;
+        const groupData = await Search.getGroupList(selfId);
+        res.send({ status: "success", "group_list": groupData })
+    } catch (err) {
+        res.status(500).send({ status: "error", message: "內部伺服器發生錯誤" });
+    }
+
 })
 
 router.get("/api/search_friend", async (req, res) => {
-    const token = req.signedCookies.access_token;
-    const selfId = jwt.decode(token, secretKey).userId;
-    const result = await Search.searchFriend(selfId, req.query.nickname);
-    res.send({ status: "success", "self_id": selfId, "friend_list": result });
+    try {
+        const token = req.signedCookies.access_token;
+        const selfId = jwt.decode(token, secretKey).userId;
+        const result = await Search.searchFriend(selfId, req.query.nickname);
+        res.send({ status: "success", "self_id": selfId, "friend_list": result });
+    } catch (err) {
+        res.status(500).send({ status: "error", message: "內部伺服器發生錯誤" });
+    }
+
 })
 
 router.post("/api/get_group_member", async (req, res) => {
@@ -96,7 +114,7 @@ router.post("/api/get_group_member", async (req, res) => {
         const result = await Search.getGroupMember(selfId, req.body.groupId);
         res.send({ status: "success", data: result })
     } catch (err) {
-        res.status(500).send({ status: "error", message: err })
+        res.status(500).send({ status: "error", message: "內部伺服器發生錯誤" })
     }
 
 })

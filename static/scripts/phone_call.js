@@ -79,54 +79,62 @@ phoneCallIcon.addEventListener("click", () => {
                         return response.json();
                     })
                     .then((data) => {
-                        data.data.forEach(element => {
-                            newDiv = document.createElement("div");
-                            newDiv.className = "group-call-member";
-                            groupCallMemberData.appendChild(newDiv);
-                            let groupCallMember = document.querySelectorAll(".group-call-member");
+                        if (data.status === "error") {
+                            errorMessage.style.display = "block";
+                            errorMessage.innerHTML = data.message;
+                            setTimeout(() => {
+                                errorMessage.style.display = "none";
+                            }, 3000)
+                        } else {
+                            data.data.forEach(element => {
+                                newDiv = document.createElement("div");
+                                newDiv.className = "group-call-member";
+                                groupCallMemberData.appendChild(newDiv);
+                                let groupCallMember = document.querySelectorAll(".group-call-member");
 
-                            newImg = document.createElement("img");
-                            newImg.src = element.headshot;
-                            newImg.style.width = "100px";
-                            newImg.style.height = "100px";
-                            newImg.style.objectFit = "cover";
-                            newImg.style.borderRadius = "200px";
-                            newImg.style.border = "2px solid black";
-                            groupCallMember[groupCallMember.length - 1].appendChild(newImg);
+                                newImg = document.createElement("img");
+                                newImg.src = element.headshot;
+                                newImg.style.width = "100px";
+                                newImg.style.height = "100px";
+                                newImg.style.objectFit = "cover";
+                                newImg.style.borderRadius = "200px";
+                                newImg.style.border = "2px solid black";
+                                groupCallMember[groupCallMember.length - 1].appendChild(newImg);
 
-                            newP = document.createElement("p");
-                            newP.innerHTML = element.nickname;
-                            newP.style.textAlign = "center";
-                            newP.style.fontSize = "20px";
-                            newP.style.fontWeight = "bolder";
-                            newP.style.marginTop = "10px";
-                            newP.style.width = "100%";
-                            groupCallMember[groupCallMember.length - 1].appendChild(newP);
+                                newP = document.createElement("p");
+                                newP.innerHTML = element.nickname;
+                                newP.style.textAlign = "center";
+                                newP.style.fontSize = "20px";
+                                newP.style.fontWeight = "bolder";
+                                newP.style.marginTop = "10px";
+                                newP.style.width = "100%";
+                                groupCallMember[groupCallMember.length - 1].appendChild(newP);
 
-                            if (parseInt(element.member_id) !== parseInt(selfId)) {
-                                groupMemberArr.push(element.member_id);
-                            }
-                            newImg = document.createElement("img");
-                            newImg.style.width = "40px";
-                            newImg.className = `loading${element.member_id}`;
-                            newImg.src = "./images/Ellipsis-1s-72px.gif";
-                            groupCallMember[groupCallMember.length - 1].appendChild(newImg);
+                                if (parseInt(element.member_id) !== parseInt(selfId)) {
+                                    groupMemberArr.push(element.member_id);
+                                }
+                                newImg = document.createElement("img");
+                                newImg.style.width = "40px";
+                                newImg.className = `loading${element.member_id}`;
+                                newImg.src = "./images/Ellipsis-1s-72px.gif";
+                                groupCallMember[groupCallMember.length - 1].appendChild(newImg);
 
-                        })
-                        const myLoading = document.querySelector(`.loading${selfId}`);
-                        myLoading.src = "./images/check (1).png";
-                        myLoading.style.width = "40px";
-                        groupId = friendChatId
+                            })
+                            const myLoading = document.querySelector(`.loading${selfId}`);
+                            myLoading.src = "./images/check (1).png";
+                            myLoading.style.width = "40px";
+                            groupId = friendChatId
 
-                        // if (!peerConnection) {
-                        //     peerConnection = new RTCPeerConnection(iceServers);
-                        // }
+                            // if (!peerConnection) {
+                            //     peerConnection = new RTCPeerConnection(iceServers);
+                            // }
 
-                        socket.emit("join-group-call", groupId, peerId);
-
+                            socket.emit("join-group-call", groupId, peerId);
+                            groupCallSuccess = true;
+                            groupHost = true;
+                        }
                     })
-                groupCallSuccess = true;
-                groupHost = true;
+
             }
 
             creator = true;
@@ -227,7 +235,7 @@ phoneCallIcon.addEventListener("click", () => {
 
                         } else {
                             errorMessage.style.display = "block";
-                            errorMessage.innerHTML = "需要雙方都為好友才能撥打";
+                            errorMessage.innerHTML = data.message;
                             setTimeout(() => {
                                 errorMessage.style.display = "none";
                             }, 3000)
@@ -267,56 +275,64 @@ friendPopupCall.addEventListener("click", () => {
                         return response.json();
                     })
                     .then((data) => {
-                        data.data.forEach(element => {
-                            newDiv = document.createElement("div");
-                            newDiv.className = "group-call-member";
-                            groupCallMemberData.appendChild(newDiv);
-                            let groupCallMember = document.querySelectorAll(".group-call-member");
+                        if (data.statu === "error") {
+                            errorMessage.style.display = "block";
+                            errorMessage.innerHTML = data.message;
+                            setTimeout(() => {
+                                errorMessage.style.display = "none";
+                            }, 3000)
+                        } else {
+                            data.data.forEach(element => {
+                                newDiv = document.createElement("div");
+                                newDiv.className = "group-call-member";
+                                groupCallMemberData.appendChild(newDiv);
+                                let groupCallMember = document.querySelectorAll(".group-call-member");
 
 
-                            newImg = document.createElement("img");
-                            newImg.src = element.headshot;
-                            newImg.style.width = "100px";
-                            newImg.style.height = "100px";
-                            newImg.style.objectFit = "cover";
-                            newImg.style.borderRadius = "200px";
-                            newImg.style.border = "2px solid black";
-                            groupCallMember[groupCallMember.length - 1].appendChild(newImg);
+                                newImg = document.createElement("img");
+                                newImg.src = element.headshot;
+                                newImg.style.width = "100px";
+                                newImg.style.height = "100px";
+                                newImg.style.objectFit = "cover";
+                                newImg.style.borderRadius = "200px";
+                                newImg.style.border = "2px solid black";
+                                groupCallMember[groupCallMember.length - 1].appendChild(newImg);
 
 
-                            newP = document.createElement("p");
-                            newP.innerHTML = element.nickname;
-                            newP.style.textAlign = "center";
-                            newP.style.fontSize = "20px";
-                            newP.style.fontWeight = "bolder";
-                            newP.style.marginTop = "10px";
-                            newP.style.width = "100%";
-                            groupCallMember[groupCallMember.length - 1].appendChild(newP);
+                                newP = document.createElement("p");
+                                newP.innerHTML = element.nickname;
+                                newP.style.textAlign = "center";
+                                newP.style.fontSize = "20px";
+                                newP.style.fontWeight = "bolder";
+                                newP.style.marginTop = "10px";
+                                newP.style.width = "100%";
+                                groupCallMember[groupCallMember.length - 1].appendChild(newP);
 
-                            if (parseInt(element.member_id) !== parseInt(selfId)) {
-                                groupMemberArr.push(element.member_id);
-                            }
-                            newImg = document.createElement("img");
-                            newImg.style.width = "40px";
-                            newImg.className = `loading${element.member_id}`;
-                            newImg.src = "./images/Ellipsis-1s-72px.gif";
-                            groupCallMember[groupCallMember.length - 1].appendChild(newImg);
+                                if (parseInt(element.member_id) !== parseInt(selfId)) {
+                                    groupMemberArr.push(element.member_id);
+                                }
+                                newImg = document.createElement("img");
+                                newImg.style.width = "40px";
+                                newImg.className = `loading${element.member_id}`;
+                                newImg.src = "./images/Ellipsis-1s-72px.gif";
+                                groupCallMember[groupCallMember.length - 1].appendChild(newImg);
 
-                        })
-                        const myLoading = document.querySelector(`.loading${selfId}`);
-                        myLoading.src = "./images/check (1).png";
-                        myLoading.style.width = "40px";
-                        groupId = friendId
+                            })
+                            const myLoading = document.querySelector(`.loading${selfId}`);
+                            myLoading.src = "./images/check (1).png";
+                            myLoading.style.width = "40px";
+                            groupId = friendId
 
-                        // if (!peerConnection) {
-                        //     peerConnection = new RTCPeerConnection(iceServers);
-                        // }
+                            // if (!peerConnection) {
+                            //     peerConnection = new RTCPeerConnection(iceServers);
+                            // }
 
-                        socket.emit("join-group-call", groupId, peerId);
-
+                            socket.emit("join-group-call", groupId, peerId);
+                            groupCallSuccess = true;
+                            groupHost = true;
+                        }
                     })
-                groupCallSuccess = true;
-                groupHost = true;
+
             }
 
             creator = true;
@@ -417,7 +433,7 @@ friendPopupCall.addEventListener("click", () => {
 
                         } else {
                             errorMessage.style.display = "block";
-                            errorMessage.innerHTML = "需要雙方都為好友才能撥打";
+                            errorMessage.innerHTML = data.message;
                             setTimeout(() => {
                                 errorMessage.style.display = "none";
                             }, 3000)
@@ -465,48 +481,56 @@ socket.on("invite-join-group-call", (groupId, senderId, hostPeerId) => {
                 return response.json();
             })
             .then((data) => {
-                data.data.forEach(element => {
-                    newDiv = document.createElement("div");
-                    newDiv.className = "group-call-member";
-                    groupCallMemberData.appendChild(newDiv);
-                    let groupCallMember = document.querySelectorAll(".group-call-member");
+                if (data.statu === "error") {
+                    errorMessage.style.display = "block";
+                    errorMessage.innerHTML = data.message;
+                    setTimeout(() => {
+                        errorMessage.style.display = "none";
+                    }, 3000)
+                } else {
+                    data.data.forEach(element => {
+                        newDiv = document.createElement("div");
+                        newDiv.className = "group-call-member";
+                        groupCallMemberData.appendChild(newDiv);
+                        let groupCallMember = document.querySelectorAll(".group-call-member");
 
-                    newImg = document.createElement("img");
-                    newImg.src = element.headshot;
-                    newImg.style.width = "100px";
-                    newImg.style.height = "100px";
-                    newImg.style.objectFit = "cover";
-                    newImg.style.borderRadius = "200px";
-                    newImg.style.border = "2px solid black";
-                    groupCallMember[groupCallMember.length - 1].appendChild(newImg);
+                        newImg = document.createElement("img");
+                        newImg.src = element.headshot;
+                        newImg.style.width = "100px";
+                        newImg.style.height = "100px";
+                        newImg.style.objectFit = "cover";
+                        newImg.style.borderRadius = "200px";
+                        newImg.style.border = "2px solid black";
+                        groupCallMember[groupCallMember.length - 1].appendChild(newImg);
 
 
-                    newP = document.createElement("p");
-                    newP.innerHTML = element.nickname;
-                    newP.style.textAlign = "center";
-                    newP.style.fontSize = "20px";
-                    newP.style.fontWeight = "bolder";
-                    newP.style.marginTop = "10px";
-                    newP.style.width = "100%";
-                    groupCallMember[groupCallMember.length - 1].appendChild(newP);
+                        newP = document.createElement("p");
+                        newP.innerHTML = element.nickname;
+                        newP.style.textAlign = "center";
+                        newP.style.fontSize = "20px";
+                        newP.style.fontWeight = "bolder";
+                        newP.style.marginTop = "10px";
+                        newP.style.width = "100%";
+                        groupCallMember[groupCallMember.length - 1].appendChild(newP);
 
-                    newImg = document.createElement("img");
-                    if (parseInt(element.member_id) !== parseInt(selfId)) {
-                        groupMemberArr.push(element.member_id);
-                    }
+                        newImg = document.createElement("img");
+                        if (parseInt(element.member_id) !== parseInt(selfId)) {
+                            groupMemberArr.push(element.member_id);
+                        }
 
-                    if (element.member_id == senderId) {
-                        newImg.src = "./images/check (1).png";
-                        newImg.className = `loading${element.member_id}`;
-                        newImg.style.width = "40px";
-                    } else {
-                        newImg.className = `loading${element.member_id}`;
-                        newImg.src = "./images/Ellipsis-1s-72px.gif";
-                    }
-                    groupCallMember[groupCallMember.length - 1].appendChild(newImg);
+                        if (element.member_id == senderId) {
+                            newImg.src = "./images/check (1).png";
+                            newImg.className = `loading${element.member_id}`;
+                            newImg.style.width = "40px";
+                        } else {
+                            newImg.className = `loading${element.member_id}`;
+                            newImg.src = "./images/Ellipsis-1s-72px.gif";
+                        }
+                        groupCallMember[groupCallMember.length - 1].appendChild(newImg);
 
-                })
-                groupCallAcceptBtn.style.display = "block";
+                    })
+                    groupCallAcceptBtn.style.display = "block";
+                }
             })
             .then(() => {
                 //接受通話

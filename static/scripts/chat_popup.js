@@ -105,66 +105,72 @@ addNewUserToGroupBtn.addEventListener("click", () => {
                 return response.json();
             })
             .then((data) => {
+                if (data.status === "error") {
+                    errorMessage.style.display = "block";
+                    errorMessage.innerHTML = data.message;
+                    setTimeout(() => {
+                        errorMessage.style.display = "none";
+                    }, 3000)
+                } else {
+                    data.friend_list.forEach(element => {
+                        newDiv = document.createElement("div");
+                        newDiv.style.display = "flex";
+                        newDiv.style.alignItems = "center";
+                        newDiv.style.margin = "20px";
+                        newDiv.style.justifyContent = "left";
+                        addUserToGroupFriendList[addUserToGroupFriendList.length - 1].appendChild(newDiv);
 
-                data.friend_list.forEach(element => {
-                    newDiv = document.createElement("div");
-                    newDiv.style.display = "flex";
-                    newDiv.style.alignItems = "center";
-                    newDiv.style.margin = "20px";
-                    newDiv.style.justifyContent = "left";
-                    addUserToGroupFriendList[addUserToGroupFriendList.length - 1].appendChild(newDiv);
+                        newImg = document.createElement("img");
+                        newImg.src = element.headshot;
+                        newImg.style.width = "40px";
+                        newImg.style.height = "40px";
+                        newImg.style.objectFit = "cover";
+                        newImg.style.borderRadius = "40px";
+                        newDiv.appendChild(newImg);
 
-                    newImg = document.createElement("img");
-                    newImg.src = element.headshot;
-                    newImg.style.width = "40px";
-                    newImg.style.height = "40px";
-                    newImg.style.objectFit = "cover";
-                    newImg.style.borderRadius = "40px";
-                    newDiv.appendChild(newImg);
+                        newP = document.createElement("p");
+                        newP.innerHTML = element.nickname;
+                        newP.style.marginLeft = "10px";
+                        newP.style.fontWeight = "bolder";
+                        newDiv.appendChild(newP);
 
-                    newP = document.createElement("p");
-                    newP.innerHTML = element.nickname;
-                    newP.style.marginLeft = "10px";
-                    newP.style.fontWeight = "bolder";
-                    newDiv.appendChild(newP);
+                        newImg = document.createElement("img");
+                        newImg.className = "add-friend-to-group-btn"
+                        newImg.src = "./images/add-button.png";
+                        newImg.style.width = "40px";
 
-                    newImg = document.createElement("img");
-                    newImg.className = "add-friend-to-group-btn"
-                    newImg.src = "./images/add-button.png";
-                    newImg.style.width = "40px";
+                        newDiv.appendChild(newImg);
 
-                    newDiv.appendChild(newImg);
+                        newImg.addEventListener("click", (e) => {
+                            console.log(element.user_id)
+                            e.target.parentNode.style.display = "none";
+                            fetch("/update_new_group_user", {
+                                method: "POST",
+                                body: JSON.stringify({
+                                    userId: element.user_id,
+                                    groupId: friendChatId
+                                }),
+                                headers: {
+                                    'Content-type': 'application/json; charset=UTF-8',
+                                },
+                            })
+                                .then((response) => {
+                                    return response.json();
+                                })
+                                .then((data) => {
+                                    if (data.status === "success") {
+                                        errorMessage.style.display = "block";
+                                        errorMessage.innerHTML = "✅新增成功";
+                                        setTimeout(() => {
+                                            errorMessage.style.display = "none";
+                                        }, 2000)
+                                    } else {
 
-                    newImg.addEventListener("click", (e) => {
-                        console.log(element.user_id)
-                        e.target.parentNode.style.display = "none";
-                        fetch("/update_new_group_user", {
-                            method: "POST",
-                            body: JSON.stringify({
-                                userId: element.user_id,
-                                groupId: friendChatId
-                            }),
-                            headers: {
-                                'Content-type': 'application/json; charset=UTF-8',
-                            },
+                                    }
+                                })
                         })
-                            .then((response) => {
-                                return response.json();
-                            })
-                            .then((data) => {
-                                if (data.status === "success") {
-                                    errorMessage.style.display = "block";
-                                    errorMessage.innerHTML = "✅新增成功";
-                                    setTimeout(() => {
-                                        errorMessage.style.display = "none";
-                                    }, 2000)
-                                } else {
-
-                                }
-                            })
                     })
-                })
-
+                }
             })
     } else {
         addNewUserContainer.style.display = "none"
@@ -190,48 +196,56 @@ chatPopupPictureAndVideo.addEventListener("click", () => {
                 return response.json();
             })
             .then((data) => {
-                pictureList.style.display = "block";
-                videoList.style.display = "none";
-                data.data.forEach(element => {
-                    const index = element.message.indexOf("(", element.message.length - 1 - 14);
-                    const dataType = element.message.substring(index, element.message.length)
-                    if (dataType === "(image)" || dataType === "(video)") {
-                        if (dataType === "(image)") {
-                            newImg = document.createElement("img");
-                            newImg.src = element.message;
-                            newImg.style.width = "150px";
-                            newImg.style.height = "150px";
-                            newImg.style.borderRadius = "10px";
-                            newImg.style.marginLeft = "10px";
-                            newImg.style.objectFit = "cover";
-                            newImg.style.cursor = "pointer";
-                            pictureList.appendChild(newImg);
+                if (data.status === "error") {
+                    errorMessage.style.display = "block";
+                    errorMessage.innerHTML = data.message;
+                    setTimeout(() => {
+                        errorMessage.style.display = "none";
+                    }, 3000)
+                } else {
+                    pictureList.style.display = "block";
+                    videoList.style.display = "none";
+                    data.data.forEach(element => {
+                        const index = element.message.indexOf("(", element.message.length - 1 - 14);
+                        const dataType = element.message.substring(index, element.message.length)
+                        if (dataType === "(image)" || dataType === "(video)") {
+                            if (dataType === "(image)") {
+                                newImg = document.createElement("img");
+                                newImg.src = element.message;
+                                newImg.style.width = "150px";
+                                newImg.style.height = "150px";
+                                newImg.style.borderRadius = "10px";
+                                newImg.style.marginLeft = "10px";
+                                newImg.style.objectFit = "cover";
+                                newImg.style.cursor = "pointer";
+                                pictureList.appendChild(newImg);
 
-                            newImg.addEventListener("click", () => {
-                                window.open(element.message, "影片", "width=600,height=600,top=" + (screen.height - 600) / 2 + ",left=" + (screen.width - 600) / 2);
-                            })
-                        } else {
-                            let fileName = element.message.substring(0, index);
-                            fileName = fileName.replace(S3Url, "");
-                            newImg = document.createElement("img");
-                            newImg.src = `https://maomaoimage.s3.ap-northeast-1.amazonaws.com/videoImage/${fileName}`;
-                            newImg.style.width = "150px";
-                            newImg.style.height = "150px";
-                            newImg.style.borderRadius = "10px";
-                            newImg.style.marginLeft = "10px";
-                            newImg.style.objectFit = "cover";
-                            newImg.style.cursor = "pointer";
-                            videoList.appendChild(newImg);
+                                newImg.addEventListener("click", () => {
+                                    window.open(element.message, "影片", "width=600,height=600,top=" + (screen.height - 600) / 2 + ",left=" + (screen.width - 600) / 2);
+                                })
+                            } else {
+                                let fileName = element.message.substring(0, index);
+                                fileName = fileName.replace(S3Url, "");
+                                newImg = document.createElement("img");
+                                newImg.src = `https://maomaoimage.s3.ap-northeast-1.amazonaws.com/videoImage/${fileName}`;
+                                newImg.style.width = "150px";
+                                newImg.style.height = "150px";
+                                newImg.style.borderRadius = "10px";
+                                newImg.style.marginLeft = "10px";
+                                newImg.style.objectFit = "cover";
+                                newImg.style.cursor = "pointer";
+                                videoList.appendChild(newImg);
 
-                            newImg.addEventListener("click", () => {
-                                window.open(element.message, "影片", "width=600,height=600,top=" + (screen.height - 600) / 2 + ",left=" + (screen.width - 600) / 2);
-                            })
+                                newImg.addEventListener("click", () => {
+                                    window.open(element.message, "影片", "width=600,height=600,top=" + (screen.height - 600) / 2 + ",left=" + (screen.width - 600) / 2);
+                                })
+                            }
                         }
-                    }
 
-                })
-
+                    })
+                }
             })
+
     } else {
         fetch("/get_chat_picture", {
             method: "POST",
@@ -246,51 +260,58 @@ chatPopupPictureAndVideo.addEventListener("click", () => {
                 return response.json();
             })
             .then((data) => {
-
-                pictureList.style.display = "block";
-                videoList.style.display = "none";
-                data.data.forEach(element => {
-                    const index = element.message.indexOf("(", element.message.length - 1 - 14);
-                    const dataType = element.message.substring(index, element.message.length)
-                    if (dataType === "(image)" || dataType === "(video)") {
-
-
-                        if (dataType === "(image)") {
-                            newImg = document.createElement("img");
-                            newImg.src = element.message;
-                            newImg.style.width = "150px";
-                            newImg.style.height = "150px";
-                            newImg.style.borderRadius = "10px";
-                            newImg.style.marginLeft = "10px";
-                            newImg.style.objectFit = "cover";
-                            newImg.style.cursor = "pointer";
-                            pictureList.appendChild(newImg);
-
-                            newImg.addEventListener("click", () => {
-                                window.open(element.message, "影片", "width=600,height=600,top=" + (screen.height - 600) / 2 + ",left=" + (screen.width - 600) / 2);
-                            })
-                        } else {
-                            let fileName = element.message.substring(0, index);
+                if (data.status === "error") {
+                    errorMessage.style.display = "block";
+                    errorMessage.innerHTML = data.message;
+                    setTimeout(() => {
+                        errorMessage.style.display = "none";
+                    }, 3000)
+                } else {
+                    pictureList.style.display = "block";
+                    videoList.style.display = "none";
+                    data.data.forEach(element => {
+                        const index = element.message.indexOf("(", element.message.length - 1 - 14);
+                        const dataType = element.message.substring(index, element.message.length)
+                        if (dataType === "(image)" || dataType === "(video)") {
 
 
-                            fileName = fileName.replace(S3Url, "");
-                            newImg = document.createElement("img");
-                            newImg.src = `https://maomaoimage.s3.ap-northeast-1.amazonaws.com/videoImage/${fileName}`;
-                            newImg.style.width = "150px";
-                            newImg.style.height = "150px";
-                            newImg.style.borderRadius = "10px";
-                            newImg.style.marginLeft = "10px";
-                            newImg.style.objectFit = "cover";
-                            newImg.style.cursor = "pointer";
-                            videoList.appendChild(newImg);
+                            if (dataType === "(image)") {
+                                newImg = document.createElement("img");
+                                newImg.src = element.message;
+                                newImg.style.width = "150px";
+                                newImg.style.height = "150px";
+                                newImg.style.borderRadius = "10px";
+                                newImg.style.marginLeft = "10px";
+                                newImg.style.objectFit = "cover";
+                                newImg.style.cursor = "pointer";
+                                pictureList.appendChild(newImg);
 
-                            newImg.addEventListener("click", () => {
-                                window.open(element.message, "影片", "width=600,height=600,top=" + (screen.height - 600) / 2 + ",left=" + (screen.width - 600) / 2);
-                            })
+                                newImg.addEventListener("click", () => {
+                                    window.open(element.message, "影片", "width=600,height=600,top=" + (screen.height - 600) / 2 + ",left=" + (screen.width - 600) / 2);
+                                })
+                            } else {
+                                let fileName = element.message.substring(0, index);
 
+
+                                fileName = fileName.replace(S3Url, "");
+                                newImg = document.createElement("img");
+                                newImg.src = `https://maomaoimage.s3.ap-northeast-1.amazonaws.com/videoImage/${fileName}`;
+                                newImg.style.width = "150px";
+                                newImg.style.height = "150px";
+                                newImg.style.borderRadius = "10px";
+                                newImg.style.marginLeft = "10px";
+                                newImg.style.objectFit = "cover";
+                                newImg.style.cursor = "pointer";
+                                videoList.appendChild(newImg);
+
+                                newImg.addEventListener("click", () => {
+                                    window.open(element.message, "影片", "width=600,height=600,top=" + (screen.height - 600) / 2 + ",left=" + (screen.width - 600) / 2);
+                                })
+
+                            }
                         }
-                    }
-                })
+                    })
+                }
             })
     }
 })
@@ -396,8 +417,16 @@ uploadFileInput.addEventListener("change", () => {
                                         leaveGroupBtn.style.display = "block";
                                     }
 
-                                    fileUploadLoading.style.display = "none";
+
+                                } else {
+                                    errorMessage.style.display = "block";
+                                    errorMessage.innerHTML = data.message;
+                                    setTimeout(() => {
+                                        errorMessage.style.display = "none";
+                                    }, 3000)
+
                                 }
+                                fileUploadLoading.style.display = "none";
                             })
                     });
                 });
@@ -438,11 +467,18 @@ uploadFileInput.addEventListener("change", () => {
                                     leaveGroupBtn.style.display = "block";
                                 }
 
-                                fileUploadLoading.style.display = "none";
 
 
 
+
+                            } else {
+                                errorMessage.style.display = "block";
+                                errorMessage.innerHTML = data.message;
+                                setTimeout(() => {
+                                    errorMessage.style.display = "none";
+                                }, 3000)
                             }
+                            fileUploadLoading.style.display = "none";
                         })
 
                 });

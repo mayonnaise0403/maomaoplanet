@@ -18,35 +18,48 @@ router.use(cookieParser(process.env.COOKIE_SECRET));
 
 
 router.post("/api/get_message", async (req, res) => {
-    const myId = req.body.myId;
-    const friendId = req.body.friendId;
-    if (req.body.isGroup) {
-        const data = await Message.getGroupMessage(friendId);
-        res.send({ status: "success", message: data })
-    } else {
-        const data = await Message.getMessage(myId, friendId);
-        res.send({ message: data })
+    try {
+        const myId = req.body.myId;
+        const friendId = req.body.friendId;
+        if (req.body.isGroup) {
+            const data = await Message.getGroupMessage(friendId);
+            res.send({ status: "success", message: data })
+        } else {
+            const data = await Message.getMessage(myId, friendId);
+            res.send({ message: data })
+        }
+    } catch (err) {
+        res.status(500).send({ status: "error", message: "內部伺服器出現錯誤" });
     }
+
 })
 
 router.post("/check_friend_status", async (req, res) => {
-    const token = req.signedCookies.access_token;
-    const selfId = jwt.decode(token, secretKey).userId;
-    console.log(selfId);
-    console.log(req.body.friendId)
-    const isFriend = await Message.isFriend(selfId, req.body.friendId);
-    if (isFriend.length !== 0) {
-        res.send({ status: "success" })
-    } else {
-        res.send({ status: "error" })
+    try {
+        const token = req.signedCookies.access_token;
+        const selfId = jwt.decode(token, secretKey).userId;
+        const isFriend = await Message.isFriend(selfId, req.body.friendId);
+        if (isFriend.length !== 0) {
+            res.send({ status: "success" })
+        } else {
+            res.send({ status: "error", message: "需要雙方都為好友才能撥打" })
+        }
+    } catch (err) {
+        res.status(500).send({ status: "error", message: "內部伺服器出現錯誤" });
     }
+
 })
 
 router.get("/api/get_latest_group_message", async (req, res) => {
-    const token = req.signedCookies.access_token;
-    const userId = jwt.decode(token, secretKey).userId;
-    const data = await Message.getGroupLatestMessage(userId);
-    res.send({ status: "success", data: data })
+    try {
+        const token = req.signedCookies.access_token;
+        const userId = jwt.decode(token, secretKey).userId;
+        const data = await Message.getGroupLatestMessage(userId);
+        res.send({ status: "success", data: data })
+    } catch (err) {
+        res.status(500).send({ status: "error", message: "內部伺服器出現錯誤" });
+    }
+
 
 
 })
@@ -54,134 +67,163 @@ router.get("/api/get_latest_group_message", async (req, res) => {
 
 
 router.get("/api/get_latest_message", async (req, res) => {
-    const token = req.signedCookies.access_token;
-    const userId = jwt.decode(token, secretKey).userId;
-    const result = await Message.getLatestMessage(userId);
-    res.send(result);
+    try {
+        const token = req.signedCookies.access_token;
+        const userId = jwt.decode(token, secretKey).userId;
+        const result = await Message.getLatestMessage(userId);
+        res.send(result);
+    } catch (err) {
+        res.status(500).send({ status: "error", message: "內部伺服器出現錯誤" });
+    }
+
 
 })
 
 
-router.post("/update_message_status", (req, res) => {
-    const token = req.signedCookies.access_token;
-    const userId = jwt.decode(token, secretKey).userId;
-    updateMessagegStatus(req.body.sender_id, userId)
-        .then((result) => {
-            if (result) {
-                res.send({ status: "success" })
-            }
-        })
+router.post("/update_message_status", async (req, res) => {
+    try {
+        const token = req.signedCookies.access_token;
+        const userId = jwt.decode(token, secretKey).userId;
+        const isSuccess = await Message.updateMsgStatus(req.body.sender_id, userId);
+        if (isSuccess) {
+            res.send({ status: "success" })
+        }
+    } catch (err) {
+        res.status(500).send({ status: "error", message: "內部伺服器出現錯誤" });
+    }
+
+
 })
 
 router.post("/update_group_message_status", async (req, res) => {
-    const token = req.signedCookies.access_token;
-    const userId = jwt.decode(token, secretKey).userId;
-    await Message.updateGroupMsgStatus(req.body.groupId, userId);
-    res.send({ status: "success" });
+    try {
+        const token = req.signedCookies.access_token;
+        const userId = jwt.decode(token, secretKey).userId;
+        await Message.updateGroupMsgStatus(req.body.groupId, userId);
+        res.send({ status: "success" });
+    } catch (err) {
+        res.status(500).send({ status: "error", message: "內部伺服器出現錯誤" });
+    }
+
 })
 
 router.post("/get_chat_picture", async (req, res) => {
-    const token = req.signedCookies.access_token;
-    const userId = jwt.decode(token, secretKey).userId;
-    const data = await Message.getChatPictureAndVideo(userId, req.body.recipientId)
-    res.send({ status: "success", data: data });
+    try {
+        const token = req.signedCookies.access_token;
+        const userId = jwt.decode(token, secretKey).userId;
+        const data = await Message.getChatPictureAndVideo(userId, req.body.recipientId)
+        res.send({ status: "success", data: data });
+    } catch (err) {
+        res.status(500).send({ status: "error", message: "內部伺服器出現錯誤" });
+    }
+
 
 })
 
 router.post("/get_group_picture", async (req, res) => {
-    const data = await Message.getGroupPictureAndVideo(req.body.groupId)
-    res.send({ status: "success", data: data })
+    try {
+        const data = await Message.getGroupPictureAndVideo(req.body.groupId)
+        res.send({ status: "success", data: data })
+    } catch (err) {
+        res.status(500).send({ status: "error", message: "內部伺服器出現錯誤" });
+    }
+
 })
 
 router.post("/upload_file", async (req, res) => {
-    const token = req.signedCookies.access_token;
-    const myId = jwt.decode(token, secretKey).userId;
-    let file = req.body.file;
-    let fileBuffer;
-    if (req.body.dataType === "application") {
-        fileBuffer = Buffer.from(
-            file.replace(/^data:application\/\w+;base64,/, ""),
-            "base64"
-        )
-    } else if (req.body.dataType === "image") {
-        fileBuffer = Buffer.from(
-            file.replace(/^data:image\/\w+;base64,/, ""),
-            "base64"
-        )
-    } else if (req.body.dataType === "video") {
-        fileBuffer = Buffer.from(
-            file.replace(/^data:video\/\w+;base64,/, ""),
-            "base64"
-        )
-    } else if (req.body.dataType === "audio") {
-        fileBuffer = Buffer.from(
-            file.replace(/^data:audio\/\w+;base64,/, ""),
-            "base64"
-        )
-    } else if (req.body.dataType === "text") {
-        fileBuffer = Buffer.from(
-            file.replace(/^data:text\/\w+;base64,/, ""),
-            "base64"
-        )
-    }
-    console.log(req.body.type)
-    console.log(req.body.dataType)
-    console.log(req.body.totalTypeData)
-
-    AWS.config.update({
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-        region: 'ap-northeast-1'
-    });
-    const s3 = new AWS.S3();
-    const params = {
-        Bucket: process.env.S3_Single_Chat_File_Bucket,
-        Key: `${req.body.fileName}-${req.body.time}(${req.body.dataType})`,
-        Body: fileBuffer,
-        ContentEncoding: 'base64',
-        ContentType: req.body.totalTypeData
-    };
-    console.log(params.Key)
-    s3.upload(params, (err, data) => {
-        if (err) {
-            res.send({
-                status: "error"
-            })
+    try {
+        const token = req.signedCookies.access_token;
+        const myId = jwt.decode(token, secretKey).userId;
+        let file = req.body.file;
+        let fileBuffer;
+        if (req.body.dataType === "application") {
+            fileBuffer = Buffer.from(
+                file.replace(/^data:application\/\w+;base64,/, ""),
+                "base64"
+            )
+        } else if (req.body.dataType === "image") {
+            fileBuffer = Buffer.from(
+                file.replace(/^data:image\/\w+;base64,/, ""),
+                "base64"
+            )
+        } else if (req.body.dataType === "video") {
+            fileBuffer = Buffer.from(
+                file.replace(/^data:video\/\w+;base64,/, ""),
+                "base64"
+            )
+        } else if (req.body.dataType === "audio") {
+            fileBuffer = Buffer.from(
+                file.replace(/^data:audio\/\w+;base64,/, ""),
+                "base64"
+            )
+        } else if (req.body.dataType === "text") {
+            fileBuffer = Buffer.from(
+                file.replace(/^data:text\/\w+;base64,/, ""),
+                "base64"
+            )
         }
-        else {
-            // Message.storeMessage(myId, req.body.recipientId, `${process.env.S3_File_Url}${params.Key}`)
-            if (req.body.dataType === 'video') {
-                fileBuffer = Buffer.from(
-                    req.body.videoPc.replace(/^data:image\/\w+;base64,/, ""),
-                    "base64"
-                )
-                const s3 = new AWS.S3();
-                const params = {
-                    Bucket: process.env.S3_Video_Pc,
-                    Key: `${req.body.fileName}-${req.body.time}`,
-                    Body: fileBuffer,
-                    ContentEncoding: 'base64',
-                    ContentType: "image/png"
-                };
-                s3.upload(params, (err, data) => {
-                    if (err) {
-                        res.send({
-                            status: "error"
-                        })
-                    } else {
-                        res.status(200).send({ status: "success", message: `${process.env.S3_File_Url}${req.body.fileName}-${req.body.time}(${req.body.dataType})` })
-                    }
+
+
+        AWS.config.update({
+            accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+            secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+            region: 'ap-northeast-1'
+        });
+        const s3 = new AWS.S3();
+        const params = {
+            Bucket: process.env.S3_Single_Chat_File_Bucket,
+            Key: `${req.body.fileName}-${req.body.time}(${req.body.dataType})`,
+            Body: fileBuffer,
+            ContentEncoding: 'base64',
+            ContentType: req.body.totalTypeData
+        };
+        console.log(params.Key)
+        s3.upload(params, (err, data) => {
+            if (err) {
+                res.send({
+                    status: "error",
+                    message: "傳送失敗"
                 })
+            }
+            else {
+                // Message.storeMessage(myId, req.body.recipientId, `${process.env.S3_File_Url}${params.Key}`)
+                if (req.body.dataType === 'video') {
+                    fileBuffer = Buffer.from(
+                        req.body.videoPc.replace(/^data:image\/\w+;base64,/, ""),
+                        "base64"
+                    )
+                    const s3 = new AWS.S3();
+                    const params = {
+                        Bucket: process.env.S3_Video_Pc,
+                        Key: `${req.body.fileName}-${req.body.time}`,
+                        Body: fileBuffer,
+                        ContentEncoding: 'base64',
+                        ContentType: "image/png"
+                    };
+                    s3.upload(params, (err, data) => {
+                        if (err) {
+                            res.send({
+                                status: "error",
+                                message: "傳送失敗"
+                            })
+                        } else {
+                            res.status(200).send({ status: "success", message: `${process.env.S3_File_Url}${req.body.fileName}-${req.body.time}(${req.body.dataType})` })
+                        }
+                    })
 
 
-            } else {
-                res.status(200).send({ status: "success", message: `${process.env.S3_File_Url}${req.body.fileName}-${req.body.time}(${req.body.dataType})` })
+                } else {
+                    res.status(200).send({ status: "success", message: `${process.env.S3_File_Url}${req.body.fileName}-${req.body.time}(${req.body.dataType})` })
+                }
+
             }
 
-        }
 
+        })
+    } catch (err) {
+        res.status(500).send({ status: "error", message: "內部伺服器出現錯誤" });
+    }
 
-    })
 
 
 })

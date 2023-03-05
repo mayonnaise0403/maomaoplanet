@@ -101,8 +101,12 @@ function createUserHtml(resultArr) {
 
                         });
                         parent.remove();
-                    } else if (data.status === "error") {
-
+                    } else {
+                        errorMessage.style.display = "block";
+                        errorMessage.innerHTML = data.message;
+                        setTimeout(() => {
+                            errorMessage.style.display = "none";
+                        }, 3000)
                     }
                 })
                 .then(() => {
@@ -111,8 +115,17 @@ function createUserHtml(resultArr) {
                             return response.json();
                         })
                         .then((data) => {
-                            createFriendList(data, friendList);
-                            console.log(data.friend_list);
+                            if (data.status === "success") {
+                                createFriendList(data, friendList);
+                            } else {
+                                errorMessage.style.display = "block";
+                                errorMessage.innerHTML = data.message;
+                                setTimeout(() => {
+                                    errorMessage.style.display = "none";
+                                }, 3000)
+                            }
+
+
                         })
                 })
 
@@ -312,7 +325,13 @@ function createChatList(data, container) {
                                 return response.json();
                             })
                             .then((data) => {
-
+                                if (data.status === "error") {
+                                    errorMessage.style.display = "block";
+                                    errorMessage.innerHTML = data.message;
+                                    setTimeout(() => {
+                                        errorMessage.style.display = "none";
+                                    }, 3000)
+                                }
                             })
                     })
             } else {
@@ -357,7 +376,13 @@ function createChatList(data, container) {
                                 return response.json();
                             })
                             .then((data) => {
-
+                                if (data.status === "error") {
+                                    errorMessage.style.display = "block";
+                                    errorMessage.innerHTML = data.message;
+                                    setTimeout(() => {
+                                        errorMessage.style.display = "none";
+                                    }, 3000)
+                                }
                             })
                     })
             }
@@ -570,7 +595,15 @@ function createGroupChatList(data) {
                                     return response.json();
                                 })
                                 .then((data) => {
-                                    socket.emit('group-read-message', package);
+                                    if (data.status === "error") {
+                                        errorMessage.style.display = "block";
+                                        errorMessage.innerHTML = data.message;
+                                        setTimeout(() => {
+                                            errorMessage.style.display = "none";
+                                        }, 3000)
+                                    } else {
+                                        socket.emit('group-read-message', package);
+                                    }
                                 })
                         }
 
@@ -624,7 +657,15 @@ function createGroupChatList(data) {
                                     return response.json();
                                 })
                                 .then((data) => {
-                                    socket.emit('group-read-message', package);
+                                    if (data.status === "error") {
+                                        errorMessage.style.display = "block";
+                                        errorMessage.innerHTML = data.message;
+                                        setTimeout(() => {
+                                            errorMessage.style.display = "none";
+                                        }, 3000)
+                                    } else {
+                                        socket.emit('group-read-message', package);
+                                    }
                                 })
                         }
 
@@ -718,6 +759,12 @@ function getAllFriendList(isAddMemberContainer) {
 
                     count++;
                 })
+            } else {
+                errorMessage.style.display = "block";
+                errorMessage.innerHTML = data.message;
+                setTimeout(() => {
+                    errorMessage.style.display = "none";
+                }, 3000)
             }
         })
 }

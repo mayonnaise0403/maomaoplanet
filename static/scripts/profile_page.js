@@ -86,7 +86,11 @@ nameEditOk.addEventListener("click", () => {
                 profileNickname.style.display = "block";
                 profileNickname.innerHTML = nameInput.value;
             } else {
-
+                errorMessage.style.display = "block";
+                errorMessage.innerHTML = data.message;
+                setTimeout(() => {
+                    errorMessage.style.display = "none";
+                }, 3000)
             }
         })
 })
@@ -132,6 +136,12 @@ emailEditOk.addEventListener("click", () => {
             } else {
                 if (data.message === "信箱已被使用過") {
                     verifyEmailErrorMsg.style.display = "block";
+                } else {
+                    errorMessage.style.display = "block";
+                    errorMessage.innerHTML = data.message;
+                    setTimeout(() => {
+                        errorMessage.style.display = "none";
+                    }, 3000)
                 }
             }
 
@@ -219,7 +229,11 @@ uploadFile.addEventListener("click", () => {
                     loaderContainer.style.display = "none";
 
                 } else {
-
+                    errorMessage.style.display = "block";
+                    errorMessage.innerHTML = data.message;
+                    setTimeout(() => {
+                        errorMessage.style.display = "none";
+                    }, 3000)
                 }
             })
     } else {
@@ -282,9 +296,11 @@ function verifyEmail(emailVerifyCode) {
 
                     verifyEmailErrorMsg.style.display = "none";
                 } else {
-
-
-                    //////////////////////////////////////////////////////
+                    errorMessage.style.display = "block";
+                    errorMessage.innerHTML = data.message;
+                    setTimeout(() => {
+                        errorMessage.style.display = "none";
+                    }, 3000)
                 }
             })
     } else {

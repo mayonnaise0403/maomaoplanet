@@ -116,41 +116,43 @@ async function uploadDatabase() {
                 return response.json();
             })
             .then((data) => {
-                let code = data.code;
-                emailVerificationBtn.addEventListener("click", () => {
-                    if (emailCodeInput.value === code) {
-                        fetch("/confirm_signup", {
-                            method: "POST",
-                            body: JSON.stringify({
-                                'nickname': signupName,
-                                "email": signupEmail,
-                                "password": signupPassword
-                            })
-                            , headers: {
-                                'Content-type': 'application/json; charset=UTF-8',
-                            }
-                        })
-                            .then((response) => {
-                                return response.json();
-                            })
-                            .then((data) => {
-                                if (data.status === "success") {
-                                    const backgroundDarker = document.querySelector(".darker");
-                                    backgroundDarker.style.display = "block";
-                                    signupPopup.style.display = "block";
-                                    signupPopupMsg.innerHTML = "✅註冊成功";
-                                    signupPopupMsg.style.color = "rgb(12, 194, 12)";
-                                } else {
-
-                                    //////////////////////////////////////////
+                if (data.status === "success") {
+                    let code = data.code;
+                    emailVerificationBtn.addEventListener("click", () => {
+                        if (emailCodeInput.value === code) {
+                            fetch("/confirm_signup", {
+                                method: "POST",
+                                body: JSON.stringify({
+                                    'nickname': signupName,
+                                    "email": signupEmail,
+                                    "password": signupPassword
+                                })
+                                , headers: {
+                                    'Content-type': 'application/json; charset=UTF-8',
                                 }
                             })
+                                .then((response) => {
+                                    return response.json();
+                                })
+                                .then((data) => {
+                                    if (data.status === "success") {
+                                        const backgroundDarker = document.querySelector(".darker");
+                                        backgroundDarker.style.display = "block";
+                                        signupPopup.style.display = "block";
+                                        signupPopupMsg.innerHTML = "✅註冊成功";
+                                        signupPopupMsg.style.color = "rgb(12, 194, 12)";
+                                    } else {
 
-                    }
-                    else {
-                        verificationEmailErrorMsg.innerHTML = "驗證碼輸入錯誤";
-                    }
-                })
+                                        //////////////////////////////////////////
+                                    }
+                                })
+
+                        } else {
+                            verificationEmailErrorMsg.innerHTML = "驗證碼輸入錯誤";
+                        }
+                    })
+                }
+
             })
 
     } else {

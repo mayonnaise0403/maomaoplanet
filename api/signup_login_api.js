@@ -117,9 +117,9 @@ router.post("/send_email", (req, res) => {
             subject: "歡迎使用毛毛星球",
             html: `驗證碼是:${code}`,
         }).then(() => {
-            res.send({ "code": code });
+            res.send({ status: "success", "code": code });
         }).catch(() => {
-            res.send({ "message": "寄出失敗" });
+            res.send({ status: "error", message: "寄出失敗" });
         })
     } catch (err) {
         res.status(500).send({ status: "error", message: "內部伺服器出現錯誤" })

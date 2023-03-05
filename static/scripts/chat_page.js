@@ -121,9 +121,24 @@ createGroupBtn.addEventListener("click", () => {
                             return response.json();
                         })
                         .then((data) => {
-                            createGroupList(data, groupList)
+                            if (data.status === "success") {
+                                createGroupList(data, groupList)
+                            } else {
+                                errorMessage.style.display = "block";
+                                errorMessage.innerHTML = data.message;
+                                setTimeout(() => {
+                                    errorMessage.style.display = "none";
+                                }, 3000)
+                            }
+
                         })
 
+                } else {
+                    errorMessage.style.display = "block";
+                    errorMessage.innerHTML = data.message;
+                    setTimeout(() => {
+                        errorMessage.style.display = "none";
+                    }, 3000)
                 }
             })
     }
@@ -207,7 +222,11 @@ confirmChangeGroupName.addEventListener("click", () => {
                         errorMessage.style.display = "none";
                     }, 2000)
                 } else {
-
+                    errorMessage.style.display = "block";
+                    errorMessage.innerHTML = data.message;
+                    setTimeout(() => {
+                        errorMessage.style.display = "none";
+                    }, 3000)
                 }
             })
     }
@@ -248,7 +267,11 @@ confirmLeaveGroup.addEventListener("click", () => {
                 document.querySelector(`[data-attribute-name='${friendChatId}']`).parentNode.parentNode.remove();
                 document.querySelector(`.group-headshot-${friendChatId}`).parentNode.remove();
             } else {
-
+                errorMessage.style.display = "block";
+                errorMessage.innerHTML = data.message;
+                setTimeout(() => {
+                    errorMessage.style.display = "none";
+                }, 3000)
             }
         })
 })
@@ -307,7 +330,11 @@ uploadGroupHeadshotBtn.addEventListener("click", () => {
 
 
                 } else {
-
+                    errorMessage.style.display = "block";
+                    errorMessage.innerHTML = data.message;
+                    setTimeout(() => {
+                        errorMessage.style.display = "none";
+                    }, 3000)
                 }
             })
     } else {
@@ -336,58 +363,64 @@ groupMemberIcon.addEventListener("click", () => {
             return response.json();
         })
         .then((data) => {
-            console.log(data)
-            data.data.forEach(element => {
-                newDiv = document.createElement("div");
-                newDiv.className = "group-member";
-                groupMemberList.appendChild(newDiv);
-                const groupMember = document.querySelectorAll(".group-member");
+            if (data.status === "error") {
+                errorMessage.style.display = "block";
+                errorMessage.innerHTML = data.message;
+                setTimeout(() => {
+                    errorMessage.style.display = "none";
+                }, 3000)
+            } else {
+                data.data.forEach(element => {
+                    newDiv = document.createElement("div");
+                    newDiv.className = "group-member";
+                    groupMemberList.appendChild(newDiv);
+                    const groupMember = document.querySelectorAll(".group-member");
 
-                newImg = document.createElement("img");
-                newImg.src = element.headshot;
-                newImg.style.width = "40px";
-                newImg.style.height = "40px";
-                newImg.style.borderRadius = "50px";
-                newImg.style.objectFit = "cover";
-                groupMember[groupMember.length - 1].appendChild(newImg);
+                    newImg = document.createElement("img");
+                    newImg.src = element.headshot;
+                    newImg.style.width = "40px";
+                    newImg.style.height = "40px";
+                    newImg.style.borderRadius = "50px";
+                    newImg.style.objectFit = "cover";
+                    groupMember[groupMember.length - 1].appendChild(newImg);
 
-                newP = document.createElement("p");
-                newP.innerHTML = element.nickname;
-                newP.style.marginLeft = "10px";
-                groupMember[groupMember.length - 1].appendChild(newP);
+                    newP = document.createElement("p");
+                    newP.innerHTML = element.nickname;
+                    newP.style.marginLeft = "10px";
+                    groupMember[groupMember.length - 1].appendChild(newP);
 
-                newDiv.addEventListener("click", (event) => {
-                    if (element.member_id !== parseInt(selfId)) {
-                        friendPopup.style.display = "block";
-                        let friendPopupHeadshot = document.querySelector(".friend-popup-headshot");
-                        friendName.innerHTML = element.nickname;
-                        friendId = element.member_id;
-                        friendPopupHeadshot.src = element.headshot;
-                        // if (event.target.tagName === "IMG") {
-                        //     console.log("here1")
-                        //     friendPopupHeadshot.src = event.target.src;
-                        //     console.log(event.target.src)
-                        // } else if (event.target.getElementsByTagName("img").length > 0) {
-                        //     console.log("here2")
-                        //     friendPopupHeadshot.src = event.target.getElementsByTagName("img").src;
-                        // }
+                    newDiv.addEventListener("click", (event) => {
+                        if (element.member_id !== parseInt(selfId)) {
+                            friendPopup.style.display = "block";
+                            let friendPopupHeadshot = document.querySelector(".friend-popup-headshot");
+                            friendName.innerHTML = element.nickname;
+                            friendId = element.member_id;
+                            friendPopupHeadshot.src = element.headshot;
+                            // if (event.target.tagName === "IMG") {
+                            //     console.log("here1")
+                            //     friendPopupHeadshot.src = event.target.src;
+                            //     console.log(event.target.src)
+                            // } else if (event.target.getElementsByTagName("img").length > 0) {
+                            //     console.log("here2")
+                            //     friendPopupHeadshot.src = event.target.getElementsByTagName("img").src;
+                            // }
 
 
-                        // console.log(event.target.nodeName === "IMG")
-                        if (element.is_friend === 0) {
-                            groupMemberPopupAddFriend.style.display = "block";
-                            popupChatBtn.style.display = "none";
-                            friendPopupCall.style.display = "none";
-                        } else {
-                            groupMemberPopupAddFriend.style.display = "none";
-                            popupChatBtn.style.display = "block";
-                            friendPopupCall.style.display = "block";
+                            // console.log(event.target.nodeName === "IMG")
+                            if (element.is_friend === 0) {
+                                groupMemberPopupAddFriend.style.display = "block";
+                                popupChatBtn.style.display = "none";
+                                friendPopupCall.style.display = "none";
+                            } else {
+                                groupMemberPopupAddFriend.style.display = "none";
+                                popupChatBtn.style.display = "block";
+                                friendPopupCall.style.display = "block";
+                            }
                         }
-                    }
+                    })
+
                 })
-
-            })
-
+            }
         })
 })
 
@@ -421,8 +454,12 @@ groupMemberPopupAddFriend.addEventListener("click", () => {
                     }, 2000)
 
                 });
-            } else if (data.status === "error") {
-
+            } else {
+                errorMessage.style.display = "block";
+                errorMessage.innerHTML = data.message;
+                setTimeout(() => {
+                    errorMessage.style.display = "none";
+                }, 3000)
             }
         })
         .then(() => {
@@ -431,7 +468,16 @@ groupMemberPopupAddFriend.addEventListener("click", () => {
                     return response.json();
                 })
                 .then((data) => {
-                    createFriendList(data, friendList);
+                    if (data.status === "success") {
+                        createFriendList(data, friendList);
+                    } else {
+                        errorMessage.style.display = "block";
+                        errorMessage.innerHTML = data.message;
+                        setTimeout(() => {
+                            errorMessage.style.display = "none";
+                        }, 3000)
+                    }
+
                 })
         })
 })
@@ -469,8 +515,12 @@ isAddFriendOkBtn.addEventListener("click", () => {
 
                 });
 
-            } else if (data.status === "error") {
-
+            } else {
+                errorMessage.style.display = "block";
+                errorMessage.innerHTML = data.message;
+                setTimeout(() => {
+                    errorMessage.style.display = "none";
+                }, 3000)
             }
         })
         .then(() => {
@@ -479,7 +529,16 @@ isAddFriendOkBtn.addEventListener("click", () => {
                     return response.json();
                 })
                 .then((data) => {
-                    createFriendList(data, friendList);
+                    if (data.status === "success") {
+                        createFriendList(data, friendList);
+                    } else {
+                        errorMessage.style.display = "block";
+                        errorMessage.innerHTML = data.message;
+                        setTimeout(() => {
+                            errorMessage.style.display = "none";
+                        }, 3000)
+                    }
+
                 })
         })
 })
@@ -638,7 +697,16 @@ function createLatestGroupChatList(element) {
                                 return response.json();
                             })
                             .then((data) => {
-                                socket.emit('group-read-message', package);
+                                if (data.status === "error") {
+                                    errorMessage.style.display = "block";
+                                    errorMessage.innerHTML = data.message;
+                                    setTimeout(() => {
+                                        errorMessage.style.display = "none";
+                                    }, 3000)
+                                } else {
+                                    socket.emit('group-read-message', package);
+                                }
+
                             })
                     }
 
@@ -693,7 +761,15 @@ function createLatestGroupChatList(element) {
                                 return response.json();
                             })
                             .then((data) => {
-                                socket.emit('group-read-message', package);
+                                if (data.status === "error") {
+                                    errorMessage.style.display = "block";
+                                    errorMessage.innerHTML = data.message;
+                                    setTimeout(() => {
+                                        errorMessage.style.display = "none";
+                                    }, 3000)
+                                } else {
+                                    socket.emit('group-read-message', package);
+                                }
                             })
                     }
 
@@ -879,7 +955,13 @@ function createLatestChatList(element, container) {
                             return response.json();
                         })
                         .then((data) => {
-
+                            if (data.status === "error") {
+                                errorMessage.style.display = "block";
+                                errorMessage.innerHTML = data.message;
+                                setTimeout(() => {
+                                    errorMessage.style.display = "none";
+                                }, 3000)
+                            }
                         })
                 })
         } else {
@@ -924,7 +1006,13 @@ function createLatestChatList(element, container) {
                             return response.json();
                         })
                         .then((data) => {
-
+                            if (data.status === "error") {
+                                errorMessage.style.display = "block";
+                                errorMessage.innerHTML = data.message;
+                                setTimeout(() => {
+                                    errorMessage.style.display = "none";
+                                }, 3000)
+                            }
                         })
                 })
         }

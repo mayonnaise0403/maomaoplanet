@@ -45,9 +45,18 @@ fetch("/api/get_friendlist")
         return response.json();
     })
     .then((data) => {
-        createFriendList(data, friendList);
-        selfId = data.self_id;
-        socket.emit("join-self-room", data.self_id);
+        if (data.status === "success") {
+            createFriendList(data, friendList);
+            selfId = data.self_id;
+            socket.emit("join-self-room", data.self_id);
+        } else {
+            errorMessage.style.display = "block";
+            errorMessage.innerHTML = data.message;
+            setTimeout(() => {
+                errorMessage.style.display = "none";
+            }, 3000)
+        }
+
     })
     .then(() => {
         fetch("/api/get_latest_message")
@@ -55,7 +64,19 @@ fetch("/api/get_friendlist")
                 return response.json();
             })
             .then((data) => {
-                createChatList(data, chatListContainer);
+                if (data.status) {
+                    if (data.status === "error") {
+                        errorMessage.style.display = "block";
+                        errorMessage.innerHTML = data.message;
+                        setTimeout(() => {
+                            errorMessage.style.display = "none";
+                        }, 3000)
+                    }
+
+                } else {
+                    createChatList(data, chatListContainer);
+                }
+
             })
 
     })
@@ -65,7 +86,16 @@ fetch("/api/get_friendlist")
                 return response.json();
             })
             .then((data) => {
-                createGroupList(data, groupList);
+                if (data.status === "success") {
+                    createGroupList(data, groupList);
+                } else {
+                    errorMessage.style.display = "block";
+                    errorMessage.innerHTML = data.message;
+                    setTimeout(() => {
+                        errorMessage.style.display = "none";
+                    }, 3000)
+                }
+
             })
             .then(() => {
 
@@ -74,7 +104,16 @@ fetch("/api/get_friendlist")
                         return response.json();
                     })
                     .then((data) => {
-                        createGroupChatList(data.data);
+                        if (data.status === "success") {
+                            createGroupChatList(data.data);
+                        } else {
+                            errorMessage.style.display = "block";
+                            errorMessage.innerHTML = data.message;
+                            setTimeout(() => {
+                                errorMessage.style.display = "none";
+                            }, 3000)
+                        }
+
                     })
             })
 
@@ -119,7 +158,15 @@ socket.on("receive-group-message", (package) => {
                     return response.json();
                 })
                 .then((data) => {
-                    socket.emit('group-read-message', package);
+                    if (data.status === "error") {
+                        errorMessage.style.display = "block";
+                        errorMessage.innerHTML = data.message;
+                        setTimeout(() => {
+                            errorMessage.style.display = "none";
+                        }, 3000)
+                    } else {
+                        socket.emit('group-read-message', package);
+                    }
                 })
         }
         if (chatContainer.style.display === "block" && friendChatId === package.group_id) {
@@ -188,7 +235,16 @@ socket.on("receive-group-message", (package) => {
                     return response.json();
                 })
                 .then((data) => {
-                    createLatestGroupChatList(data.data[0]);
+                    if (data.status === "success") {
+                        createLatestGroupChatList(data.data[0]);
+                    } else {
+                        errorMessage.style.display = "block";
+                        errorMessage.innerHTML = data.message;
+                        setTimeout(() => {
+                            errorMessage.style.display = "none";
+                        }, 3000)
+                    }
+
                 })
         }, 1000);
 
@@ -198,7 +254,16 @@ socket.on("receive-group-message", (package) => {
                     return response.json();
                 })
                 .then((data) => {
-                    createGroupList(data, groupList)
+                    if (data.status === "success") {
+                        createGroupList(data, groupList)
+                    } else {
+                        errorMessage.style.display = "block";
+                        errorMessage.innerHTML = data.message;
+                        setTimeout(() => {
+                            errorMessage.style.display = "none";
+                        }, 3000)
+                    }
+
                 })
         }, 1000);
 
@@ -276,7 +341,19 @@ socket.on("receive-message", (msg) => {
                     return response.json();
                 })
                 .then((data) => {
-                    createLatestChatList(data[0], chatListContainer);
+                    if (data.status) {
+                        if (data.status === "error") {
+                            errorMessage.style.display = "block";
+                            errorMessage.innerHTML = data.message;
+                            setTimeout(() => {
+                                errorMessage.style.display = "none";
+                            }, 3000)
+                        }
+
+                    } else {
+                        createLatestChatList(data[0], chatListContainer);
+                    }
+
                 })
         }, 1000);
 
@@ -1234,7 +1311,19 @@ async function sendMsgInSingle(fileName = "") {
                             return response.json();
                         })
                         .then((data) => {
-                            createChatList(data, chatListContainer);
+                            if (data.status) {
+                                if (data.status === "error") {
+                                    errorMessage.style.display = "block";
+                                    errorMessage.innerHTML = data.message;
+                                    setTimeout(() => {
+                                        errorMessage.style.display = "none";
+                                    }, 3000)
+                                }
+
+                            } else {
+                                createChatList(data, chatListContainer);
+                            }
+
                         })
                 }, 1000);
 
@@ -1251,7 +1340,19 @@ async function sendMsgInSingle(fileName = "") {
                         return response.json();
                     })
                     .then((data) => {
-                        createChatList(data, chatListContainer);
+                        if (data.status) {
+                            if (data.status === "error") {
+                                errorMessage.style.display = "block";
+                                errorMessage.innerHTML = data.message;
+                                setTimeout(() => {
+                                    errorMessage.style.display = "none";
+                                }, 3000)
+                            }
+
+                        } else {
+                            createChatList(data, chatListContainer);
+                        }
+
                     })
             }, 1000);
 
@@ -1339,7 +1440,16 @@ async function sendMsgInGroup(fileName = "") {
                             return response.json();
                         })
                         .then((data) => {
-                            createGroupChatList(data.data);
+                            if (data.status === "success") {
+                                createGroupChatList(data.data);
+                            } else {
+                                errorMessage.style.display = "block";
+                                errorMessage.innerHTML = data.message;
+                                setTimeout(() => {
+                                    errorMessage.style.display = "none";
+                                }, 3000)
+                            }
+
                         })
                 }, 1000);
 
@@ -1356,7 +1466,16 @@ async function sendMsgInGroup(fileName = "") {
                         return response.json();
                     })
                     .then((data) => {
-                        createGroupChatList(data.data);
+                        if (data.status === "success") {
+                            createGroupChatList(data.data);
+                        } else {
+                            errorMessage.style.display = "block";
+                            errorMessage.innerHTML = data.message;
+                            setTimeout(() => {
+                                errorMessage.style.display = "none";
+                            }, 3000)
+                        }
+
                     })
             }, 1000);
 
