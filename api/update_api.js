@@ -14,8 +14,10 @@ router.post("/create_group", async (req, res) => {
     try {
         const groupName = req.body.groupName;
         const groupMemberIdArr = req.body.groupMemberIdArr;
+        console.log(groupMemberIdArr)
         const groupId = uuid.v4();
-        await Update.createGroup(groupId, groupName, groupMemberIdArr);
+        await Update.createGroup(groupId, groupMemberIdArr);
+        await Update.createGroupData(groupId, groupName)
         const groupData = await Search.getGroupMemberData(groupId);
         res.status(200).send({ status: "success", groupId: groupId, groupName: groupName, group_data: groupData });
     } catch (err) {
@@ -40,8 +42,8 @@ router.post("/update_group_name", async (req, res) => {
         if (isSuccess) {
             res.status(200).send({ status: "success", newGroupName: req.body.groupName })
         } else {
-
-        } res.status(500).send({ status: "error" })
+            res.status(500).send({ status: "error" })
+        }
     } catch (err) {
         res.status(500).send({ status: "error", message: "伺服器內部發生錯誤" })
     }

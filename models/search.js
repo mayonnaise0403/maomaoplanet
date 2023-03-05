@@ -83,9 +83,9 @@ class Search {
                     INNER JOIN friend_list ON \
                     friend_list.user_id = ? AND friend_list.user_friend_id = member.user_id\
                     WHERE member.user_id NOT IN(\
-                    SELECT group_members.member_id\
-                    FROM group_members\
-                    WHERE group_members.group_id = ?\
+                    SELECT group_member.member_id\
+                    FROM group_member\
+                    WHERE group_member.group_id = ?\
                     UNION\
                     SELECT ?);"
         values = [selfId, groupId, selfId];
@@ -116,10 +116,11 @@ class Search {
     }
 
     async getGroupList(userId) {
-        mysqlQuery = "select group_members.group_name,\
-                    group_members.group_id,\
-                    group_members.headshot\
-                    from group_members where  group_members.member_id = ?";
+        mysqlQuery = "select group_data.group_name,\
+                    group_data.group_id,\
+                    group_data.headshot\
+                    from group_data\
+                    inner join group_member on group_member.member_id = ? and group_member.group_id = group_data.group_id;"
         values = [userId];
         try {
             const queryResults = await pool.query(mysqlQuery, values);
@@ -153,7 +154,7 @@ class Search {
 
     async getGroupMemberData(groupId) {
         mysqlQuery = 'select nickname,user_id,member.headshot from member\
-        inner join group_members on group_id = ? and member_id = user_id;'
+        inner join group_member on group_id = ? and member_id = user_id;'
         values = [groupId];
         try {
             const queryResults = await pool.query(mysqlQuery, values);
@@ -166,7 +167,7 @@ class Search {
     }
 
     async getGroupMemberId(groupId) {
-        mysqlQuery = 'select group_members.member_id from group_members where group_id = ?;'
+        mysqlQuery = 'select group_member.member_id from group_member where group_id = ?;'
         values = [groupId];
         try {
             const queryResults = await pool.query(mysqlQuery, values);
@@ -182,14 +183,14 @@ class Search {
         mysqlQuery = 'select \
                 member.nickname,\
                 member.headshot,\
-                group_members.member_id,\
+                group_member.member_id,\
                 (CASE WHEN EXISTS(SELECT * FROM  friend_list WHERE \
-                 user_id = ? and user_friend_id = group_members.member_id\
+                 user_id = ? and user_friend_id = group_member.member_id\
                 ) THEN 1 else 0 END)AS is_friend\
-                from group_members\
+                from group_member\
                 inner join member on\
-                group_members.member_id = member.user_id\
-                where group_members.group_id = ?;'
+                group_member.member_id = member.user_id\
+                where group_member.group_id = ?;'
         values = [selfId, groupId];
         try {
             const queryResults = await pool.query(mysqlQuery, values);

@@ -46,7 +46,7 @@ class Update {
     }
 
     async updateGroupHeadshot(groupId, headshot) {
-        mysqlQuery = 'UPDATE `group_members` SET headshot = ? WHERE group_id = ?';
+        mysqlQuery = 'UPDATE `group_data` SET headshot = ? WHERE group_id = ?';
         values = [headshot, groupId];
         try {
             const queryResults = await pool.query(mysqlQuery, values);
@@ -60,7 +60,7 @@ class Update {
     }
 
     async updateGroupName(groupId, groupName) {
-        mysqlQuery = 'UPDATE `group_members` SET group_name = ? WHERE group_id = ?';
+        mysqlQuery = 'UPDATE `group_data` SET group_name = ? WHERE group_id = ?';
         values = [groupName, groupId];
         try {
             const queryResults = await pool.query(mysqlQuery, values);
@@ -73,7 +73,7 @@ class Update {
     }
 
     async leaveGroup(groupId, userId) {
-        mysqlQuery = 'DELETE FROM `group_members` WHERE group_id = ? AND member_id = ?';
+        mysqlQuery = 'DELETE FROM `group_member` WHERE group_id = ? AND member_id = ?';
         values = [groupId, userId];
         try {
             const queryResults = await pool.query(mysqlQuery, values);
@@ -85,11 +85,12 @@ class Update {
         return isSuccess;
     }
 
-    async createGroup(groupId, groupName, groupMemberIdArr) {
+    async createGroup(groupId, groupMemberIdArr) {
         try {
-            mysqlQuery = 'INSERT INTO group_members(group_name, group_id, member_id,group_members.headshot) VALUES (?, ?, ?,?);';
+            mysqlQuery = 'INSERT INTO group_member(group_id, member_id) VALUES (?, ?);';
             for (const memberId of groupMemberIdArr) {
-                values = [groupName, groupId, memberId, `${process.env.S3_Url}default_headshot.png`];
+                console.log(memberId)
+                values = [groupId, memberId];
                 await pool.query(mysqlQuery, values, (error, results) => {
                     if (error) {
                         console.log("error");
@@ -103,13 +104,23 @@ class Update {
         }
     }
 
+    async createGroupData(groupId, groupName) {
+        try {
+            mysqlQuery = 'INSERT INTO group_data(group_id, group_name, headshot) VALUES (?, ?,?);'
+
+            values = [groupId, groupName, `${process.env.S3_Url}default_headshot.png`];
+            const results = await pool.query(mysqlQuery, values);
+        } catch (error) {
+            console.error("error:", error.message);
+        }
+    }
+
     async updateGroupMember(groupId, userId) {
         try {
-            mysqlQuery = 'INSERT INTO group_members(group_name, group_id, member_id,headshot)\
-                        SELECT group_name, group_id , ? ,headshot FROM group_members\
-                        WHERE group_id = ? limit 1;'
+            mysqlQuery = 'INSERT INTO group_member(group_id, member_id) values (?,?)'
 
-            values = [userId, groupId];
+
+            values = [groupId, userId];
             const results = await pool.query(mysqlQuery, values);
         } catch (error) {
             console.error("error:", error.message);
