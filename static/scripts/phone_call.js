@@ -211,9 +211,10 @@ phoneCallIcon.addEventListener("click", () => {
                                         for (const audioElement of document.querySelectorAll('audio')) {
                                             audioElement.srcObject = null;
                                         }
-                                        call.answer(stream);
+
 
                                         call.removeAllListeners("stream");
+                                        call.answer(stream);
                                         call.on("stream", userAudioStream => {
                                             const audioElement = new Audio();
                                             audioElement.className = `audio-${call.peer}`;
