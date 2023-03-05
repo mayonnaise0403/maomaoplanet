@@ -52,8 +52,8 @@ let myPeer = new Peer({
 });
 
 myPeer.on('open', (name) => {
-    console.log(peerId)
     peerId = name;
+    console.log(peerId)
 });
 
 
@@ -147,21 +147,16 @@ phoneCallIcon.addEventListener("click", () => {
                             for (const audioElement of document.querySelectorAll('audio')) {
                                 audioElement.srcObject = null;
                             }
-
-
-                            call.removeAllListeners("stream");
                             call.answer(stream);
+                            call.removeAllListeners("stream");
                             call.on("stream", userAudioStream => {
                                 const audioElement = new Audio();
                                 audioElement.className = `audio-${call.peer}`;
                                 console.log("成員的stream")
                                 console.log(userAudioStream)
-
                                 console.log("成員的id")
                                 console.log(call.peer)
-
                                 connectToNewUser(call.peer, userAudioStream)
-
                                 addAudioStream(audioElement, userAudioStream);
                                 remoteStreamArr.push(audioElement);
                             })
@@ -246,27 +241,7 @@ phoneCallIcon.addEventListener("click", () => {
     }
 
 })
-function connectToNewUser(peerId, stream) {
-    const call = myPeer.call(peerId, stream);
-    const audioElement = new Audio();
-    audioElement.className = `audio-${peerId}`;
-    call.on("stream", userAudioStream => {
-        addAudioStream(audioElement, userAudioStream);
-    })
-    call.on('close', () => {
-        audioElement.remove()
-    })
-    thePeers[peerId] = call
-}
 
-function addAudioStream(audio, stream) {
-    audio.srcObject = stream;
-    document.body.appendChild(audio)
-    audio.onloadedmetadata = () => {
-        audio.play();
-    };
-
-}
 
 //與好友通話 sender
 friendPopupCall.addEventListener("click", () => {
@@ -377,6 +352,9 @@ friendPopupCall.addEventListener("click", () => {
 
                                 addAudioStream(audioElement, userAudioStream);
                                 remoteStreamArr.push(audioElement);
+
+                                socket.emit('user-connected', friendId, call.peer)
+
                             })
                         })
                     }
@@ -576,7 +554,6 @@ socket.on("invite-join-group-call", (groupId, senderId, hostPeerId) => {
                                     console.log(call.peer)
                                     // 將自己的音軌 muted
                                     userAudioStream.getAudioTracks()[0].enabled = false;
-
                                 })
 
                             })
@@ -585,6 +562,14 @@ socket.on("invite-join-group-call", (groupId, senderId, hostPeerId) => {
                             groupCallAcceptBtn.removeEventListener("click", acceptGroupCall);
                             localStream = stream;
 
+                            socket.on('user-connected', userId => {
+                                if (userId !== peerId) {
+                                    console.log(userId)
+                                    connectToNewUser(userId, stream)
+                                }
+
+                            })
+
                         })
                         .catch(error => console.error(error));
                 })
@@ -592,6 +577,28 @@ socket.on("invite-join-group-call", (groupId, senderId, hostPeerId) => {
     }
 
 })
+
+function connectToNewUser(peerId, stream) {
+    const call = myPeer.call(peerId, stream);
+    const audioElement = new Audio();
+    audioElement.className = `audio-${peerId}`;
+    call.on("stream", userAudioStream => {
+        addAudioStream(audioElement, userAudioStream);
+    })
+    call.on('close', () => {
+        audioElement.remove()
+    })
+    thePeers[peerId] = call
+}
+
+function addAudioStream(audio, stream) {
+    audio.srcObject = stream;
+    document.body.appendChild(audio)
+    audio.onloadedmetadata = () => {
+        audio.play();
+    };
+
+}
 
 function connectToNewUser(peerId, stream) {
     const call = myPeer.call(peerId, stream);

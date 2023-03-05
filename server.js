@@ -49,6 +49,8 @@ io.on('connection', (socket) => {
         socket.to(room).emit("receive-message", msg);
     });
 
+
+
     socket.on("send-message-to-group", async (package) => {
         const token = socket.request.signedCookies.access_token;
         const selfId = jwt.verify(token, secretKey).userId;
@@ -118,6 +120,11 @@ io.on('connection', (socket) => {
     socket.on("accept-group-call", (groupId) => {
         socket.join(groupId);
     })
+
+    socket.on("user-connected", (groupId, userId) => {
+        socket.broadcast.to(groupId).emit("user-connected", userId);
+    })
+
 
     socket.on("group-ready", (groupId, host) => {
         socket.broadcast.to(groupId).emit("group-ready", groupId, host);
