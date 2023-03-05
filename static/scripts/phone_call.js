@@ -216,12 +216,6 @@ phoneCallIcon.addEventListener("click", () => {
                                         call.on("stream", userAudioStream => {
                                             const audioElement = new Audio();
                                             audioElement.className = `audio-${call.peer}`;
-                                            console.log("成員的stream")
-                                            console.log(userAudioStream)
-
-                                            console.log("成員的id")
-                                            console.log(call.peer)
-
                                             connectToNewUser(call.peer, userAudioStream)
 
                                             addAudioStream(audioElement, userAudioStream);
@@ -446,10 +440,9 @@ friendPopupCall.addEventListener("click", () => {
     } else {
         console.log("calling")
     }
-
-
-
 })
+
+
 
 socket.on("group-accept-call-member", (acceptMemberId) => {
     console.log(acceptMemberId)
@@ -550,12 +543,13 @@ socket.on("invite-join-group-call", (groupId, senderId, hostPeerId) => {
                                 for (const audioElement of document.querySelectorAll('audio')) {
                                     audioElement.srcObject = null;
                                 }
-                                call.answer(stream);
+                                // call.answer(stream);
                                 call.removeAllListeners("stream");
                                 call.on("stream", userAudioStream => {
                                     const audioElement = new Audio();
                                     audioElement.className = `audio-${call.peer}`;
-                                    addAudioStream(audioElement, userAudioStream)
+                                    addAudioStream(audioElement, userAudioStream);
+
                                 })
                             })
                             userStream = stream;
@@ -569,7 +563,6 @@ socket.on("invite-join-group-call", (groupId, senderId, hostPeerId) => {
     }
 
 })
-
 
 function connectToNewUser(peerId, stream) {
     const call = myPeer.call(peerId, stream);
@@ -592,6 +585,7 @@ function addAudioStream(audio, stream) {
     };
 
 }
+
 
 
 //掛掉電話
