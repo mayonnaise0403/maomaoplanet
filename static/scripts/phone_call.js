@@ -742,17 +742,18 @@ socket.on("group-hangup", (selfId) => {
 //     console.log(thePeers)
 // })
 
-socket.on("group-leave", (groupId, selfId, leavePeerId) => {
-    const connections = myPeer.connections[leavePeerId];
-    if (connections) {
-        connections.forEach(connection => {
-            if (connection.open) {
-                connection.close();
-                // socket.emit("select-new-host", groupId, peerId);
-                delete thePeers[leavePeerId];
-            }
-        });
-    }
+socket.on("group-leave", (selfId, leavePeerId) => {
+    if (thePeers[leavePeerId]) thePeers[leavePeerId].close()
+    // const connections = myPeer.connections[leavePeerId];
+    // if (connections) {
+    //     connections.forEach(connection => {
+    //         if (connection.open) {
+    //             connection.close();
+    //             // socket.emit("select-new-host", groupId, peerId);
+    //             delete thePeers[leavePeerId];
+    //         }
+    //     });
+    // }
     const myStatus = document.querySelector(`.loading${selfId}`);
     myStatus.src = "./images/cancel (1).png";
     myStatus.style.width = "40px";

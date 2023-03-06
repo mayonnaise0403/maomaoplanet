@@ -154,7 +154,7 @@ io.on('connection', (socket) => {
         Array.from(socket.rooms).forEach(room => {
             if (uuidRegex.test(room)) {
                 socket.leave(room);
-                socket.broadcast.to(room).emit("group-leave", room, selfId, peerId);
+                socket.broadcast.to(room).emit("group-leave", selfId, peerId);
             }
         })
     })
