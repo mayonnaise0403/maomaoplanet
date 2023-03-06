@@ -682,11 +682,11 @@ groupCallRejectBtn.addEventListener("click", () => {
 
 
 
-        if (Object.keys(thePeers).length !== 0) {
-            socket.emit("group-leave", peerId);
-        } else {
-            socket.emit("host-leave", friendId, groupMemberArr)
-        }
+        // if (Object.keys(thePeers).length !== 0) {
+        //     socket.emit("group-leave", peerId);
+        // } else {
+        //     socket.emit("host-leave", friendId, groupMemberArr)
+        // }
 
         socket.emit("group-leave", peerId);
         myPeer.destroy();
