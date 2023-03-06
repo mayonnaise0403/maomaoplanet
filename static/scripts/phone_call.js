@@ -630,21 +630,21 @@ groupCallRejectBtn.addEventListener("click", () => {
     groupRecipientCalled = false;
     groupCallPopUp.style.display = "none";
     if (groupCallSuccess) {
-        if (userStream) {
-            if (userStream.getTracks()) {
-                userStream.getTracks().forEach(track => track.stop());
-                audioElement.srcObject = null;
-                userStream = null;
-            }
-        }
+        // if (userStream) {
+        //     if (userStream.getTracks()) {
+        //         userStream.getTracks().forEach(track => track.stop());
+        //         audioElement.srcObject = null;
+        //         userStream = null;
+        //     }
+        // }
 
-        if (localStream) {
-            if (localStream.getTracks()) {
-                localStream.getTracks().forEach(track => track.stop());
-                audioElement.srcObject = null;
-                localStream = null;
-            }
-        }
+        // if (localStream) {
+        //     if (localStream.getTracks()) {
+        //         localStream.getTracks().forEach(track => track.stop());
+        //         audioElement.srcObject = null;
+        //         localStream = null;
+        //     }
+        // }
 
 
         for (const peerId in thePeers) {
@@ -658,21 +658,21 @@ groupCallRejectBtn.addEventListener("click", () => {
             }
         }
 
-        remoteStreamArr.forEach(element => {
-            element.pause();
-            element.remove();
-        })
+        // remoteStreamArr.forEach(element => {
+        //     element.pause();
+        //     element.remove();
+        // })
 
-        remoteStreamArr.forEach(element => {
-            const audios = document.getElementsByClassName(element.className);
-            for (let i = 0; i < audios.length; i++) {
-                if (audios[i].srcObject) {
-                    const tracks = audios[i].srcObject.getTracks();
-                    console.log("tracktrack")
-                    tracks.forEach((track) => track.stop());
-                }
-            }
-        })
+        // remoteStreamArr.forEach(element => {
+        //     const audios = document.getElementsByClassName(element.className);
+        //     for (let i = 0; i < audios.length; i++) {
+        //         if (audios[i].srcObject) {
+        //             const tracks = audios[i].srcObject.getTracks();
+        //             console.log("tracktrack")
+        //             tracks.forEach((track) => track.stop());
+        //         }
+        //     }
+        // })
 
         const audios = document.querySelectorAll("audio");
         audios.forEach((audio) => {
