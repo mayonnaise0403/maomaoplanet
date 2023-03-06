@@ -447,7 +447,6 @@ friendPopupCall.addEventListener("click", () => {
 
 
 socket.on("group-accept-call-member", (acceptMemberId) => {
-    console.log(acceptMemberId)
     const acceptMemberLoading = document.querySelector(`.loading${acceptMemberId}`);
     if (acceptMemberLoading) {
         acceptMemberLoading.src = "./images/check (1).png";
@@ -587,9 +586,9 @@ function connectToNewUser(peerId, stream) {
     call.on("stream", userAudioStream => {
         addAudioStream(audioElement, userAudioStream);
     })
-    call.on('close', () => {
-        audioElement.remove()
-    })
+    // call.on('close', () => {
+    //     audioElement.remove()
+    // })
     thePeers[peerId] = call
 }
 
@@ -716,16 +715,16 @@ groupCallRejectBtn.addEventListener("click", () => {
 
 })
 
-socket.on("host-leave", (groupId) => {
+// socket.on("host-leave", (groupId) => {
 
-    groupRecipientCalled = false;
-    if (groupCallId === groupId) {
-        groupCallPopUp.style.display = "none";
-        while (groupCallMemberData.firstChild) {
-            groupCallMemberData.removeChild(groupCallMemberData.firstChild);
-        }
-    }
-})
+//     groupRecipientCalled = false;
+//     if (groupCallId === groupId) {
+//         groupCallPopUp.style.display = "none";
+//         while (groupCallMemberData.firstChild) {
+//             groupCallMemberData.removeChild(groupCallMemberData.firstChild);
+//         }
+//     }
+// })
 
 socket.on("group-hangup", (selfId) => {
     const myStatus = document.querySelector(`.loading${selfId}`);
