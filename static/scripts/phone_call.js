@@ -159,6 +159,7 @@ phoneCallIcon.addEventListener("click", () => {
                                 connectToNewUser(call.peer, userAudioStream)
                                 addAudioStream(audioElement, userAudioStream);
                                 remoteStreamArr.push(audioElement);
+                                socket.emit('user-connected', friendChatId, call.peer)
                             })
                         })
                     }
@@ -215,6 +216,7 @@ phoneCallIcon.addEventListener("click", () => {
                                             audioElement.className = `audio-${call.peer}`;
                                             addAudioStream(audioElement, userAudioStream);
                                             remoteStreamArr.push(audioElement);
+
                                         })
                                         connectToNewUser(call.peer, stream)
                                     })
@@ -734,10 +736,11 @@ socket.on("group-hangup", (selfId) => {
 
 })
 
-socket.on("select-new-host", (peerId) => {
-    connectToNewUser(peerId, localStream);
-    console.log(thePeers)
-})
+// socket.on("select-new-host", (peerId) => {
+
+//     connectToNewUser(peerId, localStream);
+//     console.log(thePeers)
+// })
 
 socket.on("group-leave", (groupId, selfId, leavePeerId) => {
     const connections = myPeer.connections[leavePeerId];
@@ -745,7 +748,7 @@ socket.on("group-leave", (groupId, selfId, leavePeerId) => {
         connections.forEach(connection => {
             if (connection.open) {
                 connection.close();
-                socket.emit("select-new-host", groupId, peerId);
+                // socket.emit("select-new-host", groupId, peerId);
                 delete thePeers[leavePeerId];
             }
         });
