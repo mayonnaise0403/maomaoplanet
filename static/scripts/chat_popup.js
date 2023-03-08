@@ -203,8 +203,7 @@ chatPopupPictureAndVideo.addEventListener("click", () => {
                         if (dataType === "(image)" || dataType === "(video)") {
                             if (dataType === "(image)") {
                                 newImg = document.createElement("img");
-                                console.log(element.message)
-                                newImg.src = element.message;
+                                newImg.src = element.message.replace("https://maomaoimage.s3.ap-northeast-1.amazonaws.com/single_chat_file/", "https://dienxbb61mvmu.cloudfront.net/single_chat_file/");
                                 newImg.style.width = "150px";
                                 newImg.style.height = "150px";
                                 newImg.style.borderRadius = "10px";
@@ -270,7 +269,7 @@ chatPopupPictureAndVideo.addEventListener("click", () => {
 
                             if (dataType === "(image)") {
                                 newImg = document.createElement("img");
-                                newImg.src = element.message;
+                                newImg.src = element.message.replace("https://maomaoimage.s3.ap-northeast-1.amazonaws.com/single_chat_file/", "https://dienxbb61mvmu.cloudfront.net/single_chat_file/");;
                                 newImg.style.width = "150px";
                                 newImg.style.height = "150px";
                                 newImg.style.borderRadius = "10px";

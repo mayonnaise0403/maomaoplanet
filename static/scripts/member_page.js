@@ -920,7 +920,7 @@ function chatFile(element, date, isSelf, is_read = 0, is_group = false) {
         newAudio.style.display = "flex";
         newAudio.style.width = "250px";
 
-        newAudio.src = `${S3Url}${fileName}${dataType}`;
+        newAudio.src = `https://dienxbb61mvmu.cloudfront.net/single_chat_file/${fileName}${dataType}`;
         newDiv.appendChild(newAudio);
 
         if (!isSelf) {
@@ -952,7 +952,7 @@ function chatFile(element, date, isSelf, is_read = 0, is_group = false) {
 
 
         newImg = document.createElement("img");
-        newImg.src = `${S3Url}${fileName}${dataType}`;
+        newImg.src = `https://dienxbb61mvmu.cloudfront.net/single_chat_file/${fileName}${dataType}`;
         newImg.style.maxWidth = "200px";
         newImg.style.display = "block";
         newImg.style.borderRadius = "10px";
