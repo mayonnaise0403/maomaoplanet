@@ -26,11 +26,9 @@ const verifyEmailErrorMsg = document.querySelector(".profile-email-content-error
 const verifyEmailSuccessFont = document.querySelector(".profile-page-confirm-email-success-font");
 const loaderDarker = document.querySelector(".loader-darker");
 const loaderContainer = document.querySelector(".loader-container");
-
-
 let file, HeadshotFileDatatype, emailVerifyCode, verifyEmailHandler, oldHeadshot;
 
-//初始值
+
 uploadImageBtn.style.display = "none";
 uploadFile.style.display = "none";
 
@@ -41,12 +39,7 @@ fetch("/api/user_data")
     .then((response) => {
         profileNickname.innerHTML = response.nickname;
         profileEmail.innerHTML = response.email;
-        // headshot.src = "./images/Loading_icon.gif"
-        // headshot.onload = () => {
         headshot.src = response.headshot;
-        // }
-
-
     })
     .then(() => {
         darder.style.display = "none";
@@ -149,7 +142,7 @@ emailEditOk.addEventListener("click", () => {
         })
 })
 
-//驗證信箱popup的叉叉按鈕
+
 confirmEmailClose.addEventListener("click", () => {
     confirmEmailPopup.style.display = "none";
 })
@@ -171,7 +164,7 @@ emailEditClose.addEventListener("click", () => {
     verifyEmailErrorMsg.style.display = "none";
 })
 
-//信箱驗證成功的叉叉按鈕
+
 verifyEmailSuccessClose.addEventListener("click", () => {
     verifyEmailSuccessPopup.style.display = "none";
 })

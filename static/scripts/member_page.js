@@ -31,8 +31,6 @@ const errorMessage = document.querySelector(".error-message");
 const chatMessage = document.querySelector(".chat-message");
 const friendListEmpty = document.querySelector("#friend-list-empty");
 const groupListEmpty = document.querySelector("#group-list-empty");
-
-
 let newP, newHr, newDiv, newImg;
 let selfId, friendId, friendChatId;
 
@@ -119,13 +117,6 @@ fetch("/api/friendlist")
 
 
     })
-// .catch((error) => {
-//     console.log(error)
-//     window.location = "/error"
-// });
-
-
-
 
 
 socket.on("receive-group-message", (package) => {
@@ -212,15 +203,6 @@ socket.on("receive-group-message", (package) => {
 
         }
 
-
-        // const package = {
-        //     group_id: friendChatId.innerHTML,
-        //     self_id: parseInt(selfId.innerHTML)
-        // }
-        // socket.emit('group-read-message', package);
-
-
-
     } else {
 
 
@@ -276,7 +258,6 @@ socket.on("receive-message", (msg) => {
     // if (chatContainer.style.display === "block" && parseInt(friendChatId.innerHTML) === parseInt(msg.user_id)) {
     //     displayMessage(msg, false);
     // }
-    console.log(msg)
     if (chatContainer.style.display === "block" && parseInt(friendChatId) === parseInt(msg.user_id)) {
         let room = `user${friendChatId}`;
         socket.emit('read-message', room);
@@ -356,38 +337,6 @@ socket.on("receive-message", (msg) => {
 
                 })
         }, 1000);
-
-
-        // if (hadHistoryMsg) {
-        //     setTimeout(() => {
-        //         fetch("/api/get_latest_message")
-        //             .then((response) => {
-        //                 return response.json();
-        //             })
-        //             .then((data) => {
-        //                 createChatList(data, chatListContainer);
-        //             })
-        //     }, 1000);
-        // } else {
-        //     while (chatListContainer.firstChild) {
-        //         console.log("remove firstChild")
-        //         chatListContainer.removeChild(chatListContainer.firstChild);
-        //     }
-
-
-        //     setTimeout(() => {
-        //         fetch("/api/get_latest_message")
-        //             .then((response) => {
-        //                 return response.json();
-        //             })
-        //             .then((data) => {
-        //                 createLatestChatList(data[0], chatListContainer);
-        //             })
-        //     }, 1000);
-        // }
-
-
-
     }
 
 });
@@ -447,56 +396,7 @@ signOutBtn.addEventListener("click", () => {
         })
 })
 
-// let isScrolling;
-// const chatMsgDate = document.querySelector(".chat-message-datetime");
-// chatMessage.addEventListener("scroll", () => {
 
-//     let timer;
-//     let date = new Date();
-//     date = date.toLocaleString();
-
-//     if (chatMsgDate) {
-//         chatMsgDate.style.visibility = "visible";
-//         var firstVisible = chatMessage.firstElementChild;
-//         var scrollTop = chatMessage.scrollTop;
-//     }
-
-
-
-
-//     if (firstVisible) {
-//         while (firstVisible.offsetTop < scrollTop) {
-//             firstVisible = firstVisible.nextElementSibling;
-//         }
-//         if (chatMsgDate) {
-//             if (firstVisible.className != "read-message-status" && firstVisible.className != "chat-message-date" && firstVisible.className != "group-member-headshot-nickname" && firstVisible.className != "chat-message-datetime") {
-//                 chatMsgDate.innerHTML = firstVisible.className;
-//             }
-
-//         }
-
-//     }
-
-
-//     if (timer !== null) {
-//         clearTimeout(timer);
-//     }
-
-//     // 設定新的計時器
-//     timer = setTimeout(function () {
-//         // 停止滾動
-
-//         isScrolling = false;
-//         if (chatMsgDate) {
-//             chatMsgDate.style.visibility = "hidden";
-//         }
-
-
-
-//     }, 1000);
-
-//     isScrolling = true;
-// })
 
 
 
@@ -569,20 +469,7 @@ popupAddFriendBtn.addEventListener("click", () => {
 
 })
 
-//點擊搜尋好友按鈕
-// searchFriendBton.addEventListener("click", () => {
-//     if (searchFriendInput.value) {
-//         fetch(`/api/search_friend?nickname=${searchFriendInput.value}`)
-//             .then((response) => {
-//                 return response.json();
-//             })
-//             .then((data) => {
-//                 searchFriendResultClose.style.display = "block";
-//                 searchFriendResultList.style.display = "block";
-//                 createFriendList(data, searchFriendResultList);
-//             })
-//     }
-// })
+
 
 //點擊關閉搜尋好友按鈕
 searchFriendResultClose.addEventListener("click", () => {
@@ -628,7 +515,6 @@ chatCloseBtn.addEventListener("click", () => {
     const addUserToGroupFriendList = document.querySelector(".add-user-to-group-friendlist");
     addNewUserContainer.style.display = "none";
     groupMemberPopup.style.display = "none";
-    console.log(addUserToGroupFriendList)
     while (addUserToGroupFriendList.firstChild) {
         addUserToGroupFriendList.firstChild.remove();
     }
@@ -984,7 +870,7 @@ function chatFile(element, date, isSelf, is_read = 0, is_group = false) {
 
         }
         newImg = document.createElement("img");
-        newImg.src = `https://maomaoimage.s3.ap-northeast-1.amazonaws.com/videoImage/${fileName}`;
+        newImg.src = `https://dienxbb61mvmu.cloudfront.net/videoImage/${fileName}`;
         newImg.style.maxWidth = "200PX";
         newImg.style.borderRadius = "10px";
         newDiv.appendChild(newImg);
@@ -1398,10 +1284,6 @@ async function sendMsgInGroup(fileName = "") {
         let groupMessage = document.querySelector(`[data-attribute-name='${package.group_id}']`);
         if (hadGroupHistoryMsg && groupMessage) {
 
-
-            // let attrValue = groupMessage.getAttribute(friendChatId.innerHTML);
-            // console.log("groupmsg", groupMessage)
-            // console.log(attrValue);
             const firstChildren = groupChatListContainer.children[0];
             if (clickedDiv) {
                 if (firstChildren !== clickedDiv) {

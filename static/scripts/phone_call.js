@@ -116,22 +116,15 @@ phoneCallIcon.addEventListener("click", () => {
                             const myLoading = document.querySelector(`.loading${selfId}`);
                             myLoading.src = "./images/check (1).png";
                             myLoading.style.width = "40px";
-                            groupId = friendChatId
-
-                            // if (!peerConnection) {
-                            //     peerConnection = new RTCPeerConnection(iceServers);
-                            // }
-
+                            groupId = friendChatId;
                             socket.emit("join-group-call", groupId, peerId);
                             groupCallSuccess = true;
-                            groupHost = true;
                         }
                     })
 
             }
 
             creator = true;
-            groupHost = true;
             // 获取麦克风的媒体流
             navigator.mediaDevices.getUserMedia({ audio: true })
                 .then(stream => {
@@ -149,12 +142,12 @@ phoneCallIcon.addEventListener("click", () => {
                                 // remoteStreamArr.push(audioElement);
                                 socket.emit('user-connected', friendChatId, call.peer)
                             })
-                            connectToNewUser(call.peer, userAudioStream)
+                            connectToNewUser(call.peer, stream)
                         })
                     }
                     localStream = stream;
                 })
-                .catch(error => console.error(error));
+                .catch(error => console.log(error));
 
         } else {
             if (peerId) {
@@ -200,7 +193,7 @@ phoneCallIcon.addEventListener("click", () => {
 
                                     localStream = stream;
                                 })
-                                .catch(error => console.error(error));
+                                .catch(error => console.log(error));
 
                         } else {
                             errorMessage.style.display = "block";
@@ -295,7 +288,6 @@ friendPopupCall.addEventListener("click", () => {
                     })
 
             }
-            groupHost = true;
             creator = true;
             // 获取麦克风的媒体流
             navigator.mediaDevices.getUserMedia({ audio: true })
@@ -372,7 +364,7 @@ friendPopupCall.addEventListener("click", () => {
 
 
                                 })
-                                .catch(error => console.error(error));
+                                .catch(error => console.log(error));
 
                         } else {
                             errorMessage.style.display = "block";
@@ -400,7 +392,7 @@ socket.on("group-accept-call-member", (acceptMemberId) => {
         acceptMemberLoading.style.width = "40px";
     }
 })
-let hostPeerId;
+
 //群組對方接聽
 socket.on("invite-join-group-call", (groupId, senderId, hostPeerId) => {
     groupMemberArr = [];
@@ -495,7 +487,6 @@ socket.on("invite-join-group-call", (groupId, senderId, hostPeerId) => {
                             })
                             userStream = stream;
                             connectToNewUser(hostPeerId, stream)
-                            hostPeerId = hostPeerId;
                             localStream = stream;
 
                             socket.on('user-connected', userId => {
@@ -555,13 +546,7 @@ groupCallRejectBtn.addEventListener("click", () => {
             socket.emit("group-hangup", groupMemberArr);
             groupMemberArr = [];
         }
-        // if (userStream) {
-        //     if (userStream.getTracks()) {
-        //         userStream.getTracks().forEach(track => track.stop());
-        //         audioElement.srcObject = null;
-        //         userStream = null;
-        //     }
-        // }
+
 
         if (localStream) {
             if (localStream.getTracks()) {
@@ -570,39 +555,9 @@ groupCallRejectBtn.addEventListener("click", () => {
                 localStream = null;
             }
         }
-
-
-        // for (const peerId in thePeers) {
-        //     if (thePeers.hasOwnProperty(peerId)) {
-        //         const call = thePeers[peerId];
-        //         if (call) {
-        //             console.log("關閉連接")
-        //             call.close();
-
-        //         }
-        //     }
-        // }
         for (const peerId in myPeer.connections) {
             myPeer.connections[peerId].forEach(conn => conn.close());
         }
-
-
-
-        // remoteStreamArr.forEach(element => {
-        //     element.pause();
-        //     element.remove();
-        // })
-
-        // remoteStreamArr.forEach(element => {
-        //     const audios = document.getElementsByClassName(element.className);
-        //     for (let i = 0; i < audios.length; i++) {
-        //         if (audios[i].srcObject) {
-        //             const tracks = audios[i].srcObject.getTracks();
-        //             console.log("tracktrack")
-        //             tracks.forEach((track) => track.stop());
-        //         }
-        //     }
-        // })
 
         const audioElements = document.querySelectorAll("audio");
         audioElements.forEach((audioElement) => {
@@ -617,15 +572,6 @@ groupCallRejectBtn.addEventListener("click", () => {
 
 
         socket.emit("group-leave", peerId);
-
-
-        // if (Object.keys(thePeers).length !== 0) {
-        //     socket.emit("group-leave", peerId);
-        // } else {
-        //     socket.emit("host-leave", friendId, groupMemberArr)
-        // }
-
-
         myPeer.destroy();
         peerId = null;
         myPeer = new Peer({
@@ -642,7 +588,6 @@ groupCallRejectBtn.addEventListener("click", () => {
         groupCallSuccess = false;
         thePeers = {};
         groupMemberArr = [];
-        groupHost = false;
     } else {
         socket.emit("group-hangup", groupMemberArr);
         groupMemberArr = [];
@@ -654,16 +599,7 @@ groupCallRejectBtn.addEventListener("click", () => {
 
 })
 
-// socket.on("host-leave", (groupId) => {
 
-//     groupRecipientCalled = false;
-//     if (groupCallId === groupId) {
-//         groupCallPopUp.style.display = "none";
-//         while (groupCallMemberData.firstChild) {
-//             groupCallMemberData.removeChild(groupCallMemberData.firstChild);
-//         }
-//     }
-// })
 
 socket.on("group-hangup", (selfId) => {
     console.log("hihihhhi")
@@ -675,27 +611,10 @@ socket.on("group-hangup", (selfId) => {
 
 })
 
-// socket.on("select-new-host", (newPeerId) => {
-//     if (newPeerId !== peerId) {
-//         connectToNewUser(newPeerId, localStream);
-//         console.log(thePeers)
-//     }
 
-// })
 
 socket.on("group-leave", (selfId, leavePeerId) => {
     if (thePeers[leavePeerId]) thePeers[leavePeerId].close()
-    // const connections = myPeer.connections[leavePeerId];
-    // if (connections) {
-    //     connections.forEach(connection => {
-    //         if (connection.open) {
-    //             connection.close();
-    //             delete thePeers[leavePeerId];
-    //         }
-    //     });
-    // }
-
-
     const myStatus = document.querySelector(`.loading${selfId}`);
     myStatus.src = "./images/cancel (1).png";
     myStatus.style.width = "40px";
@@ -837,27 +756,12 @@ socket.on("offer", (roomName) => {
                     }
                 }
 
-                // remoteStreamArr.forEach(element => {
-                //     element.pause();
-                //     element.remove();
-                // })
-
-                // remoteStreamArr.forEach(element => {
-                //     const audios = document.getElementsByClassName(element.className);
-                //     for (let i = 0; i < audios.length; i++) {
-                //         if (audios[i].srcObject) {
-                //             const tracks = audios[i].srcObject.getTracks();
-                //             console.log("tracktrack")
-                //             tracks.forEach((track) => track.stop());
-                //         }
-                //     }
-                // })
                 const audios = document.querySelectorAll("audio");
                 console.log(audios)
                 audios.forEach((audio) => {
                     audio.pause();
                 });
-                // roomName = "";
+
                 myPeer.destroy();
                 peerId = null;
                 myPeer = new Peer({
@@ -996,24 +900,6 @@ selfCallHangup.addEventListener("click", () => {
             }
         }
 
-        // remoteStreamArr.forEach(element => {
-        //     element.pause();
-        //     element.remove();
-        // })
-
-
-
-
-        // remoteStreamArr.forEach(element => {
-        //     const audios = document.getElementsByClassName(element.className);
-        //     for (let i = 0; i < audios.length; i++) {
-        //         if (audios[i].srcObject) {
-        //             const tracks = audios[i].srcObject.getTracks();
-        //             console.log("tracktrack")
-        //             tracks.forEach((track) => track.stop());
-        //         }
-        //     }
-        // })
         const audios = document.querySelectorAll("audio");
         console.log(audios)
         audios.forEach((audio) => {
@@ -1047,7 +933,6 @@ selfCallHangup.addEventListener("click", () => {
 })
 
 socket.on("leave", (peerId) => {
-    // roomName = "";
     console.log("leaveleaveleave")
     document.querySelector(".friend-call-image-icon").style.display = "none";
     document.querySelector(".self-call-icon").style.display = "none";
@@ -1076,9 +961,6 @@ socket.on("leave", (peerId) => {
             }
         });
     }
-    console.log(thePeers)
-    console.log("someone leaving")
-
     seconds = 0;
     minutes = 0;
     hours = 0;

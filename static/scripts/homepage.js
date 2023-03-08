@@ -73,11 +73,8 @@ hadAccount.addEventListener("click", () => {
 })
 
 signupBtn.addEventListener("click", () => {
-
     if (checkSignupData()) {
         uploadDatabase();
-
-
     }
 })
 
