@@ -117,8 +117,10 @@ io.on('connection', (socket) => {
     })
 
 
-    socket.on("accept-group-call", (groupId) => {
+    socket.on("accept-group-call", (groupId, peerId) => {
         socket.join(groupId);
+
+        socket.broadcast.to(groupId).emit("user-connected", peerId);
     })
 
     socket.on("user-connected", (groupId, userId) => {
@@ -159,10 +161,10 @@ io.on('connection', (socket) => {
         })
     })
 
-    socket.on("host-leave", (groupId, groupMemberArr) => {
-        groupMemberArr.forEach(element => {
-            socket.to(`user${element}`).emit("host-leave", groupId);
-        })
+    socket.on("host-leave", (groupId) => {
+        socket.leave(groupId);
+        socket.broadcast.to(groupId).emit("host-leave", groupId);
+
     })
 
     socket.on("select-new-host", (groupId, peerId) => {
