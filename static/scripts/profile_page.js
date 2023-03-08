@@ -65,8 +65,8 @@ editNicknameBtn.addEventListener("click", () => {
 
 //確認編輯姓名
 nameEditOk.addEventListener("click", () => {
-    fetch("/update_nickname", {
-        method: "POST",
+    fetch("/nickname", {
+        method: "PUT",
         body: JSON.stringify({
             newNickname: nameInput.value
         })
@@ -112,7 +112,7 @@ emailEditOk.addEventListener("click", () => {
     loaderDarker.style.display = "block";
     loaderContainer.style.display = "block";
     verifyEmailSuccessFont.innerHTML = "";
-    fetch("/update_verify_email", {
+    fetch("/verify_email", {
         method: "POST",
         body: JSON.stringify({
             newEmail: emailInput.value
@@ -204,8 +204,8 @@ uploadFile.addEventListener("click", () => {
     if (HeadshotFileDatatype.includes("image")) {
         loaderDarker.style.display = "block";
         loaderContainer.style.display = "block";
-        fetch("/upload_headshot", {
-            method: "POST",
+        fetch("/headshot", {
+            method: "PUT",
             body: JSON.stringify({
                 email: profileEmail.innerHTML,
                 image: file
@@ -268,8 +268,8 @@ inputFile.addEventListener("change", e => {
 function verifyEmail(emailVerifyCode) {
     verifyEmailSuccessFont.innerHTML = "";
     if (verifyEmailInput.value === emailVerifyCode) {
-        fetch("/update_email", {
-            method: "POST",
+        fetch("/email", {
+            method: "PUT",
             body: JSON.stringify({
                 newEmail: emailInput.value
             })

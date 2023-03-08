@@ -45,7 +45,7 @@ router.get("/api/user_data", async (req, res) => {
 
 
 
-router.post("/update_nickname", async (req, res) => {
+router.put("/nickname", async (req, res) => {
     try {
         const token = req.signedCookies.access_token;
         const decoded = jwt.decode(token, secretKey);
@@ -70,7 +70,7 @@ router.post("/update_nickname", async (req, res) => {
 
 })
 
-router.post("/update_verify_email", async (req, res) => {
+router.post("/verify_email", async (req, res) => {
     try {
         let newEmail = req.body.newEmail;
         const isAvailable = await Signup.checkEmail(newEmail);
@@ -91,12 +91,12 @@ router.post("/update_verify_email", async (req, res) => {
                 subject: "毛毛星球-信箱更改驗證",
                 html: `驗證碼是:${code}`,
             }).then(() => {
-                res.send({ status: "success", code: code });
+                res.status(200).send({ status: "success", code: code });
             }).catch(() => {
-                res.send({ status: "error", message: "寄出失敗" });
+                res.status(400).send({ status: "error", message: "寄出失敗" });
             })
         } else {
-            res.send({ status: "error", message: "信箱已被使用過" });
+            res.status(400).send({ status: "error", message: "信箱已被使用過" });
         }
 
     } catch (err) {
@@ -106,7 +106,7 @@ router.post("/update_verify_email", async (req, res) => {
 
 })
 
-router.post("/update_email", async (req, res) => {
+router.put("/email", async (req, res) => {
     try {
         const token = req.signedCookies.access_token;
         const decoded = jwt.decode(token, secretKey);
@@ -129,61 +129,9 @@ router.post("/update_email", async (req, res) => {
 
 })
 
-router.post("/upload_group_headshot", async (req, res) => {
-    try {
-        let image = req.body.image;
-        let groupId = req.body.groupId;
-        let imageBuffer = Buffer.from(
-            image.replace(/^data:image\/\w+;base64,/, ""),
-            "base64"
-        )
-        const type = image.split(';')[0].split('/')[1];
-        AWS.config.update({
-            accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-            secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-            region: 'ap-northeast-1'
-        });
-        const s3 = new AWS.S3();
-        const params = {
-            Bucket: 'maomaoimage/group_headshot',
-            Key: groupId,
-            Body: imageBuffer,
-            ContentEncoding: 'base64',
-            ContentType: `image/${type}`
-        };
-        s3.upload(params, async (err, data) => {
-            if (err) {
-                res.send({
-                    status: "error"
-                })
-            }
-            else {
-                //update database
-                const isSuccess = await Update.updateGroupHeadshot(groupId, `${process.env.S3}group_headshot/${groupId}`);
-                if (isSuccess) {
-                    res.status(200).send({
-                        status: "success",
-                        image: `${process.env.S3}group_headshot/${groupId}`
-                    })
-                } else {
-                    res.status(500).send({
-                        status: "error", message: "更新失敗"
-                    })
-                }
-
-            }
 
 
-        })
-    } catch (err) {
-        res.status(500).send({ status: "error", message: "內部伺服器出現錯誤" });
-    }
-
-
-
-})
-
-router.post("/upload_headshot", (req, res) => {
+router.put("/headshot", (req, res) => {
     try {
         const token = req.signedCookies.access_token;
         const decoded = jwt.decode(token, secretKey);
@@ -244,23 +192,5 @@ async function isHaveHeadshot(url) {
         });
     });
 }
-
-// async function isUpdateNicknameSuccess(newNickname, userId) {
-//     const isSuccess = await Update.updateNickname(newNickname, userId);
-//     return isSuccess;
-// }
-
-// async function isUpdateEmailSuccess(newEmail, userId) {
-//     const isSuccess = await Update.updateEmail(newEmail, userId);
-//     return isSuccess;
-// }
-
-// async function checkEmailAvailability(email) {
-//     const isAvailable = await Signup.checkEmail(email);
-//     return isAvailable;
-// }
-
-
-
 
 module.exports = router;

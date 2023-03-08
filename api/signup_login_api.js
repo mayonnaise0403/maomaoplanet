@@ -23,13 +23,6 @@ Login = new Login();
 
 
 router.get("/member", (req, res) => {
-    // if (!req.signedCookies.access_token) {
-    //     res.clearCookie('access_token');
-    //     res.render("homepage.html")
-    // } else {
-    //     res.render("member.html")
-    // }
-
     try {
         if (!req.signedCookies.access_token) {
             res.clearCookie('access_token');

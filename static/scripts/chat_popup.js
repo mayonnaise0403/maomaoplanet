@@ -144,7 +144,7 @@ addNewUserToGroupBtn.addEventListener("click", () => {
                         newImg.addEventListener("click", (e) => {
                             console.log(element.user_id)
                             e.target.parentNode.style.display = "none";
-                            fetch("/update_new_group_user", {
+                            fetch("/new_group_user", {
                                 method: "POST",
                                 body: JSON.stringify({
                                     userId: element.user_id,
@@ -183,15 +183,7 @@ chatPopupPictureAndVideo.addEventListener("click", () => {
     pictureVideoContainer.style.display = "block";
     const isGroup = isNaN(friendChatId);
     if (isGroup) {
-        fetch("/get_group_picture", {
-            method: "POST",
-            body: JSON.stringify({
-                groupId: friendChatId,
-            }),
-            headers: {
-                'Content-type': 'application/json; charset=UTF-8',
-            },
-        })
+        fetch(`/group_picture?groupId=${friendChatId}`)
             .then((response) => {
                 return response.json();
             })
@@ -247,7 +239,7 @@ chatPopupPictureAndVideo.addEventListener("click", () => {
             })
 
     } else {
-        fetch("/get_chat_picture", {
+        fetch("/chat_picture", {
             method: "POST",
             body: JSON.stringify({
                 recipientId: friendChatId,
@@ -385,7 +377,7 @@ uploadFileInput.addEventListener("change", () => {
                         file = reader.result;
 
 
-                        fetch("/upload_file", {
+                        fetch("/file", {
                             method: "POST",
                             body: JSON.stringify({
                                 recipientId: friendChatId,
@@ -435,7 +427,7 @@ uploadFileInput.addEventListener("change", () => {
                 reader.addEventListener("load", () => {
                     file = reader.result;
                     file = file.split(",")[1];
-                    fetch("/upload_file", {
+                    fetch("/file", {
                         method: "POST",
                         body: JSON.stringify({
                             recipientId: friendChatId,

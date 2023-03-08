@@ -67,15 +67,7 @@ phoneCallIcon.addEventListener("click", () => {
                 groupCallPopUp.style.display = "block";
                 friendPopup.style.display = "none";
                 groupCallAcceptBtn.style.display = "none";
-                fetch("/api/get_group_member", {
-                    method: "POST",
-                    body: JSON.stringify({
-                        groupId: friendChatId
-                    })
-                    , headers: {
-                        'Content-type': 'application/json; charset=UTF-8',
-                    }
-                })
+                fetch(`/api/group_member?groupId=${friendChatId}`)
                     .then((response) => {
                         return response.json();
                     })
@@ -166,15 +158,7 @@ phoneCallIcon.addEventListener("click", () => {
 
         } else {
             if (peerId) {
-                fetch("check_friend_status", {
-                    method: "POST",
-                    body: JSON.stringify({
-                        friendId: friendChatId
-                    })
-                    , headers: {
-                        'Content-type': 'application/json; charset=UTF-8',
-                    }
-                })
+                fetch(`/friend_status?friendId=${friendChatId}`)
                     .then((response) => {
                         return response.json();
                     })
@@ -210,9 +194,9 @@ phoneCallIcon.addEventListener("click", () => {
                                             // remoteStreamArr.push(audioElement);
 
                                         })
-
+                                        connectToNewUser(call.peer, stream)
                                     })
-                                    connectToNewUser(call.peer, stream)
+
 
                                     localStream = stream;
                                 })
@@ -247,15 +231,7 @@ friendPopupCall.addEventListener("click", () => {
                 groupCallPopUp.style.display = "block";
                 friendPopup.style.display = "none";
                 groupCallAcceptBtn.style.display = "none";
-                fetch("/api/get_group_member", {
-                    method: "POST",
-                    body: JSON.stringify({
-                        groupId: friendId
-                    })
-                    , headers: {
-                        'Content-type': 'application/json; charset=UTF-8',
-                    }
-                })
+                fetch(`/api/group_member?groupId=${friendId}`)
                     .then((response) => {
                         return response.json();
                     })
@@ -348,15 +324,7 @@ friendPopupCall.addEventListener("click", () => {
 
         } else {
             if (peerId) {
-                fetch("check_friend_status", {
-                    method: "POST",
-                    body: JSON.stringify({
-                        friendId: friendId
-                    })
-                    , headers: {
-                        'Content-type': 'application/json; charset=UTF-8',
-                    }
-                })
+                fetch(`/friend_status?friendId=${friendId}`)
                     .then((response) => {
                         return response.json();
                     })
@@ -441,15 +409,7 @@ socket.on("invite-join-group-call", (groupId, senderId, hostPeerId) => {
         groupCallId = groupId;
         groupCallPopUp.style.display = "block";
         friendPopup.style.display = "none";
-        fetch("/api/get_group_member", {
-            method: "POST",
-            body: JSON.stringify({
-                groupId: groupId
-            })
-            , headers: {
-                'Content-type': 'application/json; charset=UTF-8',
-            }
-        })
+        fetch(`/api/group_member?groupId=${groupId}`)
             .then((response) => {
                 return response.json();
             })

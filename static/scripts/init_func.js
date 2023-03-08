@@ -76,7 +76,7 @@ function createUserHtml(resultArr) {
         newImg.addEventListener("click", (event) => {
 
             const parent = event.target.parentNode;
-            fetch("/add_friend", {
+            fetch("/friend", {
                 method: "POST",
                 body: JSON.stringify({
                     email: element.email
@@ -110,7 +110,7 @@ function createUserHtml(resultArr) {
                     }
                 })
                 .then(() => {
-                    fetch("/api/get_friendlist")
+                    fetch("/api/friendlist")
                         .then((response) => {
                             return response.json();
                         })
@@ -286,7 +286,7 @@ function createChatList(data, container) {
             friendPopup.style.display = "none";
             const isGroup = isNaN(friendChatId);
             if (senderIsMe) {
-                fetch("/api/get_message", {
+                fetch("/api/message", {
                     method: "POST",
                     body: JSON.stringify({
                         "myId": selfId,
@@ -312,8 +312,8 @@ function createChatList(data, container) {
                         socket.emit('read-message', room);
                     })
                     .then(() => {
-                        fetch("/update_message_status", {
-                            method: "POST",
+                        fetch("/message_status", {
+                            method: "PUT",
                             body: JSON.stringify({
                                 sender_id: parseInt(friendChatId)
                             })
@@ -335,7 +335,7 @@ function createChatList(data, container) {
                             })
                     })
             } else {
-                fetch("/api/get_message", {
+                fetch("/api/message", {
                     method: "POST",
                     body: JSON.stringify({
                         "myId": selfId,
@@ -363,8 +363,8 @@ function createChatList(data, container) {
 
                     })
                     .then(() => {
-                        fetch("/update_message_status", {
-                            method: "POST",
+                        fetch("/message_status", {
+                            method: "PUT",
                             body: JSON.stringify({
                                 sender_id: parseInt(friendChatId)
                             })
@@ -546,7 +546,7 @@ function createGroupChatList(data) {
                 leaveGroupBtn.style.display = "block";
             }
             if (senderIsMe) {
-                fetch("/api/get_message", {
+                fetch("/api/message", {
                     method: "POST",
                     body: JSON.stringify({
                         myId: selfId,
@@ -581,8 +581,8 @@ function createGroupChatList(data) {
                         //如果是自己傳的就不需要更新已讀狀態
                         if (!(data.message[data.message.length - 1].sender_id === parseInt(selfId))) {
 
-                            fetch("/update_group_message_status", {
-                                method: "POST",
+                            fetch("/group_message_status", {
+                                method: "PUT",
                                 body: JSON.stringify({
                                     groupId: friendChatId,
                                     isReadMemberId: parseInt(selfId)
@@ -610,7 +610,7 @@ function createGroupChatList(data) {
 
                     })
             } else {
-                fetch("/api/get_message", {
+                fetch("/api/message", {
                     method: "POST",
                     body: JSON.stringify({
                         myId: selfId,
@@ -643,8 +643,8 @@ function createGroupChatList(data) {
                         let groupIsReadStatus = document.querySelector(".group-read-status");
                         groupIsReadStatus.innerHTML = `${data.message[0].read_count}人已讀`;
                         if (!(data.message[data.message.length - 1].sender_id === parseInt(selfId))) {
-                            fetch("/update_group_message_status", {
-                                method: "POST",
+                            fetch("/group_message_status", {
+                                method: "PUT",
                                 body: JSON.stringify({
                                     groupId: friendChatId,
                                     isReadMemberId: parseInt(selfId)
@@ -683,7 +683,7 @@ function createGroupChatList(data) {
 
 
 function getAllFriendList(isAddMemberContainer) {
-    fetch("/api/get_friendlist")
+    fetch("/api/friendlist")
         .then((response) => {
             return response.json();
         })

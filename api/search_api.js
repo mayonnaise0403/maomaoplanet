@@ -7,7 +7,7 @@ Search = new Search();
 const secretKey = process.env.Jwt_Secrect_Key;
 
 
-router.post("/add_friend", async (req, res) => {
+router.post("/friend", async (req, res) => {
     try {
         const token = req.signedCookies.access_token;
         const decoded = jwt.decode(token, secretKey);
@@ -30,7 +30,7 @@ router.post("/add_friend", async (req, res) => {
 
 })
 
-router.get("/api/search_user", async (req, res) => {  //要扣除自己
+router.get("/api/user", async (req, res) => {
     try {
         if (!req.signedCookies.access_token) {
             res.clearCookie('access_token');
@@ -70,7 +70,7 @@ router.get("/api/add_user_to_group_friendlist", async (req, res) => {
 })
 
 
-router.get("/api/get_friendlist", async (req, res) => {
+router.get("/api/friendlist", async (req, res) => {
     try {
         const token = req.signedCookies.access_token;
         const selfId = jwt.decode(token, secretKey).userId;
@@ -83,7 +83,7 @@ router.get("/api/get_friendlist", async (req, res) => {
 
 })
 
-router.get("/api/get_grouplist", async (req, res) => {
+router.get("/api/grouplist", async (req, res) => {
     try {
         const token = req.signedCookies.access_token;
         const selfId = jwt.decode(token, secretKey).userId;
@@ -95,23 +95,23 @@ router.get("/api/get_grouplist", async (req, res) => {
 
 })
 
-router.get("/api/search_friend", async (req, res) => {
+// router.get("/api/search_friend", async (req, res) => {
+//     try {
+//         const token = req.signedCookies.access_token;
+//         const selfId = jwt.decode(token, secretKey).userId;
+//         const result = await Search.searchFriend(selfId, req.query.nickname);
+//         res.send({ status: "success", "self_id": selfId, "friend_list": result });
+//     } catch (err) {
+//         res.status(500).send({ status: "error", message: "內部伺服器發生錯誤" });
+//     }
+
+// })
+
+router.get("/api/group_member", async (req, res) => {
     try {
         const token = req.signedCookies.access_token;
         const selfId = jwt.decode(token, secretKey).userId;
-        const result = await Search.searchFriend(selfId, req.query.nickname);
-        res.send({ status: "success", "self_id": selfId, "friend_list": result });
-    } catch (err) {
-        res.status(500).send({ status: "error", message: "內部伺服器發生錯誤" });
-    }
-
-})
-
-router.post("/api/get_group_member", async (req, res) => {
-    try {
-        const token = req.signedCookies.access_token;
-        const selfId = jwt.decode(token, secretKey).userId;
-        const result = await Search.getGroupMember(selfId, req.body.groupId);
+        const result = await Search.getGroupMember(selfId, req.query.groupId);
         res.send({ status: "success", data: result })
     } catch (err) {
         res.status(500).send({ status: "error", message: "內部伺服器發生錯誤" })

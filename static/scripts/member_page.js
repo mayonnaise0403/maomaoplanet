@@ -40,7 +40,7 @@ window.onbeforeunload = () => {
     socket.disconnect();
 };
 
-fetch("/api/get_friendlist")
+fetch("/api/friendlist")
     .then((response) => {
         return response.json();
     })
@@ -59,7 +59,7 @@ fetch("/api/get_friendlist")
 
     })
     .then(() => {
-        fetch("/api/get_latest_message")
+        fetch("/api/latest_message")
             .then((response) => {
                 return response.json();
             })
@@ -81,7 +81,7 @@ fetch("/api/get_friendlist")
 
     })
     .then(() => {
-        fetch("/api/get_grouplist")
+        fetch("/api/grouplist")
             .then((response) => {
                 return response.json();
             })
@@ -99,7 +99,7 @@ fetch("/api/get_friendlist")
             })
             .then(() => {
 
-                fetch("/api/get_latest_group_message")
+                fetch("/api/latest_group_message")
                     .then((response) => {
                         return response.json();
                     })
@@ -144,8 +144,8 @@ socket.on("receive-group-message", (package) => {
         let historyMsgFather = historyMsg.parentNode.parentNode;
 
         if (chatContainer.style.display === "block") {
-            fetch("/update_group_message_status", {
-                method: "POST",
+            fetch("/group_message_status", {
+                method: "PUT",
                 body: JSON.stringify({
                     groupId: friendChatId,
                     isReadMemberId: parseInt(selfId)
@@ -230,7 +230,7 @@ socket.on("receive-group-message", (package) => {
         //     // }
 
         setTimeout(() => {
-            fetch("/api/get_latest_group_message")
+            fetch("/api/latest_group_message")
                 .then((response) => {
                     return response.json();
                 })
@@ -249,7 +249,7 @@ socket.on("receive-group-message", (package) => {
         }, 1000);
 
         setTimeout(() => {
-            fetch("/api/get_grouplist")
+            fetch("/api/grouplist")
                 .then((response) => {
                     return response.json();
                 })
@@ -336,7 +336,7 @@ socket.on("receive-message", (msg) => {
         }
     } else {
         setTimeout(() => {
-            fetch("/api/get_latest_message")
+            fetch("/api/latest_message")
                 .then((response) => {
                     return response.json();
                 })
@@ -505,7 +505,7 @@ popupAddFriendBtn.addEventListener("click", () => {
     removeSearchList();
     const searchContent = addFriendInput.value;
     if (searchContent.search(emailRule) !== -1 && searchContent != null) {
-        fetch(`/api/search_user?email=${searchContent}`)
+        fetch(`/api/user?email=${searchContent}`)
             .then((response) => {
                 return response.json();
             })
@@ -536,7 +536,7 @@ popupAddFriendBtn.addEventListener("click", () => {
 
             })
     } else if (searchContent.search(emailRule) === -1 && searchContent != null) {
-        fetch(`/api/search_user?nickname=${searchContent}`)
+        fetch(`/api/user?nickname=${searchContent}`)
             .then((response) => {
                 return response.json();
             })
@@ -1200,7 +1200,7 @@ function chatPopup() {
     friendChatId = friendId;
     friendPopup.style.display = "none";
     const isGroup = isNaN(friendChatId);
-    fetch("/api/get_message", {
+    fetch("/api/message", {
         method: "POST",
         body: JSON.stringify({
             myId: selfId,
@@ -1306,7 +1306,7 @@ async function sendMsgInSingle(fileName = "") {
                     chatListContainer.removeChild(chatListContainer.firstChild);
                 }
                 setTimeout(() => {
-                    fetch("/api/get_latest_message")
+                    fetch("/api/latest_message")
                         .then((response) => {
                             return response.json();
                         })
@@ -1335,7 +1335,7 @@ async function sendMsgInSingle(fileName = "") {
                 chatListContainer.removeChild(chatListContainer.firstChild);
             }
             setTimeout(() => {
-                fetch("/api/get_latest_message")
+                fetch("/api/latest_message")
                     .then((response) => {
                         return response.json();
                     })
@@ -1435,7 +1435,7 @@ async function sendMsgInGroup(fileName = "") {
                     groupChatListContainer.removeChild(groupChatListContainer.firstChild);
                 }
                 setTimeout(() => {
-                    fetch("/api/get_latest_group_message")
+                    fetch("/api/latest_group_message")
                         .then((response) => {
                             return response.json();
                         })
@@ -1461,7 +1461,7 @@ async function sendMsgInGroup(fileName = "") {
                 groupChatListContainer.removeChild(groupChatListContainer.firstChild);
             }
             setTimeout(() => {
-                fetch("/api/get_latest_group_message")
+                fetch("/api/latest_group_message")
                     .then((response) => {
                         return response.json();
                     })

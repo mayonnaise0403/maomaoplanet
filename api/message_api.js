@@ -17,16 +17,16 @@ dotenv.config();
 router.use(cookieParser(process.env.COOKIE_SECRET));
 
 
-router.post("/api/get_message", async (req, res) => {
+router.post("/api/message", async (req, res) => {
     try {
         const myId = req.body.myId;
         const friendId = req.body.friendId;
         if (req.body.isGroup) {
             const data = await Message.getGroupMessage(friendId);
-            res.send({ status: "success", message: data })
+            res.status(200).send({ status: "success", message: data })
         } else {
             const data = await Message.getMessage(myId, friendId);
-            res.send({ message: data })
+            res.status(200).send({ message: data })
         }
     } catch (err) {
         res.status(500).send({ status: "error", message: "內部伺服器出現錯誤" });
@@ -34,11 +34,11 @@ router.post("/api/get_message", async (req, res) => {
 
 })
 
-router.post("/check_friend_status", async (req, res) => {
+router.get("/friend_status", async (req, res) => {
     try {
         const token = req.signedCookies.access_token;
         const selfId = jwt.decode(token, secretKey).userId;
-        const isFriend = await Message.isFriend(selfId, req.body.friendId);
+        const isFriend = await Message.isFriend(selfId, req.query.friendId);
         if (isFriend.length !== 0) {
             res.send({ status: "success" })
         } else {
@@ -50,7 +50,7 @@ router.post("/check_friend_status", async (req, res) => {
 
 })
 
-router.get("/api/get_latest_group_message", async (req, res) => {
+router.get("/api/latest_group_message", async (req, res) => {
     try {
         const token = req.signedCookies.access_token;
         const userId = jwt.decode(token, secretKey).userId;
@@ -66,7 +66,7 @@ router.get("/api/get_latest_group_message", async (req, res) => {
 
 
 
-router.get("/api/get_latest_message", async (req, res) => {
+router.get("/api/latest_message", async (req, res) => {
     try {
         const token = req.signedCookies.access_token;
         const userId = jwt.decode(token, secretKey).userId;
@@ -80,7 +80,7 @@ router.get("/api/get_latest_message", async (req, res) => {
 })
 
 
-router.post("/update_message_status", async (req, res) => {
+router.put("/message_status", async (req, res) => {
     try {
         const token = req.signedCookies.access_token;
         const userId = jwt.decode(token, secretKey).userId;
@@ -95,7 +95,7 @@ router.post("/update_message_status", async (req, res) => {
 
 })
 
-router.post("/update_group_message_status", async (req, res) => {
+router.put("/group_message_status", async (req, res) => {
     try {
         const token = req.signedCookies.access_token;
         const userId = jwt.decode(token, secretKey).userId;
@@ -107,7 +107,7 @@ router.post("/update_group_message_status", async (req, res) => {
 
 })
 
-router.post("/get_chat_picture", async (req, res) => {
+router.post("/chat_picture", async (req, res) => {
     try {
         const token = req.signedCookies.access_token;
         const userId = jwt.decode(token, secretKey).userId;
@@ -120,9 +120,9 @@ router.post("/get_chat_picture", async (req, res) => {
 
 })
 
-router.post("/get_group_picture", async (req, res) => {
+router.get("/group_picture", async (req, res) => {
     try {
-        const data = await Message.getGroupPictureAndVideo(req.body.groupId)
+        const data = await Message.getGroupPictureAndVideo(req.query.groupId)
         res.send({ status: "success", data: data })
     } catch (err) {
         res.status(500).send({ status: "error", message: "內部伺服器出現錯誤" });
@@ -130,7 +130,7 @@ router.post("/get_group_picture", async (req, res) => {
 
 })
 
-router.post("/upload_file", async (req, res) => {
+router.post("/file", async (req, res) => {
     try {
         const token = req.signedCookies.access_token;
         const myId = jwt.decode(token, secretKey).userId;
@@ -229,12 +229,5 @@ router.post("/upload_file", async (req, res) => {
 })
 
 
-
-
-
-async function updateMessagegStatus(sender_id, recipient_id) {
-    const isSuccess = await Message.updateMsgStatus(sender_id, recipient_id);
-    return isSuccess;
-}
 
 module.exports = router;
