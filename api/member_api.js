@@ -95,7 +95,7 @@ router.post("/verify_email", async (req, res) => {
             }).then(() => {
                 res.status(200).send({ status: "success", code: code });
             }).catch(() => {
-                res.status(400).send({ status: "error", message: "寄出失敗" });
+                res.status(500).send({ status: "error", message: "寄出失敗" });
             })
         } else {
             res.status(400).send({ status: "error", message: "信箱已被使用過" });
@@ -159,7 +159,7 @@ router.put("/headshot", (req, res) => {
         };
         s3.upload(params, (err, data) => {
             if (err) {
-                res.send({
+                res.status(500).send({
                     status: "error",
                     message: "更新失敗"
                 })

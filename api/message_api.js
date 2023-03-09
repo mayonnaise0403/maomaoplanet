@@ -23,9 +23,11 @@ router.post("/api/message", async (req, res) => {
         const friendId = req.body.friendId;
         if (req.body.isGroup) {
             const data = await Message.getGroupMessage(friendId);
+            console.log(data)
             res.status(200).send({ status: "success", message: data })
         } else {
             const data = await Message.getMessage(myId, friendId);
+            console.log(data)
             res.status(200).send({ message: data })
         }
     } catch (err) {
