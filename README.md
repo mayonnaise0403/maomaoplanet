@@ -62,9 +62,11 @@ test account
 * Account registration requires email verification.
 * User authentication with Json Web Token.
 * Socket.io technology is used to create real-time communication functionality.
-* WebRTC API technology is used to enable one-on-one calling functionality.
-* PeerJS is used to enable group calling functionality.
-* AWS S3 is used to store files such as images and videos.
+* PeerJS is used to enable group and one-on-one calling functionality.
+* Using AWS CloudFront to use S3 Cache on chatroom’s picture and video thumbnail.
+* Using MVC architecture.
+* Using Normalization of databases.
+
 <hr/>
 
 ## Tech Stack
@@ -75,13 +77,13 @@ test account
 
 
 ### Backend
-* Node.js
-* Express.js
+* Node.js(Express)
 * Socket.IO
-* WebRTC, PeerJS
+* WebRTC(PeerJS)
 * Docker
-* AWS EC2, S3, RDS(MySql)
+* AWS EC2, S3, RDS(MySql), CloudFront
 * JSON Web Token(JWT)
+* RESTful APIs
 * Nginx
 
 
