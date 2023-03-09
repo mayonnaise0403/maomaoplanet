@@ -23,6 +23,8 @@ router.use(bodyParser.urlencoded({
 Update = new Update();
 Signup = new Signup();
 
+
+
 router.get("/api/user_data", async (req, res) => {
     try {
         const token = req.signedCookies.access_token;
@@ -39,7 +41,7 @@ router.get("/api/user_data", async (req, res) => {
 
 
     } catch (err) {
-        res.status(500).send({ "status": "error", "message": "內部伺服器出現錯誤" });
+        res.status(500).send({ status: "error", message: "內部伺服器出現錯誤" });
     }
 })
 

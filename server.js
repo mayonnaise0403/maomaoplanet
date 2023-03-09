@@ -14,7 +14,29 @@ const http = require('http').Server(app);
 const dotenv = require("dotenv");
 const port = 8080;
 const io = require("socket.io")(http);
+
 dotenv.config();
+
+const swaggerJsDoc = require("swagger-jsdoc");
+const swaggerUi = require("swagger-ui-express");
+const swaggerOptions = {
+    definition: {
+        openapi: '3.0.0',
+        info: {
+            title: "Customer API",
+            version: '1.0.0',
+            description: "Customer API Information"
+        },
+        servers: [
+            {
+                url: "http://localhost:8080"
+            }
+        ]
+    },
+    apis: ["server.js", "./api/*.js", "./swagger/*.js"]
+}
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs))
 
 
 
