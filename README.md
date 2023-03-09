@@ -9,6 +9,19 @@ maomaoplanet is a communication website where you can make calls and chat with f
 
 🔗Website URL: https://maomaoplanet.website/
 
+<hr/>
+<br/>
+test account
+<br/>
+<br/>
+
+
+| Account  	| test@test.com |
+|-----------|---------------|
+|  Password |test           |
+
+
+<br/>
 <br/>
 
 * One-to-one chat feature
