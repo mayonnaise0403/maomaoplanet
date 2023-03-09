@@ -72,7 +72,11 @@ maomaoplanet is a communication website where you can make calls and chat with f
 * Nginx
 
 
-<hr/>
+## Backend Architecture
+
+![](static/images/fotor_2023-3-3_17_40_52.png)
+
+
 
 
 
