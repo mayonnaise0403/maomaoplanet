@@ -87,22 +87,25 @@ test account
 * Socket.IO
 * WebRTC(PeerJS)
 * Docker
+* MVC
 * AWS EC2, S3, RDS(MySql), CloudFront
 * JSON Web Token(JWT)
 * RESTful APIs
 * Nginx
 
 
+
 ## Frontend
 * JavaScript
 * HTML
 * CSS
+* AJAX
 
 <hr/>
 
 ## Backend Architecture
 
-![](static/images/fotor_2023-3-3_17_40_52.png)
+![](static/images/fotor_2023-3-11_12_32_2.png)
 
 
 ## Contact
