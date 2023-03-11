@@ -21,7 +21,14 @@ test account
 |  Password |test           |
 
 
-<br/>
+
+## Catalog
+
+
+  * [Features](README.md#Main Features) 
+
+  * [contact](README.md#Contact)
+
 <br/>
 
 * One-to-one chat feature
@@ -57,26 +64,26 @@ test account
 <br/>
 
 
-## Main Features
+#Main Features
+
 
 * Account registration requires email verification.
 * User authentication with Json Web Token.
 * Socket.io technology is used to create real-time communication functionality.
-* PeerJS is used to enable group and one-on-one calling functionality.
-* Using AWS CloudFront to use S3 Cache on chatroom’s picture and video thumbnail.
+* webRTC is used to enable group and one-on-one calling functionality.
+* Using AWS CloudFront to speed up distribution of static files by CloudFront.
+* Using AWS S3 to storing files such as photos and videos uploaded by users.
 * Using MVC architecture.
 * Using Normalization of databases.
+* Using	Docker to build image and deploy web server on AWS EC2.
+* Nginx: establish as Reverse Proxy
+* Creating API document by Swagger
 
 <hr/>
 
-## Tech Stack
-### Frontend
-* JavaScript
-* HTML
-* CSS
+#Tech Stack
 
-
-### Backend
+## Backend
 * Node.js(Express)
 * Socket.IO
 * WebRTC(PeerJS)
@@ -87,9 +94,23 @@ test account
 * Nginx
 
 
-## Backend Architecture
+## Frontend
+* JavaScript
+* HTML
+* CSS
+
+<hr/>
+
+#Backend Architecture
 
 ![](static/images/fotor_2023-3-3_17_40_52.png)
+
+
+#Contact
+👨🏻‍💻 Name: 李昱醇 LEE YU CHUN
+
+
+📬 Email: rita09436@gmail.com
 
 
 
