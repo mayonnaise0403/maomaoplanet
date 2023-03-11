@@ -23,11 +23,10 @@ test account
 
 
 ## Catalog
-
-
-  * [Features](README.md#Main Features) 
-
-  * [contact](README.md#Contact)
+* [Main Features](#main-features) 
+* [Tech Stack](#tech-stack)
+* [Backend Architecture](#backend-architecture)
+* [Contact](#contact)
 
 <br/>
 
@@ -64,7 +63,7 @@ test account
 <br/>
 
 
-#Main Features
+## Main Features
 
 
 * Account registration requires email verification.
@@ -81,7 +80,7 @@ test account
 
 <hr/>
 
-#Tech Stack
+## Tech Stack
 
 ## Backend
 * Node.js(Express)
@@ -101,12 +100,12 @@ test account
 
 <hr/>
 
-#Backend Architecture
+## Backend Architecture
 
 ![](static/images/fotor_2023-3-3_17_40_52.png)
 
 
-#Contact
+## Contact
 👨🏻‍💻 Name: 李昱醇 LEE YU CHUN
 
 
