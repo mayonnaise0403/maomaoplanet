@@ -52,7 +52,7 @@ class Update {
             const queryResults = await pool.query(mysqlQuery, values);
             isSuccess = true;
         } catch (error) {
-            console.error("error:", error.message);
+            console.log("error:", error.message);
             isSuccess = false;
         }
         return isSuccess;

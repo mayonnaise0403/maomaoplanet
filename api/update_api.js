@@ -5,6 +5,7 @@ const cookieParser = require('cookie-parser');
 const uuid = require('uuid');
 let Update = require("../models/update_data").Update;
 let Search = require("../models/search").Search;
+const AWS = require('aws-sdk');
 
 const secretKey = process.env.Jwt_Secrect_Key;
 Update = new Update();
@@ -70,18 +71,22 @@ router.put("/leave_group", async (req, res) => {
 
 router.put("/group_headshot", async (req, res) => {
     try {
+
         let image = req.body.image;
         let groupId = req.body.groupId;
         let imageBuffer = Buffer.from(
             image.replace(/^data:image\/\w+;base64,/, ""),
             "base64"
         )
+
         const type = image.split(';')[0].split('/')[1];
+        console.log(0)
         AWS.config.update({
             accessKeyId: process.env.AWS_ACCESS_KEY_ID,
             secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
             region: 'ap-northeast-1'
         });
+        console.log(1)
         const s3 = new AWS.S3();
         const params = {
             Bucket: 'maomaoimage/group_headshot',
@@ -92,11 +97,13 @@ router.put("/group_headshot", async (req, res) => {
         };
         s3.upload(params, async (err, data) => {
             if (err) {
+                console.log(err)
                 res.send({
                     status: "error"
                 })
             }
             else {
+                console.log("here")
                 //update database
                 const isSuccess = await Update.updateGroupHeadshot(groupId, `${process.env.S3}group_headshot/${groupId}`);
                 if (isSuccess) {
