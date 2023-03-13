@@ -64,6 +64,7 @@ router.delete("/signout", (req, res) => {
 
 router.post("/login", async (req, res) => {
     try {
+
         const isLogin = await Login.checkLogin(req.body.email, req.body.password);
         if (isLogin) {
             const data = await getData(req.body.email, req.body.password);
