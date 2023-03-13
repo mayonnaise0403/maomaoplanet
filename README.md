@@ -9,6 +9,25 @@ maomaoplanet is a communication website where you can make calls and chat with f
 
 🔗Website URL: https://maomaoplanet.website/
 
+<hr/>
+<br/>
+test account
+<br/>
+<br/>
+
+
+| Account  	| test@test.com |
+|-----------|---------------|
+|  Password |test           |
+
+
+
+## Catalog
+* [Main Features](#main-features) 
+* [Tech Stack](#tech-stack)
+* [Backend Architecture](#backend-architecture)
+* [Contact](#contact)
+
 <br/>
 
 * One-to-one chat feature
@@ -46,33 +65,56 @@ maomaoplanet is a communication website where you can make calls and chat with f
 
 ## Main Features
 
+
 * Account registration requires email verification.
 * User authentication with Json Web Token.
 * Socket.io technology is used to create real-time communication functionality.
-* WebRTC API technology is used to enable one-on-one calling functionality.
-* PeerJS is used to enable group calling functionality.
-* AWS S3 is used to store files such as images and videos.
+* webRTC is used to enable group and one-on-one calling functionality.
+* Using AWS CloudFront to speed up distribution of static files by CloudFront.
+* Using AWS S3 to storing files such as photos and videos uploaded by users.
+* Using MVC architecture.
+* Using Normalization of databases.
+* Using	Docker to build image and deploy web server on AWS EC2.
+* Nginx: establish as Reverse Proxy
+* Creating API document by Swagger
+
 <hr/>
 
 ## Tech Stack
-### Frontend
-* JavaScript
-* HTML
-* CSS
 
-
-### Backend
-* Node.js
-* Express.js
+## Backend
+* Node.js(Express)
 * Socket.IO
-* WebRTC, PeerJS
+* WebRTC(PeerJS)
 * Docker
-* AWS EC2, S3, RDS(MySql)
+* MVC
+* AWS EC2, S3, RDS(MySql), CloudFront
 * JSON Web Token(JWT)
+* RESTful APIs
 * Nginx
 
 
+
+## Frontend
+* JavaScript
+* HTML
+* CSS
+* AJAX
+
 <hr/>
+
+## Backend Architecture
+
+![](static/images/fotor_2023-3-11_12_32_2.png)
+
+
+## Contact
+👨🏻‍💻 Name: 李昱醇 LEE YU CHUN
+
+
+📬 Email: rita09436@gmail.com
+
+
 
 
 
