@@ -71,43 +71,6 @@ class Message {
 
 
 
-    // async isHaveGroup(userId) {
-    //     mysqlQuery = 'select * from group_member where member_id = ?;';
-    //     values = [userId];
-    //     try {
-    //         const queryResults = await pool.query(mysqlQuery, values);
-    //         result = queryResults[0];
-
-    //     } catch (error) {
-    //         console.log(error.message);
-    //     }
-    //     return result;
-    // }
-
-
-
-    // "SELECT \
-    // group_message.group_id,\
-    // group_message.sender_id,\
-    // group_message.message,\
-    // group_data.headshot as group_headshot,\
-    // group_data.group_name, \
-    // (CASE WHEN EXISTS(SELECT * FROM  group_message_is_read WHERE \
-    // group_message_is_read.group_id = group_message.group_id and \
-    // is_read_member_id = ? group by group_message.group_id \
-    // ) THEN 1 else 0 END)AS is_read\
-    // FROM group_message\
-    // INNER JOIN group_members ON \
-    // group_message.group_id = group_members.group_id and member_id = ?\
-    // INNER JOIN member ON \
-    // group_message.sender_id = member.user_id\
-    // WHERE time = (\
-    // SELECT MAX(time)\
-    // FROM group_message\
-    // WHERE group_message.group_id = group_members.group_id\
-    // )\
-    // GROUP BY group_message.group_id\
-    // ORDER BY `time` desc; "
 
 
     async getGroupLatestMessage(userId) {

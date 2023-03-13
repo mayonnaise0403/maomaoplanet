@@ -52,7 +52,7 @@ router.get("/error", (req, res) => {
     res.render("error_page.html")
 })
 
-router.post("/signout", (req, res) => {
+router.delete("/signout", (req, res) => {
     try {
         res.clearCookie('access_token');
         res.status(200).send({ status: "success", message: "登出成功" })
@@ -103,14 +103,13 @@ router.post("/send_email", (req, res) => {
                 pass: process.env.Email_Password
             },
         });
-        console.log(code)
         transporter.sendMail({
             from: process.env.email,
             to: userEmail,
             subject: "歡迎使用毛毛星球",
             html: `驗證碼是:${code}`,
         }).then(() => {
-            res.send({ status: "success", "code": code });
+            res.status(200).send({ status: "success", "code": code });
         }).catch(() => {
             res.send({ status: "error", message: "寄出失敗" });
         })

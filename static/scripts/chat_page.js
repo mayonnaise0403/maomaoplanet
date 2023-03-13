@@ -105,7 +105,7 @@ createGroupBtn.addEventListener("click", () => {
                 return response.json();
             })
             .then((data) => {
-
+                console.log(data)
                 if (data.status === "success") {
                     chatContainer.style.display = "block";
                     groupMemberIcon.style.display = "block";
@@ -243,7 +243,7 @@ confirmNotLeaveGroup.addEventListener("click", () => {
 
 confirmLeaveGroup.addEventListener("click", () => {
     fetch("/leave_group", {
-        method: "POST",
+        method: "PUT",
         body: JSON.stringify({
             groupId: friendChatId
         })

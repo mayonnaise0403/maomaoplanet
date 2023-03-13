@@ -378,7 +378,7 @@ addFriendBtn.addEventListener("click", () => {
 
 signOutBtn.addEventListener("click", () => {
     fetch("/signout", {
-        method: 'POST'
+        method: 'DELETE'
     })
         .then((response) => {
             return response.json();

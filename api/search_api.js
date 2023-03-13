@@ -75,7 +75,7 @@ router.get("/api/friendlist", async (req, res) => {
         const token = req.signedCookies.access_token;
         const selfId = jwt.decode(token, secretKey).userId;
         const friendData = await Search.getFriendList(selfId);
-        res.send({ status: "success", "self_id": selfId, "friend_list": friendData });
+        res.status(200).send({ status: "success", "self_id": selfId, "friend_list": friendData });
     } catch (err) {
         res.status(500).send({ status: "error", message: "內部伺服器發生錯誤" });
     }
@@ -95,17 +95,7 @@ router.get("/api/grouplist", async (req, res) => {
 
 })
 
-// router.get("/api/search_friend", async (req, res) => {
-//     try {
-//         const token = req.signedCookies.access_token;
-//         const selfId = jwt.decode(token, secretKey).userId;
-//         const result = await Search.searchFriend(selfId, req.query.nickname);
-//         res.send({ status: "success", "self_id": selfId, "friend_list": result });
-//     } catch (err) {
-//         res.status(500).send({ status: "error", message: "內部伺服器發生錯誤" });
-//     }
 
-// })
 
 router.get("/api/group_member", async (req, res) => {
     try {

@@ -22,10 +22,11 @@ const swaggerUi = require("swagger-ui-express");
 const swaggerOptions = {
     definition: {
         openapi: '3.0.0',
+
         info: {
-            title: "Customer API",
+            title: "Maomao Planet API",
             version: '1.0.0',
-            description: "Customer API Information"
+            description: "Maomao Planet API Information"
         },
         servers: [
             {

@@ -1,181 +1,57 @@
 /**
  * @swagger
- * /api/user_data:
- *  get:
- *      tags:
- *        - member
- *      description: 取得使用者的資料
- *      responses:
- *          "200":
- *             description: 請求成功，成功取得使用者的資料
- *             content:
- *               application/json:
- *                 schema:
- *                   type: object
- *                   properties:
- *                     nickname:
- *                       type: string
- *                       example: "毛毛"
- *                     email:
- *                       type: string
- *                       example: "maomao@gmail.com"
- *                     headshot:
- *                       type: string
- *                       example: "https://example.com/john.png"
- *          "500":
- *             description: 伺服器內部錯誤
- *             content:
- *               application/json:
- *                 schema:
- *                   type: object
- *                   properties:
- *                     status:
- *                       type: string
- *                       example: "error"
- *                     message:
- *                       type: string
- *                       example: "內部伺服器出現錯誤"
- */
-
-
-/**
- * @swagger
- * /nickname:
- *  put:
- *      tags:
- *        - member
- *      description: 更新使用者暱稱
- *      requestBody:
- *        required: true
- *        content:
- *          application/json:
- *            schema:
- *              type: object
- *              properties:
- *                newNickname:
- *                  type: string
- *                  example: "新暱稱"
- *              required:
- *                - newNickname
- *      responses:
- *          "200":
- *             description: 請求成功，成功更新使用者的暱稱
- *             content:
- *               application/json:
- *                 schema:
- *                   type: object
- *                   properties:
- *                     status:
- *                       example: "success"
- *          "500":
- *             description: 伺服器內部錯誤
- *             content:
- *               application/json:
- *                 schema:
- *                   type: object
- *                   properties:
- *                     status:
- *                       type: string
- *                       example: "error"
- *                     message:
- *                       type: string
- *                       example: "內部伺服器出現錯誤"
- */
-
-/**
- * @swagger
- * /verify_email:
+ * /group:
  *  post:
  *      tags:
- *        - member
- *      description: 會傳送驗證碼到新的信箱，並把驗證碼傳到前端，前端輸入正確的驗證碼驗證成功後，才會做後續的更新信箱
+ *        - update
+ *      description: 建立新的群組
  *      requestBody:
- *        required: true
+ *        description: 取得使用者輸入的群組名稱，和取得群組成員id
  *        content:
  *          application/json:
  *            schema:
  *              type: object
  *              properties:
- *                newEmail:
+ *                groupName:
  *                  type: string
- *                  example: "newEmail@gmail.com"
- *              required:
- *                - newEmail
+ *                  example: "我的群組"
+ *                groupMemberIdArr:
+ *                  type: array
+ *                  example: [15,6,4]
  *      responses:
  *          "200":
- *             description: 請求成功，傳送信箱驗證碼到前端，看前端是否有輸入正確
+ *             description: 群組建立成功
  *             content:
  *               application/json:
  *                 schema:
  *                   type: object
  *                   properties:
  *                     status:
+ *                       type: string
  *                       example: "success"
- *                     code:
- *                       description: 信箱的驗證碼，傳去前端做比對
- *                       type: integer
- *                       example: 1234
- *          "400":
- *             description: 請求失敗，信箱已被使用過等原因
- *             content:
- *               application/json:
- *                 schema:
- *                   type: object
- *                   properties:
- *                     status:
+ *                     groupId: 
  *                       type: string
- *                       example: "error"
- *                     message:
+ *                       example: "5d3dbb57-637b-40c8-98c0-1d3e157713d3"
+ *                     groupName:
  *                       type: string
- *                       example: 信箱已被使用過
+ *                       example: 群組名稱
+ *                     group_data:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           nickname:
+ *                             type: string
+ *                             example: "海綿寶寶"
+ *                           user_id:
+ *                             type: integer
+ *                             example: 15
+ *                           headshot:
+ *                             type: string
+ *                             example: "https://headshot.png"
+ *                       
  *          "500":
- *             description: 請求失敗，內部伺服器出現錯誤
- *             content:
- *               application/json:
- *                 schema:
- *                   type: object
- *                   properties:
- *                     status:
- *                       type: string
- *                       example: "error"
- *                     message:
- *                       type: string
- *                       example: 內部伺服器出現錯誤
- */
-
-
-/**
- * @swagger
- * /email:
- *  put:
- *      tags:
- *        - member
- *      description: 更新使用者的信箱
- *      requestBody:
- *        required: true
- *        content:
- *          application/json:
- *            schema:
- *              type: object
- *              properties:
- *                newEmail:
- *                  type: string
- *                  example: "newEmail@gmail.com"
- *              required:
- *                - newEmail
- *      responses:
- *          "200":
- *             description: 請求成功，成功更新使用者的信箱
- *             content:
- *               application/json:
- *                 schema:
- *                   type: object
- *                   properties:
- *                     status:
- *                       type: string
- *                       example: success
- *          "500":
- *             description: 請求失敗，內部伺服器出現錯誤
+ *             description: 伺服器內部錯誤
  *             content:
  *               application/json:
  *                 schema:
@@ -192,26 +68,175 @@
 
 /**
  * @swagger
- * /headshot:
- *  put:
+ * /new_group_user:
+ *  post:
  *      tags:
- *        - member
- *      description: 更新使用者的頭貼
-  *      requestBody:
+ *        - update
+ *      description: 把新成員加入群組
+ *      requestBody:
+ *        description: 使用者資料
  *        required: true
  *        content:
  *          application/json:
  *            schema:
  *              type: object
  *              properties:
+ *                groupId:
+ *                  type: string
+ *                  example: "5d3dbb57-637b-40c8-98c0-1d3e157713d3"
+ *                userId:
+ *                  type: integer
+ *                  example: 9
+ *      responses:
+ *          "200":
+ *             description: 群組建立成功
+ *             content:
+ *               application/json:
+ *                 schema:
+ *                   type: object
+ *                   properties:
+ *                     status:
+ *                       type: string
+ *                       example: "success"
+ *                       
+ *          "500":
+ *             description: 伺服器內部錯誤
+ *             content:
+ *               application/json:
+ *                 schema:
+ *                   type: object
+ *                   properties:
+ *                     status:
+ *                       type: string
+ *                       example: "error"
+ *                     message:
+ *                       type: string
+ *                       example: "內部伺服器出現錯誤"
+ */
+
+
+/**
+ * @swagger
+ * /group_name:
+ *  put:
+ *      tags:
+ *        - update
+ *      description: 更新群組名稱
+ *      requestBody:
+ *        description: 使用者資料
+ *        required: true
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                groupId:
+ *                  type: string
+ *                  example: "5d3dbb57-637b-40c8-98c0-1d3e157713d3"
+ *                groupName:
+ *                  type: string
+ *                  example: 新的群組名稱
+ *      responses:
+ *          "200":
+ *             description: 群組名稱更新成功
+ *             content:
+ *               application/json:
+ *                 schema:
+ *                   type: object
+ *                   properties:
+ *                     status:
+ *                       type: string
+ *                       example: "success"
+ *                     newGroupName:
+ *                       type: string
+ *                       example: "新群組名稱"
+ *                       
+ *          "500":
+ *             description: 伺服器內部錯誤
+ *             content:
+ *               application/json:
+ *                 schema:
+ *                   type: object
+ *                   properties:
+ *                     status:
+ *                       type: string
+ *                       example: "error"
+ *                     message:
+ *                       type: string
+ *                       example: "內部伺服器出現錯誤"
+ */
+
+
+
+/**
+ * @swagger
+ * /leave_group:
+ *  put:
+ *      tags:
+ *        - update
+ *      description: 退出群組
+ *      requestBody:
+ *        description: 使用者資料
+ *        required: true
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                groupId:
+ *                  type: string
+ *                  example: "5d3dbb57-637b-40c8-98c0-1d3e157713d3"
+ *      responses:
+ *          "200":
+ *             description: 成功退出群組，並更新資料庫
+ *             content:
+ *               application/json:
+ *                 schema:
+ *                   type: object
+ *                   properties:
+ *                     status:
+ *                       type: string
+ *                       example: "success"
+ *                       
+ *          "500":
+ *             description: 伺服器內部錯誤
+ *             content:
+ *               application/json:
+ *                 schema:
+ *                   type: object
+ *                   properties:
+ *                     status:
+ *                       type: string
+ *                       example: "error"
+ *                     message:
+ *                       type: string
+ *                       example: "內部伺服器出現錯誤"
+ */
+
+
+/**
+ * @swagger
+ * /group_headshot:
+ *  put:
+ *      tags:
+ *        - update
+ *      description: 更新群組頭貼
+ *      requestBody:
+ *        description: 使用者資料
+ *        required: true
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                groupId:
+ *                  type: string
+ *                  example: "5d3dbb57-637b-40c8-98c0-1d3e157713d3"
  *                image:
  *                  type: string
- *                  formate: byte
- *              required:
- *                - image
  *      responses:
  *          "200":
- *             description: 請求成功，成功更新使用者的頭貼
+ *             description: 成功更新群組頭貼，並更新資料庫
  *             content:
  *               application/json:
  *                 schema:
@@ -219,9 +244,12 @@
  *                   properties:
  *                     status:
  *                       type: string
- *                       example: success
+ *                       example: "success"
+ *                     images:
+ *                       type: string
+ *                       
  *          "500":
- *             description: 請求失敗，內部伺服器出現錯誤
+ *             description: 伺服器內部錯誤
  *             content:
  *               application/json:
  *                 schema:
@@ -234,7 +262,3 @@
  *                       type: string
  *                       example: "內部伺服器出現錯誤"
  */
-
-
-
-

@@ -115,6 +115,7 @@ function createUserHtml(resultArr) {
                             return response.json();
                         })
                         .then((data) => {
+
                             if (data.status === "success") {
                                 createFriendList(data, friendList);
                             } else {
@@ -688,6 +689,7 @@ function getAllFriendList(isAddMemberContainer) {
             return response.json();
         })
         .then((data) => {
+
             if (data.status === "success") {
                 let count = 0;
                 data.friend_list.forEach(element => {

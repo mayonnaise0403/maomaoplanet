@@ -105,6 +105,7 @@ addNewUserToGroupBtn.addEventListener("click", () => {
                 return response.json();
             })
             .then((data) => {
+                console.log(data)
                 if (data.status === "error") {
                     errorMessage.style.display = "block";
                     errorMessage.innerHTML = data.message;
@@ -252,6 +253,7 @@ chatPopupPictureAndVideo.addEventListener("click", () => {
                 return response.json();
             })
             .then((data) => {
+                console.log(data)
                 if (data.status === "error") {
                     errorMessage.style.display = "block";
                     errorMessage.innerHTML = data.message;

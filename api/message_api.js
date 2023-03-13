@@ -23,11 +23,9 @@ router.post("/api/message", async (req, res) => {
         const friendId = req.body.friendId;
         if (req.body.isGroup) {
             const data = await Message.getGroupMessage(friendId);
-            console.log(data)
             res.status(200).send({ status: "success", message: data })
         } else {
             const data = await Message.getMessage(myId, friendId);
-            console.log(data)
             res.status(200).send({ message: data })
         }
     } catch (err) {
@@ -44,7 +42,7 @@ router.get("/friend_status", async (req, res) => {
         if (isFriend.length !== 0) {
             res.send({ status: "success" })
         } else {
-            res.send({ status: "error", message: "需要雙方都為好友才能撥打" })
+            res.status(400).send({ status: "error", message: "需要雙方都為好友才能撥打" })
         }
     } catch (err) {
         res.status(500).send({ status: "error", message: "內部伺服器出現錯誤" });
@@ -57,13 +55,10 @@ router.get("/api/latest_group_message", async (req, res) => {
         const token = req.signedCookies.access_token;
         const userId = jwt.decode(token, secretKey).userId;
         const data = await Message.getGroupLatestMessage(userId);
-        res.send({ status: "success", data: data })
+        res.status(200).send({ status: "success", data: data })
     } catch (err) {
         res.status(500).send({ status: "error", message: "內部伺服器出現錯誤" });
     }
-
-
-
 })
 
 
@@ -73,7 +68,7 @@ router.get("/api/latest_message", async (req, res) => {
         const token = req.signedCookies.access_token;
         const userId = jwt.decode(token, secretKey).userId;
         const result = await Message.getLatestMessage(userId);
-        res.send(result);
+        res.status(200).send(result);
     } catch (err) {
         res.status(500).send({ status: "error", message: "內部伺服器出現錯誤" });
     }
@@ -179,7 +174,6 @@ router.post("/file", async (req, res) => {
             ContentEncoding: 'base64',
             ContentType: req.body.totalTypeData
         };
-        console.log(params.Key)
         s3.upload(params, (err, data) => {
             if (err) {
                 res.send({
