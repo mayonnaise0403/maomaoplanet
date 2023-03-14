@@ -64,28 +64,32 @@ router.delete("/signout", (req, res) => {
 
 router.post("/login", async (req, res) => {
     try {
-
-        const isLogin = await Login.checkLogin(req.body.email, req.body.password);
-        if (isLogin) {
-            const data = await getData(req.body.email, req.body.password);
-            const payload = {
-                email: req.body.email,
-                nickname: data.nickname,
-                userId: data.userId
-            };
-            const options = { expiresIn: '24h' };
-            const token = jwt.sign(payload, secretKey, options);
-            try {
-                res.cookie('access_token', token, { signed: true, httpOnly: true, expires: new Date(Date.now() + 3600000 * 24 * 7) });
-            } catch (err) {
-                console.log(err)
+        if (req.body.email && req.body.password) {
+            const isLogin = await Login.checkLogin(req.body.email, req.body.password);
+            if (isLogin) {
+                const data = await getData(req.body.email, req.body.password);
+                const payload = {
+                    email: req.body.email,
+                    nickname: data.nickname,
+                    userId: data.userId
+                };
+                const options = { expiresIn: '24h' };
+                const token = jwt.sign(payload, secretKey, options);
+                try {
+                    res.cookie('access_token', token, { signed: true, httpOnly: true, expires: new Date(Date.now() + 3600000 * 24 * 7) });
+                } catch (err) {
+                    console.log(err)
+                }
+                res.status(200).send({ status: "success", message: "登入成功", "nickname": isLogin.nickname });
+            } else {
+                res.status(400).send({ status: "error", message: "無此用戶" });
             }
-            res.status(200).send({ status: "success", "message": "登入成功", "nickname": isLogin.nickname });
         } else {
-            res.status(400).send({ status: "error", "message": "無此用戶" });
+            res.status(400).send({ status: "error", message: "不可為空" });
         }
+
     } catch (err) {
-        res.status(500).send({ "status": "error", "message": "內部伺服器出現錯誤" });
+        res.status(500).send({ status: "error", message: "內部伺服器出現錯誤" });
     }
 });
 
@@ -176,7 +180,7 @@ async function AddSignupData(nickname, email, password) {
     await Signup.addSignupData(nickname, email, password);
 }
 
-module.exports = router;
+module.exports = { router, getData };
 
 
 
