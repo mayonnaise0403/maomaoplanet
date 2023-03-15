@@ -88,7 +88,6 @@ addUserToGroupCloseBtn.addEventListener("click", () => {
     const addUserToGroupFriendList = document.querySelector(".add-user-to-group-friendlist");
     addNewUserContainer.style.display = "none";
     groupMemberPopup.style.display = "none";
-    console.log(addUserToGroupFriendList)
     while (addUserToGroupFriendList.firstChild) {
         addUserToGroupFriendList.firstChild.remove();
     }
@@ -105,7 +104,6 @@ addNewUserToGroupBtn.addEventListener("click", () => {
                 return response.json();
             })
             .then((data) => {
-                console.log(data)
                 if (data.status === "error") {
                     errorMessage.style.display = "block";
                     errorMessage.innerHTML = data.message;
@@ -143,7 +141,6 @@ addNewUserToGroupBtn.addEventListener("click", () => {
                         newDiv.appendChild(newImg);
 
                         newImg.addEventListener("click", (e) => {
-                            console.log(element.user_id)
                             e.target.parentNode.style.display = "none";
                             fetch("/new_group_user", {
                                 method: "POST",
@@ -253,7 +250,6 @@ chatPopupPictureAndVideo.addEventListener("click", () => {
                 return response.json();
             })
             .then((data) => {
-                console.log(data)
                 if (data.status === "error") {
                     errorMessage.style.display = "block";
                     errorMessage.innerHTML = data.message;
@@ -349,13 +345,10 @@ uploadFileInput.addEventListener("change", () => {
         } else {
             isSizeOk = true;
         }
-        console.log(size)
-        console.log(isSizeOk)
         if (isSizeOk) {
             fileUploadLoading.style.display = "block";
             fileUploadLoading.style.display = "flex";
             const reader = new FileReader();
-            console.log(bytesToSize(fileSize))
             if (type.substring(0, type.indexOf("/")) === "video") {
 
 

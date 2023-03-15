@@ -89,7 +89,6 @@ class Update {
         try {
             mysqlQuery = 'INSERT INTO group_member(group_id, member_id) VALUES (?, ?);';
             for (const memberId of groupMemberIdArr) {
-                console.log(memberId)
                 values = [groupId, memberId];
                 await pool.query(mysqlQuery, values, (error, results) => {
                     if (error) {

@@ -7,6 +7,7 @@ let Update = require("../models/update_data").Update;
 let Search = require("../models/search").Search;
 const AWS = require('aws-sdk');
 
+
 const secretKey = process.env.Jwt_Secrect_Key;
 Update = new Update();
 Search = new Search();
@@ -83,13 +84,11 @@ router.put("/group_headshot", async (req, res) => {
         )
 
         const type = image.split(';')[0].split('/')[1];
-        console.log(0)
         AWS.config.update({
             accessKeyId: process.env.AWS_ACCESS_KEY_ID,
             secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
             region: 'ap-northeast-1'
         });
-        console.log(1)
         const s3 = new AWS.S3();
         const params = {
             Bucket: 'maomaoimage/group_headshot',
@@ -104,9 +103,7 @@ router.put("/group_headshot", async (req, res) => {
                 res.send({
                     status: "error"
                 })
-            }
-            else {
-                console.log("here")
+            } else {
                 //update database
                 const isSuccess = await Update.updateGroupHeadshot(groupId, `${process.env.S3}group_headshot/${groupId}`);
                 if (isSuccess) {
@@ -119,10 +116,7 @@ router.put("/group_headshot", async (req, res) => {
                         status: "error", message: "更新失敗"
                     })
                 }
-
             }
-
-
         })
     } catch (err) {
         res.status(500).send({ status: "error", message: "內部伺服器出現錯誤" });

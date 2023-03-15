@@ -272,7 +272,6 @@ function createChatList(data, container) {
 
             //跳出是否要加陌生人好友
             if (clickedDiv.querySelector(".stranger-icon") || event.target.className === "stranger-icon") {
-                console.log("here")
                 isAddFriendPopup.style.display = "block";
             }
 

@@ -276,7 +276,6 @@ socket.on("receive-message", (msg) => {
         } else {
             //顯示未讀通知
             let isHaveUnReadMsg = historyMsg.parentNode.parentNode;
-            console.log(isHaveUnReadMsg)
             if (!isHaveUnReadMsg.querySelector(".new-message-icon")) {
                 newImg = document.createElement("img");
                 newImg.src = "./images/new-message.png";
@@ -579,7 +578,6 @@ messageInput.addEventListener("keyup", (e) => {
             }
         }
         else if (englishWord) {
-            console.log(englishWord.length)
             if (messageInput.value.length === englishWord.length) {
                 if (!isGroup) {
                     sendMsgInSingle();
@@ -782,8 +780,6 @@ function chatFile(element, date, isSelf, is_read = 0, is_group = false) {
             newDiv.className = 'group-member-headshot-nickname';
             message.appendChild(newDiv);
             let groupMember = document.querySelectorAll(".group-member-headshot-nickname");
-
-            console.log()
             if (groupMember.length === 1 || prevSenderId !== element.sender_id || message.lastElementChild.previousElementSibling.className === "chat-message-date") {
                 newImg = document.createElement("img");
                 newImg.src = element.sender_headshot;
@@ -1188,7 +1184,6 @@ async function sendMsgInSingle(fileName = "") {
                 }
             } else {
                 while (chatListContainer.firstChild) {
-                    console.log("remove firstChild")
                     chatListContainer.removeChild(chatListContainer.firstChild);
                 }
                 setTimeout(() => {
@@ -1217,7 +1212,6 @@ async function sendMsgInSingle(fileName = "") {
 
         } else {
             while (chatListContainer.firstChild) {
-                console.log("remove firstChild")
                 chatListContainer.removeChild(chatListContainer.firstChild);
             }
             setTimeout(() => {
@@ -1312,8 +1306,6 @@ async function sendMsgInGroup(fileName = "") {
                 }
             } else {
                 while (groupChatListContainer.firstChild) {
-                    console.log("remove firstChild")
-                    console.log(groupChatListContainer.firstChild)
                     groupChatListContainer.removeChild(groupChatListContainer.firstChild);
                 }
                 setTimeout(() => {
@@ -1339,7 +1331,6 @@ async function sendMsgInGroup(fileName = "") {
 
         } else {
             while (groupChatListContainer.firstChild) {
-                console.log("remove firstChild")
                 groupChatListContainer.removeChild(groupChatListContainer.firstChild);
             }
             setTimeout(() => {

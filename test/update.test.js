@@ -7,8 +7,10 @@ const referee = require("@sinonjs/referee");
 const app = require("../server");
 const jwt = require('jsonwebtoken');
 
+
 const assert = referee.assert;
 jest.mock('jsonwebtoken');
+
 
 describe("POST /group", () => {
     let sandbox = sinon.createSandbox();
