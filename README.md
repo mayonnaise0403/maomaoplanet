@@ -67,6 +67,7 @@ test account
 
 
 * Account registration requires email verification.
+* Writing unit test for some APIs
 * User authentication with Json Web Token.
 * MySQL(AWS RDS): Using connection pool to reduce connection cost and using Databases of Normalization.
 * AJAX: fetch RESTful APIs from backend.
@@ -95,7 +96,9 @@ test account
 * RESTful APIs
 * Nginx
 
+## Test
 
+* Unit test: Jest, Sinon, Supertest
 
 ## Frontend
 * JavaScript
