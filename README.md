@@ -16,9 +16,9 @@ test account
 <br/>
 
 
-| Account  	| test@test.com |
-|-----------|---------------|
-|  Password |test           |
+| Account  	| test@test.com | spongebob@gmail.com| patrickstar@gmail.com|
+|-----------|---------------|--------------------|----------------------
+|  Password |test           | spongebob          | patrickstar|
 
 
 
