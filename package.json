@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@sinonjs/referee": "^10.0.0",
     "aws-sdk": "^2.1290.0",
     "body-parser": "^1.20.1",
     "chai": "^4.3.7",
@@ -40,6 +41,7 @@
     "ws": "^8.12.0"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.20.2",
     "jest": "^29.5.0",
     "mocha": "^10.2.0",
     "nodemon": "^2.0.20",

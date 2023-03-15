@@ -39,6 +39,8 @@ router.post("/new_group_user", async (req, res) => {
 
 })
 
+
+
 router.put("/group_name", async (req, res) => {
     try {
         const isSuccess = await Update.updateGroupName(req.body.groupId, req.body.groupName);
@@ -127,10 +129,7 @@ router.put("/group_headshot", async (req, res) => {
         res.status(500).send({ status: "error", message: "內部伺服器出現錯誤" });
     }
 
-
-
 })
-
 
 
 

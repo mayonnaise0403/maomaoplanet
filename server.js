@@ -74,16 +74,16 @@ io.on('connection', (socket) => {
 
 
 
-    socket.on("send-message-to-group", async (package) => {
+    socket.on("send-message-to-group", async (pack) => {
         const token = socket.request.signedCookies.access_token;
         const selfId = jwt.verify(token, secretKey).userId;
-        const MemberIdArr = await Search.getGroupMemberId(package.group_id);
-        await Message.storeGroupMessage(package.sender_id, package.group_id, package.message);
-        await Message.deleteIsReadStatus(package.group_id);
+        const MemberIdArr = await Search.getGroupMemberId(pack.group_id);
+        await Message.storeGroupMessage(pack.sender_id, pack.group_id, pack.message);
+        await Message.deleteIsReadStatus(pack.group_id);
 
         MemberIdArr.forEach(element => {
             if (element.member_id !== parseInt(selfId)) {
-                socket.to(`user${element.member_id}`).emit("receive-group-message", package);
+                socket.to(`user${element.member_id}`).emit("receive-group-message", pack);
             }
         })
     })
@@ -92,11 +92,11 @@ io.on('connection', (socket) => {
         socket.to(room).emit("receive-read-message")
     })
 
-    socket.on('group-read-message', async (package) => {
+    socket.on('group-read-message', async (pack) => {
         const token = socket.request.signedCookies.access_token;
         const selfId = jwt.verify(token, secretKey).userId;
-        const MemberIdArr = await Search.getGroupMemberId(package.group_id);
-        const hadReadCount = await Message.getIsReadCount(package.group_id);
+        const MemberIdArr = await Search.getGroupMemberId(pack.group_id);
+        const hadReadCount = await Message.getIsReadCount(pack.group_id);
 
 
         MemberIdArr.forEach(element => {
@@ -108,14 +108,14 @@ io.on('connection', (socket) => {
     })
 
     //加入通話
-    socket.on("join", (roomName, package, peerId) => {
+    socket.on("join", (roomName, pack, peerId) => {
         const token = socket.request.signedCookies.access_token;
         const senderId = jwt.verify(token, secretKey).userId;
         socket.join(roomName);
         console.log("i join roomname:", roomName)
         let userId = roomName.substring(roomName.indexOf("and"));
         userId = userId.replace("and", "")
-        socket.to(`user${userId}`).emit("invite-join-call", roomName, package, senderId, peerId)
+        socket.to(`user${userId}`).emit("invite-join-call", roomName, pack, senderId, peerId)
     })
 
     socket.on("join-group-call", async (groupId, peerId) => {
@@ -249,9 +249,13 @@ app.get("/", (req, res) => {
 
 
 
+
 http.listen(port, (err) => {
     if (err) {
         console.log("error");
     }
     console.log("success");
 })
+
+
+module.exports = app;
