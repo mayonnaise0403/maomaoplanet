@@ -15,7 +15,7 @@ const secretKey = process.env.Jwt_Secrect_Key;
 router.use(cookieParser(process.env.COOKIE_SECRET));
 router.use(bodyParser.json());
 
-console.log(process.env.COOKIE_SECRET)
+
 
 
 Signup = new Signup();
