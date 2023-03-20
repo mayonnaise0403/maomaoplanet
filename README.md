@@ -110,7 +110,7 @@ test account
 
 ## Backend Architecture
 
-![](static/images/fotor_2023-3-11_12_32_2.png)
+![](static/images/fotor_2023-3-20_13_21_55.png)
 
 
 ## Contact
