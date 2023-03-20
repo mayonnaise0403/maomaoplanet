@@ -24,7 +24,8 @@ videoList.style.display = "none";
 stickerPopup.style.visibility = "hidden";
 chatPopupSettingContainer.style.visibility = "hidden";
 addNewUserContainer.style.display = "none"
-
+changeGroupNameBtn.style.display = "none";
+leaveGroupBtn.style.display = "none";
 //點擊傳送貼圖
 stickerBtn.addEventListener("click", (e) => {
     if (stickerPopup.style.visibility === "hidden") {

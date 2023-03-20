@@ -505,9 +505,10 @@ chatCloseBtn.addEventListener("click", () => {
     isAddFriendPopup.style.display = "none";
     groupMemberIcon.style.display = "none";
     changeGroupHeadshotBtn.style.display = "none";
-    chatPopupSettingContainer.style.visibility = "hidden";
     changeGroupNameBtn.style.display = "none";
     leaveGroupBtn.style.display = "none";
+    chatPopupSettingContainer.style.visibility = "hidden";
+
 
 
 

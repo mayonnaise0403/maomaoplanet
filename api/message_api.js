@@ -31,7 +31,6 @@ router.post("/api/message", async (req, res) => {
     } catch (err) {
         res.status(500).send({ status: "error", message: "內部伺服器出現錯誤" });
     }
-
 })
 
 router.get("/friend_status", async (req, res) => {
@@ -47,7 +46,6 @@ router.get("/friend_status", async (req, res) => {
     } catch (err) {
         res.status(500).send({ status: "error", message: "內部伺服器出現錯誤" });
     }
-
 })
 
 router.get("/api/latest_group_message", async (req, res) => {
@@ -72,8 +70,6 @@ router.get("/api/latest_message", async (req, res) => {
     } catch (err) {
         res.status(500).send({ status: "error", message: "內部伺服器出現錯誤" });
     }
-
-
 })
 
 
@@ -88,8 +84,6 @@ router.put("/message_status", async (req, res) => {
     } catch (err) {
         res.status(500).send({ status: "error", message: "內部伺服器出現錯誤" });
     }
-
-
 })
 
 router.put("/group_message_status", async (req, res) => {
@@ -101,7 +95,6 @@ router.put("/group_message_status", async (req, res) => {
     } catch (err) {
         res.status(500).send({ status: "error", message: "內部伺服器出現錯誤" });
     }
-
 })
 
 router.post("/chat_picture", async (req, res) => {
@@ -113,8 +106,6 @@ router.post("/chat_picture", async (req, res) => {
     } catch (err) {
         res.status(500).send({ status: "error", message: "內部伺服器出現錯誤" });
     }
-
-
 })
 
 router.get("/group_picture", async (req, res) => {
@@ -124,7 +115,6 @@ router.get("/group_picture", async (req, res) => {
     } catch (err) {
         res.status(500).send({ status: "error", message: "內部伺服器出現錯誤" });
     }
-
 })
 
 router.post("/file", async (req, res) => {
