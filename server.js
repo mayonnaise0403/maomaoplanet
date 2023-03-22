@@ -63,6 +63,15 @@ io.use((socket, next) => {
     cookieParser(process.env.COOKIE_SECRET)(socket.request, {}, next);
 });
 
+process.on('uncaughtException', (err, origin) => {
+    //code to log the errors
+    console.log(
+        `Caught exception: ${err}\n` +
+        `Exception origin: ${origin}`,
+    );
+});
+
+
 io.on('connection', (socket) => {
 
 
