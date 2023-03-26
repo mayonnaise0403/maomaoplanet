@@ -567,38 +567,21 @@ snedMessage.addEventListener("click", async (e) => {
 messageInput.addEventListener("keyup", (e) => {
     const isGroup = isNaN(friendChatId);
     if (e.keyCode === 13) {
-        let englishWord = messageInput.value.match(/[A-Za-z]/g);
-        let symbolRegex = messageInput.value.match(/[^\u4e00-\u9fa5\w]/g);
-        let numberRegex = messageInput.value.match(/[0-9]/g);
-        if (symbolRegex) {
-            if (messageInput.value.length === symbolRegex.length) {
-                if (!isGroup) {
-                    sendMsgInSingle();
-                } else {
-                    sendMsgInGroup();
-                }
-            }
+        let englishWord = symbolRegex = numberRegex = [];
+        if (messageInput.value.match(/[A-Za-z]/g)) {
+            console.log("hi1")
+            englishWord = messageInput.value.match(/[A-Za-z]/g);
         }
-        else if (englishWord) {
-            if (messageInput.value.length === englishWord.length) {
-                if (!isGroup) {
-                    sendMsgInSingle();
-                } else {
-                    sendMsgInGroup();
-                }
-            }
+        if (messageInput.value.match(/[^\u4e00-\u9fa5\w]/g)) {
+            console.log("hi2")
+            symbolRegex = messageInput.value.match(/[^\u4e00-\u9fa5\w]/g);
+        }
+        if (messageInput.value.match(/[0-9]/g)) {
+            console.log("hi3")
+            numberRegex = messageInput.value.match(/[0-9]/g);
+        }
 
-        }
-        else if (numberRegex) {
-            if (messageInput.value.length === numberRegex.length) {
-                if (!isGroup) {
-                    sendMsgInSingle();
-                } else {
-                    sendMsgInGroup();
-                }
-            }
-        }
-        else if (symbolRegex && englishWord && numberRegex) {
+        if (symbolRegex || englishWord || numberRegex) {
             if (messageInput.value.length === (englishWord.length + symbolRegex.length + numberRegex.length)) {
                 if (!isGroup) {
                     sendMsgInSingle();
