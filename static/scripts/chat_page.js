@@ -71,6 +71,11 @@ closeGroupPopup.addEventListener("click", () => {
 createGroupBtn.addEventListener("click", () => {
     const searchUser = document.querySelectorAll(".search-user");
     const hadAddUser = document.querySelectorAll(".had-add-user");
+    const parentDiv = document.querySelector(".chat-message");
+    while (parentDiv.firstChild) {
+        parentDiv.removeChild(parentDiv.firstChild);
+    }
+
     searchUser.forEach(element => {
         element.remove();
     })
